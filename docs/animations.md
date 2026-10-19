@@ -34,7 +34,7 @@ Todas aceitam `title`, `note` (nota de rodapé, ex.: "Ilustração…") e `durat
 | `AgentSwarm` | grade de funções preenchida por N agentes até X% | `agents`, `percent`, `caption` |
 | `ByteCompare` | funções original × recriada, byte a byte; `retry` falha na 1ª tentativa e passa na 2ª (em `retryAt`); último byte em cinza = ignorado | `functions`, `different`, `retry`, `retryAt`, `ignored`, `original`, `recreated`, `result` |
 | `TimelineAnos` | barras "anos × semanas" e pares programa → alternativa | `before`, `after`, `ratio`, `apps: {from,to}[]` |
-| `TerminalAntigo` | janela de terminal antigo digitando comandos que falham (erros em vermelho), cursor piscando e glitch no fim | `lines: {kind: cmd|out|err, text}[]`, `durationSeconds` |
+| `TerminalAntigo` | janela de terminal antigo digitando comandos que falham (erros em vermelho), cursor piscando e glitch no fim | `lines: {kind, text}[]` (kind = cmd, out ou err), `title`, `durationSeconds` |
 
 ```sh
 npx remotion render ReverseFlow ../storage/projects/<slug>/raw/anim_01.mp4 --props='{"durationSeconds":7.4,"steps":["A","B","C"]}'
