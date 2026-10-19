@@ -46,6 +46,9 @@
               export PYTHONPATH="$PWD''${PYTHONPATH:+:$PYTHONPATH}"
               export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath runtimeLibs}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
               [ -f config.toml ] || echo "hint: cp config.example.toml config.toml"
+              # Aviso de atualização (silencioso se em dia ou offline; no máx. 1 consulta a cada 6 h).
+              # Desligue com MPT_NO_UPDATE_CHECK=1.
+              [ -z "''${MPT_NO_UPDATE_CHECK:-}" ] && [ -x ./update.sh ] && ./update.sh --check --quiet || true
               echo "run: uv sync --frozen && ./webui.sh   (add --extra twelvelabs if needed)"
             '';
           };
