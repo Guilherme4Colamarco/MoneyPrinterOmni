@@ -5,6 +5,7 @@ import { HelloChart, helloChartDefaults } from "./HelloChart";
 import { durationMetadata, FPS } from "./lib";
 import { QuoteCard, quoteCardDefaults } from "./QuoteCard";
 import { ReverseFlow, reverseFlowDefaults } from "./ReverseFlow";
+import { TerminalAntigo, terminalAntigoDefaults } from "./TerminalAntigo";
 import { TimelineAnos, timelineAnosDefaults } from "./TimelineAnos";
 
 // Formato do brief (9:16). Para 16:9/1:1 passe --width/--height ao render; os layouts são 9:16.
@@ -70,6 +71,16 @@ export const RemotionRoot: React.FC = () => {
         width={W}
         height={H}
         defaultProps={timelineAnosDefaults}
+        calculateMetadata={durationMetadata}
+      />
+      <Composition
+        id="TerminalAntigo"
+        component={TerminalAntigo}
+        durationInFrames={Math.round(terminalAntigoDefaults.durationSeconds * FPS)}
+        fps={FPS}
+        width={W}
+        height={H}
+        defaultProps={terminalAntigoDefaults}
         calculateMetadata={durationMetadata}
       />
       <Composition
