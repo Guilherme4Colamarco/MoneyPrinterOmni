@@ -25,3 +25,5 @@ Antes de começar, leia `.agents/setup.md`, a ficha do canal (`.agents/canais/<c
 Lista priorizada (maior ganho por segundo primeiro):
 `ideia — por que melhora — fonte — custo em s — o que sairia para caber`.
 No máximo 8 ideias; qualidade antes de quantidade.
+
+Comunicação: siga `.agents/comunicacao.md`.

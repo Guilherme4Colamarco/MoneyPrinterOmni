@@ -39,3 +39,5 @@ Não baixe 1080p nem corte nada: isso é do editor-de-clipes. Use os `kind` e ca
 
 ## Saída
 Tabela `cena | frase(s) | fonte | início–fim | tipo | observação` e a lista de cenas sem material bom.
+
+Comunicação: siga `.agents/comunicacao.md`.

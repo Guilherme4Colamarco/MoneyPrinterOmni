@@ -32,3 +32,5 @@ o vídeo não mostra.
 
 ## Saída
 Lista das thumbnails (arquivo, quadro de origem, texto, por que funciona) e a recomendada.
+
+Comunicação: siga `.agents/comunicacao.md`.

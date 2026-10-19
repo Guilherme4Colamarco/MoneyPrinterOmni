@@ -28,3 +28,5 @@ seção "Embalagem" e "Referências de estilo" (padrões de título dos canais d
 
 ## Saída
 O conteúdo de `publicacao.md` resumido: títulos, primeira linha da descrição, tags.
+
+Comunicação: siga `.agents/comunicacao.md`.

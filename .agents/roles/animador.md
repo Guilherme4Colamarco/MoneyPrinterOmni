@@ -45,3 +45,5 @@ Se faltarem, instale com `npx skills add remotion-dev/skills --skill '*' -a clau
 
 ## Saída
 Lista dos clipes gerados (caminho, duração, resolução) e pendências.
+
+Comunicação: siga `.agents/comunicacao.md`.

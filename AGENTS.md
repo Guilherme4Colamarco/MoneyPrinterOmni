@@ -82,3 +82,7 @@ Fluxo para produzir um vídeo sobre qualquer assunto, do tema ao arquivo final: 
 Para usar: peça ao seu assistente "siga `.agents/skills/video/SKILL.md` para um vídeo sobre <tema>".
 Requisitos do assistente: terminal, busca na web e capacidade de ver imagens (para conferir
 quadros); sem visão, ele deve pedir ao usuário para conferir as prévias.
+
+## Comunicação
+
+Siga `.agents/comunicacao.md` (respostas concisas; wording normal em código, docs, commits e entregas do vídeo; RTK para saída de comandos).

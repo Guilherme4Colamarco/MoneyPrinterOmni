@@ -44,3 +44,5 @@ Trilha: a troca de música cai na virada certa da fala? A música cobre a narra�
 Itens numerados, cada um com: severidade (`bloqueia` / `importante` / `detalhe`), onde
 (frase n ou cena NN), o problema, e o que seria preciso para resolver. Termine com um veredito:
 `APROVADO` ou `REVISAR` (há algum `bloqueia`, ou três ou mais `importante`).
+
+Comunicação: siga `.agents/comunicacao.md`.

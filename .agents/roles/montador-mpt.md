@@ -44,3 +44,5 @@ Voz, velocidade, formato e volume da trilha vêm do brief, da ficha do canal ou 
 
 ## Saída
 Comando usado, task_id, duração do áudio e do vídeo, caminho do arquivo final, avisos do log.
+
+Comunicação: siga `.agents/comunicacao.md`.

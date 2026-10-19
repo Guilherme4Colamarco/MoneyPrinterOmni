@@ -58,3 +58,5 @@ Antes de começar, leia `.agents/setup.md`, a ficha do canal (`.agents/canais/<c
 ## Saída
 Resumo curto: arquivos escritos, contagem de palavras do roteiro, fatos marcados `[1 fonte]`,
 cenas sem vídeo-fonte encontrado, e a sequência de climas da trilha.
+
+Comunicação: siga `.agents/comunicacao.md`.

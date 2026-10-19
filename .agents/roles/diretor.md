@@ -35,3 +35,5 @@ Nunca publique, envie ou agende o vídeo.
 
 ## Saída
 O pacote de aprovação ou o checklist de entrega, com o veredito.
+
+Comunicação: siga `.agents/comunicacao.md`.

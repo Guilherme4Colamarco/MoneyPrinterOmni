@@ -31,3 +31,5 @@ Entrada: `shotlist.json`, `music.json`, `credits.md`, `sources.json`, `output/fi
 ## Formato
 Tabela `item | onde (frase n / cena NN / faixa) | situação | evidência (link) | o que fazer`.
 Termine com o veredito `OK` (nada `distorcido`, `não encontrado` ou de direito pendente) ou `CORRIGIR`.
+
+Comunicação: siga `.agents/comunicacao.md`.

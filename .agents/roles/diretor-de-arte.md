@@ -41,3 +41,5 @@ importante estiver faltando.
 
 ## Saída
 Resumo: paleta, fonte, estilo da legenda, quantidade de textos na tela, ideias de thumbnail.
+
+Comunicação: siga `.agents/comunicacao.md`.

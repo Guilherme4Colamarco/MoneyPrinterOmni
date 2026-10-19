@@ -37,3 +37,5 @@ cacador-de-clipes.
 
 ## Saída
 Lista dos clipes com duração, soma total vs. áudio, e problemas encontrados.
+
+Comunicação: siga `.agents/comunicacao.md`.
