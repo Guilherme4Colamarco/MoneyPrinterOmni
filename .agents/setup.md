@@ -7,38 +7,35 @@ Leia este arquivo antes de começar qualquer etapa.
 
 1. Pedido explícito do usuário na conversa.
 2. `brief.md` do vídeo (`storage/projects/<slug>/brief.md`).
-3. Ficha do canal (`.agents/canais/<canal>.md`), indicada no campo `canal:` do brief.
+3. Perfil do canal (`.agents/perfis/<perfil>.md`), indicado no campo `perfil:` do brief.
 4. Gostos do criador (`.agents/gostos.md`): música, estilo artístico, narração, linguagem.
-5. Ficha do nicho (`.agents/nichos/<nicho>.md`), indicada no campo `nicho:` da ficha do canal.
-6. Este setup (padrões abaixo).
+5. Este setup (padrões abaixo).
 
-Quando duas fontes conflitam, vale a de número menor. Registre no brief qualquer desvio da ficha.
-Exceções que nada sobrescreve: as "Regras fixas" deste setup e os "Cuidados obrigatórios" do nicho.
+Quando duas fontes conflitam, vale a de número menor. Registre no brief qualquer desvio do perfil.
+Exceções que nada sobrescreve: as "Regras fixas" deste setup e os "Cuidados obrigatórios" do perfil.
 
-## Canais
+## Perfis de canal
 
-- Todo vídeo pertence a um canal. Os canais ficam em `.agents/canais/`, um arquivo por canal,
-  copiado de `.agents/canais/_modelo.md`.
-- Se o pedido não disser o canal: com um canal só, use-o; com vários, pergunte qual; sem nenhum,
-  siga com os padrões deste setup e ofereça criar a ficha ao final.
-- A ficha define identidade (nicho, público, tom), padrões de produção (voz, formato, duração,
-  legenda, trilha) e os canais de referência. O brief herda tudo da ficha e só repete o que muda.
+- Todo vídeo pertence a um perfil: o estilo de um canal dark (sem rosto). Os perfis ficam em
+  `.agents/perfis/`, um arquivo por canal, copiado de `.agents/perfis/_modelo.md`.
+- Se o pedido não disser o perfil: com um só, use-o; com vários, pergunte qual (liste nome e
+  público de cada um); sem nenhum, siga com os padrões deste setup e ofereça criar o perfil.
+- O perfil define identidade (assunto, público, tom), narração, roteiro, identidade visual
+  (legenda, fonte, cores, thumbnail), trilha, fontes e imagem, cuidados obrigatórios e os canais
+  de referência. O brief herda tudo do perfil e só repete o que muda.
 - Canais de referência servem para aprender ritmo, gancho, estrutura e edição. Nunca copie
-  roteiro, bordão, vinheta, marca ou trecho de vídeo deles, a menos que a ficha diga que o
+  roteiro, bordão, vinheta, marca ou trecho de vídeo deles, a menos que o perfil diga que o
   material é liberado (ex.: canal do próprio usuário).
-- Quando um vídeo terminar, anote na seção "Histórico" da ficha: data, tema, duração e o que
+- Quando um vídeo terminar, anote na seção "Histórico" do perfil: data, tema, duração e o que
   funcionou ou não (o usuário pode completar com métricas depois).
 
-## Nichos e gostos
+## Gostos
 
-- Cada nicho (`.agents/nichos/`) diz onde buscar informação e imagem, que trilha combina, os
-  cuidados obrigatórios e o que costuma funcionar. Nicho novo: copie `_modelo.md`. Sem nicho
-  definido, escolha o mais próximo e diga qual usou.
 - Os gostos (`.agents/gostos.md`) guiam a escolha de música (gênero e timbre dentro do clima pedido
   pelo roteiro), o visual (estética, cores, legenda, tipo de imagem, ritmo de corte) e a narração.
   Artistas e obras citados ali são referência de clima e estética, nunca material a usar.
 
-## Padrões (quando ficha e brief não dizem)
+## Padrões (quando perfil e brief não dizem)
 
 | Item | Padrão |
 |---|---|
@@ -65,8 +62,8 @@ Exceções que nada sobrescreve: as "Regras fixas" deste setup e os "Cuidados ob
   auditoria de direitos `OK`.
 - **Fechamento com o público:** todo roteiro termina convidando o espectador a **comentar as
   dúvidas** e perguntando se ele quer um **tutorial** do assunto (adapte as palavras ao tema e ao
-  tom do canal; omita só o tutorial quando não fizer sentido). Vale além da "chamada final" da
-  ficha do canal. Em temas de engenharia reversa, o tutorial prometido cobre código próprio,
+  tom do canal; omita só o tutorial quando não fizer sentido). Vale além da "chamada final" do
+  perfil. Em temas de engenharia reversa, o tutorial prometido cobre código próprio,
   interoperabilidade e software aberto, nunca contornar proteções.
 - **Modelo por papel:** ao delegar cada papel a um subagente, escolha o modelo pela função, não
   um só para todos. Modelo pequeno e barato (ex.: Haiku) para trabalho mecânico: operar o CLI,

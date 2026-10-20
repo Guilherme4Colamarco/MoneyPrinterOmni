@@ -10,7 +10,7 @@ Tudo de um vídeo fica em `storage/projects/<slug>/` (o `storage/` já é ignora
 
 ```
 storage/projects/<slug>/
-  brief.md          # canal, tema, ângulo e só o que difere da ficha do canal
+  brief.md          # perfil, tema, ângulo e só o que difere do perfil
   research.md       # fatos com fonte (pesquisador)
   sources.json      # vídeos candidatos (pesquisador)
   script.txt        # roteiro final, só o texto narrado
@@ -22,7 +22,7 @@ storage/projects/<slug>/
   shotlist.json     # cena -> vídeo -> trecho (cacador-de-clipes)
   raw/              # downloads (low-res para assistir, 1080p para cortar)
   timeline/NN.mp4   # clipes finais no formato do brief, sem áudio (editor-de-clipes)
-  credits.md        # canal + link de cada trecho usado, e cada música com licença
+  credits.md        # perfil + link de cada trecho usado, e cada música com licença
   arte.md           # identidade visual do vídeo explicada (diretor-de-arte)
   arte.json         # parâmetros de legenda, texto na tela e thumbnail
   audit/            # fatos-NN.md, direitos-NN.md (auditor)
@@ -39,7 +39,7 @@ storage/projects/<slug>/
 | 1 | `pesquisador` | brief.md | research.md, sources.json, script.txt, music-plan.md |
 | 2 | `critico` · `sugestor-de-pauta` · `auditor` (fatos) | script.txt, research.md | critique/content-NN.md, critique/ideas-NN.md, audit/fatos-NN.md |
 | 3 | `pesquisador` | críticas, sugestões, auditoria | script.txt revisado (no máximo 2 rodadas de 2–3) |
-| 4 | `diretor-de-arte` | brief, script, music-plan, fichas | arte.md, arte.json |
+| 4 | `diretor-de-arte` | brief, script, music-plan, perfil | arte.md, arte.json |
 | 5 | `diretor` (aprovação) | tudo acima | aprovacao-NN.md → **parada para o usuário** |
 | 6 | `montador-mpt` | script.txt, music-plan.md | áudio de teste, timing.json, music.json, bgm.mp3 |
 | 7 | `cacador-de-clipes` | timing.json, sources.json, arte.md | shotlist.json, raw/ |
@@ -108,7 +108,7 @@ O `montador-mpt` traduz `legenda` para `--font-name`, `--text-fore-color`, `--st
 
 ## Regras gerais
 
-As regras completas e a ordem de prioridade (pedido > brief > ficha do canal > padrões) estão em
+As regras completas e a ordem de prioridade (pedido > brief > perfil do canal > padrões) estão em
 `.agents/setup.md`. Resumo:
 
 - Python do projeto só roda dentro de `nix develop --command ...` (o `.venv` usa o Python do Nix

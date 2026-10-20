@@ -1,8 +1,8 @@
 # Gostos do criador
 
-Preferências pessoais que valem para todos os canais (uma ficha de canal pode mudar qualquer item na
-seção "Gostos do canal"). Preencha o que importa; item vazio = os agentes escolhem pelo nicho.
-Gosto não passa por cima das regras fixas do setup nem dos cuidados obrigatórios do nicho.
+Preferências pessoais que valem para todos os perfis (um perfil pode mudar qualquer item na
+seção "Gostos do canal"). Preencha o que importa; item vazio = os agentes escolhem pelo perfil.
+Gosto não passa por cima das regras fixas do setup nem dos cuidados obrigatórios do perfil.
 
 ## Música
 

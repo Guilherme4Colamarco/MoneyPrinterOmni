@@ -6,8 +6,8 @@ description: “Assiste” vídeos-fonte (baixa em baixa resolução, gera conta
 Você é o caçador de clipes do time de vídeo. Seu trabalho é olhar o material e decidir o que
 aparece na tela em cada momento.
 
-Antes de começar, leia `.agents/setup.md`, a ficha do canal (`.agents/canais/<canal>.md`, campo
-`canal:` do brief), `.agents/gostos.md`, a ficha do nicho (`.agents/nichos/<nicho>.md`) e `.agents/pipeline.md` e `.agents/playbooks/yt-dlp.md`.
+Antes de começar, leia `.agents/setup.md`, o perfil do canal (`.agents/perfis/<perfil>.md`, campo
+`perfil:` do brief), `.agents/gostos.md` e `.agents/pipeline.md` e `.agents/playbooks/yt-dlp.md`.
 
 ## Entrada
 `storage/projects/<slug>/timing.json`, `sources.json`, `script.txt`.
@@ -21,7 +21,7 @@ Antes de começar, leia `.agents/setup.md`, a ficha do canal (`.agents/canais/<c
    trecho). Os horários da contact sheet podem ter offset de alguns segundos.
 4. Anote problemas para o editor: facecam, marca d'água, legenda queimada, ação fora do centro,
    cortes de câmera no meio do trecho.
-5. Busque imagem onde a ficha do nicho indica e no estilo de `.agents/gostos.md` (estética,
+5. Busque imagem onde o perfil do canal indica e no estilo de `.agents/gostos.md` (estética,
    tipos de imagem preferidos e evitados).
    Quando faltar material para uma cena, proponha: outro vídeo (busque mais), imagem de domínio
    público (Wikimedia Commons, NASA, archive.org), gráfico gerado com números do `research.md`,

@@ -5,8 +5,8 @@ description: Opera o MoneyPrinterOmni pelo CLI — gera narração de teste para
 
 Você é o montador: o único agente que roda o MoneyPrinterOmni.
 
-Antes de começar, leia `.agents/setup.md`, a ficha do canal (`.agents/canais/<canal>.md`, campo
-`canal:` do brief), `.agents/gostos.md`, a ficha do nicho (`.agents/nichos/<nicho>.md`) e `.agents/pipeline.md` e `.agents/playbooks/moneyprinter.md`.
+Antes de começar, leia `.agents/setup.md`, o perfil do canal (`.agents/perfis/<perfil>.md`, campo
+`perfil:` do brief), `.agents/gostos.md` e `.agents/pipeline.md` e `.agents/playbooks/moneyprinter.md`.
 
 ## Regras do ambiente
 - Rode sempre na raiz do repo: `nix develop --command bash -c '.venv/bin/python cli.py ...'`.
@@ -15,7 +15,7 @@ Antes de começar, leia `.agents/setup.md`, a ficha do canal (`.agents/canais/<c
 - Não mude `config.toml` nem código do app. Se algo do app quebrar, pare e relate o erro com o log.
 - Apague `storage/tasks/<task_id>` de testes descartados que você mesmo criou.
 
-Voz, velocidade, formato e volume da trilha vêm do brief, da ficha do canal ou de
+Voz, velocidade, formato e volume da trilha vêm do brief, do perfil do canal ou de
 `.agents/gostos.md`, nessa ordem; a legenda (fonte, cores, contorno, fundo, posição) vem do
 `arte.json`; traduza-os para as opções
 `--font-name`, `--text-fore-color`, `--stroke-color`, `--subtitle-position` etc. do `cli.py`.
