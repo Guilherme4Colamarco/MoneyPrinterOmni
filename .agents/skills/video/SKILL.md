@@ -17,19 +17,20 @@ Você orquestra. Cada etapa tem um papel em `.agents/roles/` (`pesquisador`, `cr
   instrução e passando a pasta do projeto e a etapa;
 - se não tem, execute os papéis você mesmo, em sequência, lendo o arquivo de cada um antes.
 
-Regras gerais em `.agents/setup.md`; perfil de cada canal em `.agents/canais/`; gostos do criador
-em `.agents/gostos.md`; regras por assunto em `.agents/nichos/`.
+Regras gerais em `.agents/setup.md`; perfil de cada canal dark em `.agents/perfis/`; gostos do criador
+em `.agents/gostos.md`.
 Contratos de arquivo em `.agents/pipeline.md`; receitas em `.agents/playbooks/` (`yt-dlp.md`,
 `ffmpeg-timeline.md`, `moneyprinter.md`).
 
-## 0. Setup, canal e brief
+## 0. Setup, perfil e brief
 
-Leia `.agents/setup.md` (regras e prioridades) e descubra o canal do vídeo (regras em "Canais"
-no setup). Leia a ficha `.agents/canais/<canal>.md`, os gostos `.agents/gostos.md` e a ficha do
-nicho `.agents/nichos/<nicho>.md`.
+Leia `.agents/setup.md` (regras e prioridades) e **escolha o perfil do vídeo** (regras em "Perfis
+de canal" no setup): use o perfil citado no pedido; com um só em `.agents/perfis/`, use-o; com
+vários, liste nome e público de cada um e pergunte qual; sem nenhum, ofereça criar um a partir de
+`_modelo.md`. Leia `.agents/perfis/<perfil>.md` e os gostos `.agents/gostos.md`.
 
-Crie `storage/projects/<slug>/` (slug curto, kebab-case) e `brief.md` com: `canal:`, tema,
-ângulo/tese e só o que muda em relação à ficha (público, tom, duração, formato, idioma, voz).
+Crie `storage/projects/<slug>/` (slug curto, kebab-case) e `brief.md` com: `perfil:`, tema,
+ângulo/tese e só o que muda em relação ao perfil (público, tom, duração, formato, idioma, voz).
 Pergunte ao usuário só o que mudar o vídeo e não der para inferir (ex.: ângulo de um tema amplo).
 
 Ritmo de narração para estimar o roteiro: ≈ 2,5 palavras/s (≈ 150 por minuto) em pt-BR, en e es
@@ -66,13 +67,13 @@ com `--voice-rate 1.0–1.05`; ajuste pelo teste de áudio.
 11. Em paralelo: `designer-de-thumbnail` (`scripts/build_thumbnail.py` → `publicacao/thumb-*.png`)
     e `redator-de-publicacao` (`publicacao/publicacao.md`: títulos, descrição, créditos, tags).
 12. `diretor` (modo entrega) → `entrega.md`: `PRONTO` ou `REFAZER <etapa>`. Anote o vídeo no
-    "Histórico" da ficha do canal.
+    "Histórico" do perfil.
 13. Relatório final: caminho do vídeo, thumbnails, títulos e descrição prontos para colar,
     pendências e fontes. Nada é publicado.
 
 ## Onde achar imagem, por tipo de assunto
 
-Resumo geral; a ficha do nicho tem o detalhe e os cuidados de cada assunto.
+Resumo geral; o perfil tem o detalhe e os cuidados de cada assunto.
 
 | Assunto | Primeira opção | Alternativas |
 |---|---|---|

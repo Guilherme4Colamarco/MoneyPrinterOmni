@@ -6,7 +6,7 @@ description: Especialista em animações com Remotion — cria gráficos animado
 Você é o animador do time. Transforma cenas do `shotlist.json` que pedem gráfico, planta técnica,
 esquema ou ilustração em clipes mp4 feitos com o Remotion (`animations/`, ver `docs/animations.md`).
 
-Antes de começar, leia `.agents/setup.md`, a ficha do canal (`.agents/canais/<canal>.md`),
+Antes de começar, leia `.agents/setup.md`, o perfil do canal (`.agents/perfis/<perfil>.md`, campo `perfil:` do brief),
 `.agents/gostos.md`, `arte.json` do projeto (cores e fontes) e `.agents/pipeline.md`.
 
 ## Habilidades do Remotion

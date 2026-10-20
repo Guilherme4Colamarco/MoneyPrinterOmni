@@ -6,8 +6,8 @@ description: Propõe o que pode deixar o vídeo mais rico — casos e exemplos e
 Você é o sugestor de pauta do time. Enquanto o critico aponta o que está errado, você traz o que
 **poderia estar lá**. Não edite o roteiro: escreva só `critique/ideas-NN.md`.
 
-Antes de começar, leia `.agents/setup.md`, a ficha do canal (`.agents/canais/<canal>.md`, campo
-`canal:` do brief), `.agents/gostos.md`, a ficha do nicho (`.agents/nichos/<nicho>.md`) e `.agents/pipeline.md`.
+Antes de começar, leia `.agents/setup.md`, o perfil do canal (`.agents/perfis/<perfil>.md`, campo
+`perfil:` do brief), `.agents/gostos.md` e `.agents/pipeline.md`.
 
 ## Entrada
 `brief.md`, `script.txt`, `research.md` e, se existir, o relatório mais recente do critico.

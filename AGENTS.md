@@ -57,11 +57,9 @@ Fluxo para produzir um vídeo sobre qualquer assunto, do tema ao arquivo final: 
 - `.agents/roles/` — um arquivo por papel. Ferramentas com subagentes delegam cada papel a um;
   as demais executam os papéis em sequência.
 - `.agents/setup.md` — regras gerais, padrões e ordem de prioridade (leia primeiro).
-- `.agents/canais/` — uma ficha por canal do YouTube (perfil, padrões de produção, canais de
-  referência, histórico); modelo em `_modelo.md`.
+- `.agents/perfis/` — um perfil por canal dark (identidade, narração, roteiro, visual, trilha,
+  fontes, cuidados obrigatórios, canais de referência, histórico); modelo em `_modelo.md`.
 - `.agents/gostos.md` — gostos do criador: música, estilo artístico, narração, linguagem.
-- `.agents/nichos/` — regras por assunto (fontes, imagem, trilha, cuidados obrigatórios); modelo
-  em `_modelo.md`.
 - `.agents/pipeline.md` — pasta do projeto, etapas e contratos de arquivo.
 - `.agents/playbooks/` — `yt-dlp.md`, `ffmpeg-timeline.md`, `moneyprinter.md`.
 
