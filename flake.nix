@@ -13,7 +13,7 @@
       # credentials are read from the process environment at runtime.
       mkMcp = pkgs:
         let
-          mkPinnedNpxMcp = { name, npmSpec, extraInputs ? [ ] }:
+          mkPinnedNpxMcp = { name, npmSpec, extraInputs ? [ ], preamble ? "" }:
             pkgs.writeShellApplication {
               inherit name;
               runtimeInputs = [ pkgs.nodejs_24 ] ++ extraInputs;
@@ -21,6 +21,7 @@
                 export NPM_CONFIG_FUND=false
                 export NPM_CONFIG_AUDIT=false
                 export NPM_CONFIG_UPDATE_NOTIFIER=false
+                ${preamble}
                 exec npx --yes "${npmSpec}" "$@"
               '';
             };
@@ -29,6 +30,13 @@
             name = "yt-dlp-mcp";
             npmSpec = "@kevinwatt/yt-dlp-mcp@0.10.0";
             extraInputs = [ pkgs.yt-dlp pkgs.ffmpeg ];
+            # The server refuses to start unless its downloads dir exists.
+            # Keep secrets out of the store; override at runtime with YTDLP_DOWNLOADS_DIR.
+            preamble = ''
+              : "''${YTDLP_DOWNLOADS_DIR:=''${XDG_CACHE_HOME:-$HOME/.cache}/yt-dlp-mcp}"
+              export YTDLP_DOWNLOADS_DIR
+              mkdir -p "$YTDLP_DOWNLOADS_DIR"
+            '';
           };
 
           reddit-mcp-buddy = mkPinnedNpxMcp {

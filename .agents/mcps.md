@@ -32,8 +32,10 @@ Opcional (sobe o limite de taxa): `REDDIT_USERNAME`, `REDDIT_PASSWORD`. Crie o a
 https://www.reddit.com/prefs/apps (tipo **script**). Nada disso vai para o `flake.nix`, para
 `.claude/.mcp.json` nem para o git.
 
-yt-dlp-mcp não precisa de chave. Cookies (`YTDLP_COOKIES_*`) são opcionais e também só no env;
-o playbook pede para pular vídeo com “sign in”, não para pedir cookies.
+yt-dlp-mcp não precisa de chave. O wrapper cria `${XDG_CACHE_HOME:-$HOME/.cache}/yt-dlp-mcp`
+se `YTDLP_DOWNLOADS_DIR` não estiver definido (o servidor recusa subir sem esse diretório).
+Cookies (`YTDLP_COOKIES_*`) são opcionais e também só no env; o playbook pede para pular vídeo
+com “sign in”, não para pedir cookies.
 
 ## Pendente (sem MCP zero-login confiável)
 
