@@ -45,3 +45,6 @@ htmlcov/
 
 # Claude Code 订阅令牌（docker compose 自动读取），禁止提交
 .env
+
+# Gerado pelo nix develop (caminhos do Nix store; não commitá-los)
+.claude/.mcp.json

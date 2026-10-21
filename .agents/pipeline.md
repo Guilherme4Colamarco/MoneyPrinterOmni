@@ -4,6 +4,9 @@ Fluxo usado pela skill `video` (`.agents/skills/video/SKILL.md`), para qualquer 
 assistente de IA. Cada papel (`.agents/roles/`) lê este arquivo e os playbooks em
 `.agents/playbooks/` antes de começar — seja executado por um subagente ou pela própria IA, em sequência.
 
+Servidores MCP livres do `nix develop` (vídeo por URL, Reddit sem chave, e o que ainda falta):
+`.agents/mcps.md`.
+
 ## Pasta do projeto
 
 Tudo de um vídeo fica em `storage/projects/<slug>/` (o `storage/` já é ignorado pelo git):
