@@ -61,7 +61,12 @@ Fluxo para produzir um vídeo sobre qualquer assunto, do tema ao arquivo final: 
   fontes, cuidados obrigatórios, canais de referência, histórico); modelo em `_modelo.md`.
 - `.agents/gostos.md` — gostos do criador: música, estilo artístico, narração, linguagem.
 - `.agents/pipeline.md` — pasta do projeto, etapas e contratos de arquivo.
-- `.agents/playbooks/` — `yt-dlp.md`, `ffmpeg-timeline.md`, `moneyprinter.md`.
+- `.agents/playbooks/` — `yt-dlp.md`, `redes-sociais.md`, `ffmpeg-timeline.md`, `moneyprinter.md`.
+- `.mcp.json` — servidores MCP gratuitos e só de leitura para redes sociais: `yt-dlp` (metadados e
+  download de X, TikTok, Instagram, Reddit), `reddit` (anônimo) e `apify` (Instagram/TikTok, exige
+  `APIFY_TOKEN`). Segredos só por variável de ambiente (`${VAR}`), nunca no git; o Claude Code
+  habilita e restringe em `.claude/settings.json` (escrita e publicação bloqueadas). Outros
+  assistentes copiam as entradas para a própria config de MCP.
 
 | Papel | Função |
 |---|---|
@@ -79,4 +84,5 @@ Fluxo para produzir um vídeo sobre qualquer assunto, do tema ao arquivo final: 
 
 Para usar: peça ao seu assistente "siga `.agents/skills/video/SKILL.md` para um vídeo sobre <tema>".
 Requisitos do assistente: terminal, busca na web e capacidade de ver imagens (para conferir
-quadros); sem visão, ele deve pedir ao usuário para conferir as prévias.
+quadros); sem visão, ele deve pedir ao usuário para conferir as prévias. MCP é opcional: sem ele,
+`redes-sociais.md` indica o caminho pelo `yt-dlp` e pela busca na web.

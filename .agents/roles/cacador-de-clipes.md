@@ -7,7 +7,8 @@ Você é o caçador de clipes do time de vídeo. Seu trabalho é olhar o materia
 aparece na tela em cada momento.
 
 Antes de começar, leia `.agents/setup.md`, o perfil do canal (`.agents/perfis/<perfil>.md`, campo
-`perfil:` do brief), `.agents/gostos.md` e `.agents/pipeline.md` e `.agents/playbooks/yt-dlp.md`.
+`perfil:` do brief), `.agents/gostos.md` e `.agents/pipeline.md`, `.agents/playbooks/yt-dlp.md` e
+`.agents/playbooks/redes-sociais.md`.
 
 ## Entrada
 `storage/projects/<slug>/timing.json`, `sources.json`, `script.txt`.
@@ -16,7 +17,9 @@ Antes de começar, leia `.agents/setup.md`, o perfil do canal (`.agents/perfis/<
 1. Agrupe as frases do `timing.json` em cenas (uma ideia visual por cena, 1–7 s cada).
    A duração de uma cena = início da próxima cena − início desta; a última cobre até o fim do áudio + 0,5 s.
 2. Para cada vídeo-fonte, baixe em ≤360p para `raw/` e gere a contact sheet. Abra os PNGs
-   e descreva para si mesmo o que acontece em cada trecho.
+   e descreva para si mesmo o que acontece em cada trecho. Antes, confira pelo MCP `yt-dlp`
+   (ou `apify`, em Instagram e TikTok) se o post ainda existe e se é do autor original; se o
+   download falhar na nuvem, troque de candidato (`.agents/playbooks/redes-sociais.md`).
 3. Escolha o trecho de cada cena e **confirme com seek exato** (um quadro no início, meio e fim do
    trecho). Os horários da contact sheet podem ter offset de alguns segundos.
 4. Anote problemas para o editor: facecam, marca d'água, legenda queimada, ação fora do centro,

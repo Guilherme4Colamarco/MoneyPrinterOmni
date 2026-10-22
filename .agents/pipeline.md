@@ -54,11 +54,16 @@ Etapas com `·` rodam em paralelo. Reprovação no 10 volta para 7/8 (no máximo
 
 ## Contratos
 
-`sources.json` (`type`: video | image | stock | chart | user; `license`: domínio público, CC-BY, stock, terceiro…):
+`sources.json` (`type`: video | image | stock | chart | user; `license`: domínio público, CC-BY, stock, terceiro…).
+Para post de rede social, campos opcionais `platform` (youtube | x | tiktok | instagram | reddit),
+`author` (@handle), `posted_at` (AAAA-MM-DD) e `via` (`mcp:yt-dlp`, `mcp:reddit`, `mcp:apify`, `yt-dlp`, `web`):
 ```json
 [{"id": "fpsq2MyWznc", "url": "https://www.youtube.com/watch?v=fpsq2MyWznc",
   "type": "video", "channel": "DryxioGTA", "license": "terceiro (trecho curto)",
-  "duration": "1:40", "covers": ["bloco 2: portais entre os jogos"]}]
+  "duration": "1:40", "covers": ["bloco 2: portais entre os jogos"]},
+ {"id": "1732824684683784516", "url": "https://x.com/SpaceX/status/1732824684683784516",
+  "type": "video", "platform": "x", "author": "@SpaceX", "posted_at": "2023-12-07", "via": "mcp:yt-dlp",
+  "license": "terceiro (trecho curto)", "duration": "1:54", "covers": ["bloco 1: lançamento"]}]
 ```
 
 `timing.json` (um item por linha da SRT):
