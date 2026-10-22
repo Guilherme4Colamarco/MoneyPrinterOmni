@@ -1,0 +1,259 @@
+{
+  "nodes": [
+    {
+      "id": "c95e3dd9ec923045",
+      "type": "group",
+      "label": "Modo mudança (instável)",
+      "x": -30,
+      "y": -50,
+      "width": 3580,
+      "height": 220,
+      "color": "2"
+    },
+    {
+      "id": "a1213419a0c503fc",
+      "type": "group",
+      "label": "Modo auditoria (instável)",
+      "x": -30,
+      "y": 350,
+      "width": 1180,
+      "height": 220,
+      "color": "2"
+    },
+    {
+      "id": "c95e3dd9ec923045",
+      "type": "text",
+      "text": "# Mudança\n`pedido.md` → `arquiteto` → `plano.md`",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "a3218734457b9a9b",
+      "type": "text",
+      "text": "## Mexe em API, schema, config, dependência ou +5 arquivos?",
+      "x": 400,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "d018268506e28685",
+      "type": "text",
+      "text": "## Parada\nO usuário aprova o plano",
+      "x": 800,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "83f1535f99ab0bf4",
+      "type": "text",
+      "text": "## testador (reprodução)\nteste que falha; só em bug",
+      "x": 1200,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "e77989ed21758e78",
+      "type": "text",
+      "text": "## desenvolvedor\ncódigo na camada de serviço; ruff e testes da área; `mudancas-NN.md`",
+      "x": 1600,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "0f826a89cf68c399",
+      "type": "text",
+      "text": "## testador (cobertura)\nsuíte inteira e cobertura; `testes-NN.md`",
+      "x": 2000,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "48cd7517d21176f9",
+      "type": "text",
+      "text": "## revisor-de-codigo + auditor-de-seguranca\nem paralelo: `revisao-NN.md`, `seguranca-NN.md`",
+      "x": 2400,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "a585257a5b4d06da",
+      "type": "text",
+      "text": "## REVISAR?\nbloqueia, ou 3+ importante (máx. 2 rodadas)",
+      "x": 2800,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "7ffc4d510260a854",
+      "type": "text",
+      "text": "## Relatório\narquivos, saída do CI, vereditos. Sem commit.",
+      "x": 3200,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "a1213419a0c503fc",
+      "type": "text",
+      "text": "# Auditoria\n`auditor-de-saude` → `saude.md`\n`auditor-de-seguranca` → `seguranca-01.md`",
+      "x": 0,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "ecd2ec43c588ae01",
+      "type": "text",
+      "text": "## Lista priorizada\nPARADA: o usuário escolhe os itens",
+      "x": 400,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "447b7147e84be512",
+      "type": "text",
+      "text": "## Item aprovado\nvira um modo mudança, com o item como pedido",
+      "x": 800,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "5d8d1cb9136777c8",
+      "type": "text",
+      "text": "## Pesquisa de integração e harness\n`pesquisador-de-integracoes` (não instala) · `mantenedor-do-harness`",
+      "x": 1200,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    }
+  ],
+  "edges": [
+    {
+      "id": "ba80ef139c51128f",
+      "fromNode": "c95e3dd9ec923045",
+      "fromSide": "right",
+      "toNode": "a3218734457b9a9b",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "80ff50547d2e4cc9",
+      "fromNode": "a3218734457b9a9b",
+      "fromSide": "right",
+      "toNode": "d018268506e28685",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "sim"
+    },
+    {
+      "id": "9c4fb726f291cb66",
+      "fromNode": "d018268506e28685",
+      "fromSide": "right",
+      "toNode": "83f1535f99ab0bf4",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "aprovado"
+    },
+    {
+      "id": "9cecef9f6ce13c30",
+      "fromNode": "a3218734457b9a9b",
+      "fromSide": "bottom",
+      "toNode": "83f1535f99ab0bf4",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "não"
+    },
+    {
+      "id": "fa972c41fcac7c78",
+      "fromNode": "83f1535f99ab0bf4",
+      "fromSide": "right",
+      "toNode": "e77989ed21758e78",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "617c96977635c108",
+      "fromNode": "e77989ed21758e78",
+      "fromSide": "right",
+      "toNode": "0f826a89cf68c399",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "96c25ee5b1638b00",
+      "fromNode": "0f826a89cf68c399",
+      "fromSide": "right",
+      "toNode": "48cd7517d21176f9",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "c91f10962cb2e666",
+      "fromNode": "48cd7517d21176f9",
+      "fromSide": "right",
+      "toNode": "a585257a5b4d06da",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "ba185a678ffc3a28",
+      "fromNode": "a585257a5b4d06da",
+      "fromSide": "right",
+      "toNode": "7ffc4d510260a854",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "não"
+    },
+    {
+      "id": "68be1d98c2acd531",
+      "fromNode": "a585257a5b4d06da",
+      "fromSide": "bottom",
+      "toNode": "e77989ed21758e78",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "sim: volta (máx. 2)",
+      "color": "1"
+    },
+    {
+      "id": "f69545fd8235a915",
+      "fromNode": "a1213419a0c503fc",
+      "fromSide": "right",
+      "toNode": "ecd2ec43c588ae01",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "b2e1326843f08981",
+      "fromNode": "ecd2ec43c588ae01",
+      "fromSide": "right",
+      "toNode": "447b7147e84be512",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "escolhido"
+    }
+  ]
+}
