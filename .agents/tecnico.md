@@ -25,6 +25,8 @@ Cada tarefa tem a pasta `storage/manutencao/<slug>/` (fora do git, como `storage
 | `revisao-NN.md` | `revisor-de-codigo` | achados de correção e padrão; veredito |
 | `seguranca-NN.md` | `auditor-de-seguranca` | achados de segurança; veredito |
 | `saude.md` | `auditor-de-saude` | auditoria geral do programa (modo auditoria) |
+| `integracoes-NN.md` | `pesquisador-de-integracoes` | candidatos a integrar: fonte, auth, custo, termos, segurança, encaixe, recomendação |
+| `harness-NN.md` | `mantenedor-do-harness` | auditoria do harness: duplicado, desatualizado, sem dono, permissões largas |
 
 `NN` é a rodada (`01`, `02`…). Quem só aponta escreve apenas o seu relatório.
 

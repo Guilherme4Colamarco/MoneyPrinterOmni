@@ -105,6 +105,8 @@ Para mudar ou auditar o código do MoneyPrinterOmni (não para produzir vídeo):
 | `revisor-de-codigo` | revisa o diff: bugs, contratos entre API/WebUI/CLI, padrões; só aponta |
 | `auditor-de-seguranca` | arquivos, subprocess, SSRF, segredos, API e dependências; só aponta |
 | `auditor-de-saude` | CI, cobertura, código morto, dívida técnica, deps e docs; lista priorizada |
+| `pesquisador-de-integracoes` | pesquisa APIs, assinaturas, SDKs e MCPs candidatos (auth, custo, termos, segurança); só relata |
+| `mantenedor-do-harness` | cuida de `AGENTS.md`, `.agents/`, adaptadores, `.mcp.json` e permissões; audita e edita o harness quando pedido |
 
 Para usar: "siga `.agents/skills/manutencao/SKILL.md` para <bug, função ou auditoria>". O time não
 faz commit, push nem PR sem pedido do usuário.
