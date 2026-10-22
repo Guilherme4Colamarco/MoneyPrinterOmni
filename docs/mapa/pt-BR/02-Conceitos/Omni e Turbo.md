@@ -46,7 +46,7 @@ Resultado: `app/paths.py:39-40` (compatibilidade de pasta), `app/services/video.
 
 ## Armadilhas
 
-- **Conflitos previsíveis no merge.** `README.md` e `README-ja.md` (o Omni reescreveu; `README-en.md` foi apagado pelo Omni, enquanto o upstream o editou). `pyproject.toml`: versão (linha 10) e descrição (linha 11) são linhas vizinhas e conflitam. `docs/packaging.md` (linha 3). `webui/Main.py` e `webui/i18n/*.json`. Em todos, mantenha o texto do Omni.
+- **Conflitos previsíveis no merge.** `README.md` e `README-ja.md` (o Omni reescreveu e apagou `README-en.md`; segundo o relatório de divergência, o upstream o editou). `pyproject.toml`: versão (linha 10) e descrição (linha 11) são linhas vizinhas e conflitam. `docs/packaging.md` (linha 3). `webui/Main.py` e `webui/i18n/*.json`. Em todos, mantenha o texto do Omni.
 - **O Omni ainda consulta o Turbo.** `app/services/version_checker.py` compara a versão do Omni com `releases/latest` de `harry0703/MoneyPrinterTurbo`. Um release novo do Turbo aparece como atualização do Omni. Pendência em aberto.
 - **Links de referral do Turbo.** Os textos de `webui/i18n/*.json` (ex.: `webui/i18n/pt.json:417`) e `webui/i18n/en.json:469` ("MoneyPrinterTurbo referral link") ainda apontam para a conta do Turbo. Pendência em aberto.
 - **`update.sh` não sincroniza com o upstream.** Ele usa o remote `origin` (padrão, `update.sh:24`), ou seja, atualiza o próprio Omni. O upstream só entra por merge manual.

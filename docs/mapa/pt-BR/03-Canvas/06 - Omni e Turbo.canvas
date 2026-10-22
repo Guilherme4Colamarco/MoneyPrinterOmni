@@ -1,0 +1,178 @@
+{
+  "nodes": [
+    {
+      "id": "bc3b0556316b0ba2",
+      "type": "text",
+      "text": "## Turbo (upstream)\nreleases em `harry0703/MoneyPrinterTurbo`",
+      "x": 400,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "b2fcb4ba898f4797",
+      "type": "text",
+      "text": "# Fork\n`9e7d8b7` · fix(task) #1663\n17/10/2026",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "67aed930d7a2290a",
+      "type": "text",
+      "text": "## Rebrand\n`a6c685c` · 67 arquivos\n`app/paths.py` mantém a pasta antiga",
+      "x": 400,
+      "y": 0,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "04c75d4c027d99f1",
+      "type": "text",
+      "text": "## Harness e Remotion\n`.agents/` · `.claude/` · `.grok/` · `animations/` · `flake.nix`",
+      "x": 800,
+      "y": 0,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "afae5d802918c841",
+      "type": "text",
+      "text": "## Upstream v1.3.9\nlogging, movimento de imagem, SDXL, EmpirioLabs",
+      "x": 1200,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "65464c31b2e6ac04",
+      "type": "text",
+      "text": "## Merge v1.3.9\n25 commits do upstream\nem `unstable`",
+      "x": 1200,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "2"
+    },
+    {
+      "id": "f2f530eef36aed56",
+      "type": "text",
+      "text": "## Pendências\n`version_checker` e links de referral do Turbo",
+      "x": 0,
+      "y": 200,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "7fad4cee9e5014d0",
+      "type": "text",
+      "text": "## Seguir o upstream?",
+      "x": 1600,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "e9064b74d28acc05",
+      "type": "text",
+      "text": "## Sim\nUm merge único por release",
+      "x": 1600,
+      "y": 200,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "4f876ab4493c98f6",
+      "type": "text",
+      "text": "## Não\nO Omni para de sincronizar",
+      "x": 2000,
+      "y": 0,
+      "width": 320,
+      "height": 140
+    }
+  ],
+  "edges": [
+    {
+      "id": "a24e627777cdc102",
+      "fromNode": "b2fcb4ba898f4797",
+      "fromSide": "right",
+      "toNode": "67aed930d7a2290a",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "625a9bc688d1e2b9",
+      "fromNode": "67aed930d7a2290a",
+      "fromSide": "right",
+      "toNode": "04c75d4c027d99f1",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "3a55c50980aa1ab8",
+      "fromNode": "bc3b0556316b0ba2",
+      "fromSide": "left",
+      "toNode": "b2fcb4ba898f4797",
+      "toSide": "right",
+      "toEnd": "arrow",
+      "label": "origem"
+    },
+    {
+      "id": "599eb32ce1d0f749",
+      "fromNode": "bc3b0556316b0ba2",
+      "fromSide": "right",
+      "toNode": "afae5d802918c841",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "25 commits"
+    },
+    {
+      "id": "cd610b06767a98e2",
+      "fromNode": "afae5d802918c841",
+      "fromSide": "top",
+      "toNode": "65464c31b2e6ac04",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "merge"
+    },
+    {
+      "id": "9857750853cdf3ed",
+      "fromNode": "04c75d4c027d99f1",
+      "fromSide": "right",
+      "toNode": "65464c31b2e6ac04",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "4198554899f50100",
+      "fromNode": "65464c31b2e6ac04",
+      "fromSide": "right",
+      "toNode": "7fad4cee9e5014d0",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "7e442fcc372132ac",
+      "fromNode": "7fad4cee9e5014d0",
+      "fromSide": "bottom",
+      "toNode": "e9064b74d28acc05",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "sim"
+    },
+    {
+      "id": "30efa12275fd76c1",
+      "fromNode": "7fad4cee9e5014d0",
+      "fromSide": "right",
+      "toNode": "4f876ab4493c98f6",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "não"
+    }
+  ]
+}

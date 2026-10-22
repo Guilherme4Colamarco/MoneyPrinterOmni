@@ -46,7 +46,7 @@ Result: `app/paths.py:39-40` (folder compatibility), `app/services/video.py:1593
 
 ## Pitfalls
 
-- **Expected merge conflicts.** `README.md` and `README-ja.md` (Omni rewrote them; Omni deleted `README-en.md` while upstream edited it). `pyproject.toml`: the version (line 10) and the description (line 11) sit on neighbouring lines and conflict. `docs/packaging.md` (line 3). `webui/Main.py` and `webui/i18n/*.json`. In every case, keep Omni's text.
+- **Expected merge conflicts.** `README.md` and `README-ja.md` (Omni rewrote them and deleted `README-en.md`; per the divergence report, upstream edited it). `pyproject.toml`: the version (line 10) and the description (line 11) sit on neighbouring lines and conflict. `docs/packaging.md` (line 3). `webui/Main.py` and `webui/i18n/*.json`. In every case, keep Omni's text.
 - **Omni still queries Turbo.** `app/services/version_checker.py` compares Omni's version with the latest release of `harry0703/MoneyPrinterTurbo`. A new Turbo release shows up as an Omni update. Open item.
 - **Turbo referral links.** Texts in `webui/i18n/*.json` (for example `webui/i18n/en.json:469`, "MoneyPrinterTurbo referral link") and provider links still point to Turbo's accounts. Open item.
 - **`update.sh` does not sync upstream.** It uses the `origin` remote by default (`update.sh:24`), so it updates Omni itself. Upstream changes only come in through a manual merge.

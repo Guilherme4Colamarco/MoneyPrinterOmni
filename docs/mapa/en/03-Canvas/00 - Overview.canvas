@@ -1,0 +1,226 @@
+{
+  "nodes": [
+    {
+      "id": "7b2f48807fdb1a99",
+      "type": "group",
+      "label": "Entry points",
+      "x": -30,
+      "y": -50,
+      "width": 380,
+      "height": 620
+    },
+    {
+      "id": "c9ca8bb41a5a34de",
+      "type": "group",
+      "label": "Agent harness",
+      "x": 370,
+      "y": 350,
+      "width": 1180,
+      "height": 420
+    },
+    {
+      "id": "8a5da52ed126447d",
+      "type": "text",
+      "text": "# API\n`POST /api/v1/videos`\n`app/asgi.py`",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "2567a5ec9705eb7a",
+      "type": "text",
+      "text": "# WebUI\n`webui/Main.py` (Streamlit)",
+      "x": 0,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "0898b22730d57afc",
+      "type": "text",
+      "text": "# CLI\n`cli.py` · `mpt cli`",
+      "x": 0,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "ea2b2676c28c0db2",
+      "type": "text",
+      "text": "## task.start()\n`_run_pipeline` in `app/services/task.py`",
+      "x": 400,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "bf8b08fc6f47355e",
+      "type": "text",
+      "text": "## Stages\nscript → terms → voice → subtitles → material → video",
+      "x": 800,
+      "y": 200,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "f5cef96d7e57bb60",
+      "type": "text",
+      "text": "# Output\n`storage/tasks/<id>/`\n`final-N.mp4`",
+      "x": 1200,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "5d8d1cb9136777c8",
+      "type": "text",
+      "text": "## Integrations\nLLM · TTS · subtitles · stock video · AI",
+      "x": 800,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "48a8f39871124f8a",
+      "type": "text",
+      "text": "## montador-mpt\nruns `mpt cli`",
+      "x": 400,
+      "y": 400,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "421b47ffd946ca08",
+      "type": "text",
+      "text": "## Video team\n`.agents/skills/video`",
+      "x": 800,
+      "y": 400,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "044c3027c1bfd773",
+      "type": "text",
+      "text": "## Technical team\n`.agents/skills/manutencao`",
+      "x": 1200,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "2"
+    },
+    {
+      "id": "42732a4781317eda",
+      "type": "text",
+      "text": "## MCP and adapters\n`.mcp.json` · `.claude/` · `.grok/`",
+      "x": 800,
+      "y": 600,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "3aa53cec161c587e",
+      "type": "text",
+      "text": "## Omni × Turbo\nfork at `9e7d8b7` · see canvas 06",
+      "x": 0,
+      "y": 800,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "92ec19ffde05e157",
+      "type": "text",
+      "text": "## Branches\n`main` tested · `unstable` in orange · see canvas 07",
+      "x": 400,
+      "y": 800,
+      "width": 320,
+      "height": 140
+    }
+  ],
+  "edges": [
+    {
+      "id": "6627f62fb7121155",
+      "fromNode": "8a5da52ed126447d",
+      "fromSide": "right",
+      "toNode": "ea2b2676c28c0db2",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "118103c45d42595c",
+      "fromNode": "2567a5ec9705eb7a",
+      "fromSide": "right",
+      "toNode": "ea2b2676c28c0db2",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "c5e06bb7f9d27590",
+      "fromNode": "0898b22730d57afc",
+      "fromSide": "right",
+      "toNode": "ea2b2676c28c0db2",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "7bfff4d373dacfff",
+      "fromNode": "ea2b2676c28c0db2",
+      "fromSide": "right",
+      "toNode": "bf8b08fc6f47355e",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "13daddd3043a3b57",
+      "fromNode": "bf8b08fc6f47355e",
+      "fromSide": "top",
+      "toNode": "5d8d1cb9136777c8",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "script, voice, material"
+    },
+    {
+      "id": "d841638f14d1dc09",
+      "fromNode": "bf8b08fc6f47355e",
+      "fromSide": "right",
+      "toNode": "f5cef96d7e57bb60",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "render"
+    },
+    {
+      "id": "1170c55b4821d944",
+      "fromNode": "48a8f39871124f8a",
+      "fromSide": "left",
+      "toNode": "0898b22730d57afc",
+      "toSide": "right",
+      "toEnd": "arrow",
+      "label": "mpt cli"
+    },
+    {
+      "id": "f529729260669e01",
+      "fromNode": "421b47ffd946ca08",
+      "fromSide": "left",
+      "toNode": "48a8f39871124f8a",
+      "toSide": "right",
+      "toEnd": "arrow",
+      "label": "drives"
+    },
+    {
+      "id": "6d7c4dd091b81e13",
+      "fromNode": "42732a4781317eda",
+      "fromSide": "top",
+      "toNode": "421b47ffd946ca08",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "tools"
+    }
+  ]
+}
