@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "enabledMcpjsonServers": ["yt-dlp"],
+  "permissions": {
+    "allow": [
+      "mcp__yt-dlp__ytdlp_search_videos",
+      "mcp__yt-dlp__ytdlp_list_subtitle_languages",
+      "mcp__yt-dlp__ytdlp_download_video_subtitles",
+      "mcp__yt-dlp__ytdlp_download_transcript",
+      "mcp__yt-dlp__ytdlp_download_video",
+      "mcp__yt-dlp__ytdlp_download_audio",
+      "mcp__yt-dlp__ytdlp_get_video_metadata",
+      "mcp__yt-dlp__ytdlp_get_video_metadata_summary",
+      "mcp__yt-dlp__ytdlp_get_video_comments",
+      "mcp__yt-dlp__ytdlp_get_video_comments_summary"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ensure-yt-dlp.sh",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
