@@ -1,6 +1,6 @@
 ---
 title: LLM providers
-tags: [mapa, integracoes, status/stable]
+tags: [mapa, integracoes, status/unstable]
 lang: en
 sources: [app/models/llm_provider.py, app/services/llm.py, config.example.toml, webui/Main.py, webui/i18n/en.json, test/services/test_fluxionai_llm.py]
 ---

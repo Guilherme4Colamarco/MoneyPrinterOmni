@@ -21,7 +21,7 @@ O CLI é a porta mais direta: um comando, uma tarefa, um JSON na saída. Não h�
 2. **Montagem.** `build_video_params` (`cli.py:916`) cria o `VideoParams`. Sem `--video-subject` nem `--video-script`, `parser.error` sai com 2 (`cli.py:724`). `--video-source local` com `--stop-at terms` também sai com 2 (`cli.py:726`).
 3. **Arquivos locais.** `prepare_cli_files` (`cli.py:1643`) valida os materiais. Quem vem de fora de `storage/local_videos` é copiado para lá com o nome `cli-material-<hex>.<ext>` (`_prepare_cli_materials`, `cli.py:1597`).
 4. **Execução.** `run_cli` (`cli.py:1735`) chama `tm.start(task_id=..., params=..., stop_at=args.stop_at, allow_server_file_input=True)` (`cli.py:1766`). O `task_id` é gerado, ou vem de `--task-id`.
-5. **Saída.** Sucesso: uma linha `{"task_id": ..., "result": {...}}` no stdout e saída 0 (`cli.py:1791-1792`). Logs vão para o stderr (`cli.py:1738`).
+5. **Saída.** Sucesso: uma linha `{"task_id": ..., "result": {...}}` no stdout e saída 0 (`cli.py:1791-1792`). Logs vão para o stderr (`cli.py:1742`).
 
 ## Exemplo / percurso
 
@@ -92,7 +92,6 @@ Resumo dos códigos:
 
 - **Caminho fora de `storage/local_videos` é copiado.** O arquivo original não é usado depois. Confira `storage/local_videos` se o disco encher.
 - **O CLI aceita caminhos absolutos para áudio customizado.** Isso só existe aqui, porque `allow_server_file_input=True` (`cli.py:1773`). API e WebUI não aceitam (veja [[Portas de entrada]]).
-- **Stdout só tem JSON.** Use stderr para os logs e stdout para ler o resultado, sem misturar os dois.
 - **`--stop-at` vale para o lote inteiro.** Em `--batch-file`, cada objeto do manifesto não define `--stop-at`; ele vem da linha de comando (`cli.py:1191`).
 - **`stop_at=terms` com material local é erro.** A etapa de termos não existe para `local`, então o CLI recusa a combinação com saída 2 (`cli.py:726`).
 
@@ -113,5 +112,5 @@ Resumo dos códigos:
 - [[Pipeline e stop_at]]: o que `--stop-at` interrompe e o que cada estágio grava.
 - [[Portas de entrada]]: a comparação entre API, WebUI e CLI.
 - [[Flags do CLI]]: a lista completa de flags, padrões e códigos de saída.
-- [[Vídeo pela API]]: o mesmo pipeline, por HTTP.
+- [[01 - Vídeo pela API]]: o mesmo pipeline, por HTTP.
 - Canvas: [[01 - Pipeline.canvas|Canvas]].

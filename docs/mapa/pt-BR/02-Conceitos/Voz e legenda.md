@@ -1,6 +1,6 @@
 ---
 title: Voz e legenda
-tags: [mapa, integracoes, status/stable]
+tags: [mapa, integracoes, status/unstable]
 lang: pt-BR
 sources: [app/services/voice.py, app/services/subtitle.py, app/services/task.py, app/utils/utils.py, app/utils/subtitle_writer.py, config.example.toml, app/models/schema.py]
 ---
@@ -55,6 +55,9 @@ Voz padrão do schema: `zh-CN-XiaoxiaoNeural-Female` (`app/models/schema.py:175`
 - **Sem legenda não é erro.** Falha do Edge gera vídeo sem legenda, e a task segue. Quem confere a legenda é o usuário.
 - **O prefixo decide o provedor.** Um nome de voz sem o prefixo certo cai no Edge sem aviso. Ex.: `gemini-...` sem `gemini:` vai para Azure.
 - **Tag de pausa com provedor não-Edge.** A pausa é removida, não virada em silêncio. O texto perde o tempo da pausa.
+
+> [!warning] unstable
+> As correções de voz e legenda do upstream Turbo v1.3.9 (volume em dB do SiliconFlow, tags de pausa após palavras-chave CJK, linhas só de símbolos, arredondamento de segundos e de timestamps do SRT, quebra de linhas com palavras longas) só estão na branch `unstable`. Veja [[Omni e Turbo]].
 
 ## Prática
 

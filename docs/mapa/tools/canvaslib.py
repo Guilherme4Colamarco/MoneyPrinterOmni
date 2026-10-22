@@ -58,7 +58,7 @@ class Canvas:
         """Moldura visual; deve ser criada antes dos nós que ficam dentro dela."""
         x, y = self._xy(col, row)
         node = {
-            "id": _id(key), "type": "group", "label": label, "x": x - 30, "y": y - 50,
+            "id": _id("group:" + key), "type": "group", "label": label, "x": x - 30, "y": y - 50,
             "width": int(cols * CELL_W + (cols - 1) * GAP_X + 60),
             "height": int(rows * CELL_H + (rows - 1) * GAP_Y + 80),
         }

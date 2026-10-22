@@ -94,9 +94,8 @@ Veja o percurso completo em [[01 - Vídeo pela API]].
 
 - **`/ping` não pede chave.** Ele é a única rota da API sem `verify_token`. Não use para checar autenticação.
 - **Criar não é concluir.** `POST /videos` responde `200` antes do pipeline rodar. A falha aparece depois, em `GET /tasks/{id}`.
-- **O navegador não manda `x-api-key`.** Um link direto para `/tasks/...` com a chave ligada dá `401`. O cliente precisa mandar o cabeçalho (`config.example.toml:31-33`).
+- **O navegador não manda `x-api-key`.** Um link direto para `/tasks/...` com a chave ligada dá `401`. O cliente precisa mandar o cabeçalho (`config.example.toml:34-35`).
 - **Os caminhos de `materials` vêm absolutos.** A resposta de `GET /tasks/{id}` devolve `materials` com caminho do disco do servidor. Só `videos`, `combined_videos`, `audio_file` e `subtitle_path` viram URL (`video.py:142`).
-- **Sem Redis, a consulta some após reinício.** `GET /api/v1/tasks/{id}` dá `404` depois de reiniciar, mas os arquivos continuam em `/tasks/...`. Veja [[Estado das tasks e fila]].
 
 ## Prática
 

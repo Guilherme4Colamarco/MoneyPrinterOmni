@@ -23,8 +23,8 @@ Each press of the generate button becomes `webui_task.submit_generation(...)`. T
 1. **Open the page.** `./webui.sh` looks for the first free port between 8501 and 8599 on `127.0.0.1` (`webui.sh:16-17`). `mpt webui` does the same through `app/launcher.py:26`.
 2. **Configure.** The settings dialog (`_render_settings_dialog`, `webui/Main.py:3237`) has six tabs: LLM, Material API, Auto-Publish, Interface, Key Backup and Cache Management (`Main.py:3242-3249`). Those choices go into `config.toml` through the configuration layer.
 3. **Build the task.** The page has four columns (`_render_application`, `Main.py:8441`): script (`_render_script_settings`, `Main.py:5029`), video (`5224`), audio (`6966`) and subtitles (`7670`). The generate button lives in `_render_generation_controls` (`Main.py:8009`).
-4. **Submit.** `Main.py:8412` calls `webui_task.submit_generation(task_id=..., params=..., capture_logs=...)` (`app/services/webui_task.py:138`). Before that, the function copies the parameters and writes the `processing` record with `video_subject` (`webui_task.py:156-161`), so the page can find the task even if the script runs again.
-5. **Queue.** `_task_manager` (`webui_task.py:20`) is an `InMemoryTaskManager` with `max_concurrent_tasks=1` and `max_queued_tasks` read from the config. If the queue is full, the exception goes up and the record becomes `failed` with `failed_stage="scheduling"` (`webui_task.py:199`).
+4. **Submit.** `Main.py:8412` calls `webui_task.submit_generation(task_id=..., params=..., capture_logs=...)` (`app/services/webui_task.py:138`). Before that, the function copies the parameters and writes the `processing` record with `video_subject` (`webui_task.py:154` e `:173`), so the page can find the task even if the script runs again.
+5. **Queue.** `_task_manager` (`webui_task.py:24`) is an `InMemoryTaskManager` with `max_concurrent_tasks=1` and `max_queued_tasks` read from the config. If the queue is full, the exception goes up and the record becomes `failed` with `failed_stage="scheduling"` (`webui_task.py:199`).
 6. **Run.** `_run_generation` (`webui_task.py:58`) attaches the thread's log capture and enters `config.runtime_config_lock()` (`webui_task.py:94`). Only then does it call `tm.start(...)`. Any exception in the wrapper becomes `failed_stage="webui_worker"`.
 7. **Follow.** `_render_running_generation_task` (`Main.py:2151`) is a Streamlit fragment that refreshes every 0.5 s (`webui_task.py:34`) and reads the log with `get_task_logs` (`webui_task.py:52`). The task list and history are another fragment, every 2 s (`Main.py:1442`), which scans `storage/tasks` (`_scan_history_tasks`, `Main.py:991`).
 
@@ -44,7 +44,7 @@ How the page shows the result: `Main.py:2060` displays "Video Generation Failed"
 
 ## Pitfalls
 
-- **One task at a time, always.** The WebUI fixes `max_concurrent_tasks=1` (`webui_task.py:20-23`). The config limit applies only to the API. The two queues do not see each other.
+- **One task at a time, always.** The WebUI fixes `max_concurrent_tasks=1` (`webui_task.py:21-25`). The config limit applies only to the API. The two queues do not see each other.
 - **The lock holds, but the page does not block.** Changing an option during a generation does not break the task, because `update_config_nonblocking` (`app/config/config.py:92`) keeps the value and applies it when the lock is released. The running task keeps the previous configuration.
 - **Without Redis, the API cannot see the WebUI.** Each process has its own in-memory state. The WebUI list shows API tasks only because it reads `storage/tasks` from disk.
 - **A full queue looks like a generic error.** The page shows "Video Generation Failed" (`Main.py:2060`). The real reason is in the `error` field of the state, with `failed_stage="scheduling"`.
@@ -56,7 +56,7 @@ How the page shows the result: `Main.py:2060` displays "Video Generation Failed"
 3. If the WebUI queue is full, which `failed_stage` ends up in the task state?
 
 > [!faq]- Answer key
-> 1. One. `_task_manager` is created with `max_concurrent_tasks=1` (`app/services/webui_task.py:20`). The config's `max_concurrent_tasks` is read only by the API.
+> 1. One. `_task_manager` is created with `max_concurrent_tasks=1` (`app/services/webui_task.py:24`). The config's `max_concurrent_tasks` is read only by the API.
 > 2. In `_run_generation`, with `config.runtime_config_lock()` (`webui_task.py:94`). The change is stored and applied when the lock is released (`config.py:92`).
 > 3. `scheduling` (`webui_task.py:199`).
 

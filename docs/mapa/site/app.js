@@ -11,7 +11,7 @@
   const UI = {
     "pt-BR": {
       brand: "Mapa do MoneyPrinterOmni", search: "Buscar notas…", home: "Início", toc: "Nesta página", prev: "Anterior", next: "Próxima",
-      stable: "estável", unstable: "unstable", sources: "Fontes", open: "Abrir canvas", fit: "Ajustar", noRes: "Nada encontrado",
+      stable: "estável", unstable: "contém unstable", sources: "Fontes", open: "Abrir canvas", fit: "Ajustar", zoomHint: "Zoom: Ctrl + rolagem.", noRes: "Nada encontrado",
       eyebrow: "Apostila 4D · Mapa do projeto", title: "Como o MoneyPrinterOmni funciona",
       lead: "Do pedido ao vídeo: a lógica do pipeline, as integrações, o harness de agentes e a organização do repositório, em notas curtas ligadas entre si e canvas que desenham cada fluxo.",
       start: "Por onde começar", overview: "O mapa geral", index: "Índice completo", notes: "notas", canvases: "canvas",
@@ -24,7 +24,7 @@
     },
     en: {
       brand: "MoneyPrinterOmni Map", search: "Search notes…", home: "Home", toc: "On this page", prev: "Previous", next: "Next",
-      stable: "stable", unstable: "unstable", sources: "Sources", open: "Open canvas", fit: "Fit", noRes: "Nothing found",
+      stable: "stable", unstable: "has unstable parts", sources: "Sources", open: "Open canvas", fit: "Fit", zoomHint: "Zoom: Ctrl + scroll.", noRes: "Nothing found",
       eyebrow: "4D Study Guide · Project map", title: "How MoneyPrinterOmni works",
       lead: "From request to video: the pipeline logic, integrations, the agent harness and how the repository is organised, in short linked notes and canvases that draw each flow.",
       start: "Where to start", overview: "The big picture", index: "Full index", notes: "notes", canvases: "canvases",
@@ -237,7 +237,20 @@
       apply();
     };
     const toSvg = (ev) => { const p = svg.getBoundingClientRect(); return [view.x + ((ev.clientX - p.left) / p.width) * view.w, view.y + ((ev.clientY - p.top) / p.height) * view.h]; };
-    svg.addEventListener("wheel", (ev) => { ev.preventDefault(); const [cx, cy] = toSvg(ev); zoom(ev.deltaY > 0 ? 1.12 : 0.89, cx, cy); }, { passive: false });
+    // Zoom só com Ctrl/⌘ (ou pinça): a rolagem simples continua rolando a página.
+    svg.addEventListener("wheel", (ev) => { if (!ev.ctrlKey && !ev.metaKey) return; ev.preventDefault(); const [cx, cy] = toSvg(ev); zoom(ev.deltaY > 0 ? 1.12 : 0.89, cx, cy); }, { passive: false });
+    // Abre num zoom legível (mín. 55%), alinhado ao topo; "Ajustar" mostra tudo.
+    wrap.init = () => {
+      const cw = wrap.clientWidth || 800;
+      const scale = Math.max(Math.min(cw / vb.w, 1.2), 0.55);
+      const maxH = Math.round(innerHeight * (cls === "mid" ? 0.5 : 0.74));
+      const ch = Math.max(300, Math.min(maxH, Math.round(vb.h * scale)));
+      wrap.style.height = ch + "px";
+      view = { x: vb.x, y: vb.y, w: cw / scale, h: ch / scale };
+      if (view.w > vb.w) view.x = vb.x - (view.w - vb.w) / 2;
+      if (view.h > vb.h) view.y = vb.y - (view.h - vb.h) / 2;
+      apply();
+    };
     let drag = null;
     svg.addEventListener("pointerdown", (ev) => { if (ev.target.closest(".cn")) return; drag = { x: ev.clientX, y: ev.clientY, v: { ...view } }; svg.setPointerCapture(ev.pointerId); });
     svg.addEventListener("pointermove", (ev) => {
@@ -300,7 +313,7 @@
       <div id="home-cv" class="reveal"></div>
       <section class="panel glass prose reveal" style="margin-top:18px"><h2>${t.index}</h2>${md(lg.index.body)}</section>`;
     const cv = canvasById("k0") || lg.canvases[0];
-    if (cv) $("#home-cv").appendChild(canvasView(cv, "mid"));
+    if (cv) { const w = canvasView(cv, "mid"); $("#home-cv").appendChild(w); w.init(); }
     $("#toc").hidden = true;
     document.title = t.brand;
   }
@@ -326,8 +339,8 @@
 
   function renderCanvasPage(cv) {
     const t = T();
-    view.innerHTML = `<div class="panel glass reveal"><div class="eyebrow">${esc(L().sections.canvas)}</div><h1 style="font:800 clamp(28px,4vw,40px)/1.1 var(--display);margin:6px 0 4px">${esc(cv.title)}</h1><p class="lead" style="margin:0">${t.blurb.canvas}</p></div><div id="cv-slot" class="reveal"></div>`;
-    $("#cv-slot").appendChild(canvasView(cv, "tall"));
+    view.innerHTML = `<div class="panel glass reveal"><div class="eyebrow">${esc(L().sections.canvas)}</div><h1 style="font:800 clamp(28px,4vw,40px)/1.1 var(--display);margin:6px 0 4px">${esc(cv.title)}</h1><p class="lead" style="margin:0">${t.blurb.canvas} ${t.zoomHint}</p></div><div id="cv-slot" class="reveal"></div>`;
+    { const w = canvasView(cv, "tall"); $("#cv-slot").appendChild(w); w.init(); }
     $("#toc").hidden = true;
     document.title = `${cv.title} · ${t.brand}`;
   }

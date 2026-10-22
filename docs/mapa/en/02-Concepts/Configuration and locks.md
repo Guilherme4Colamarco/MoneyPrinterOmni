@@ -23,7 +23,7 @@ All configuration comes from one file, `config.toml`, read once at import. The W
 1. **File.** `config.py:15-16` builds `root_dir/config.toml`. On first run, `_initialize_config_from_example` (`config.py:495`) copies `config.example.toml` there, by an atomic hard link that never overwrites an existing file (`config.py:513`).
 2. **Reading.** `load_config` (`config.py:531`) reads the TOML. Each section becomes a `_SynchronizedConfig` (`config.py:30`): `diagnostics` (`:641`), `app` (`:642`), `azure`, `siliconflow`, `minimax_tts`, `elevenlabs`, `chatterbox`, `kokoro`, `fish_audio`, `voxcpm` and `ui` (`:653`). `whisper` and `proxy` are plain dictionaries (`:643-644`). The top-level values are `listen_host`, `listen_port`, `log_level` and `ffmpeg_path` (`:665-680`).
 3. **Writing.** `save_config` (`config.py:566`) writes a temporary file and swaps it in with `os.replace` (`config.py:620`). If the file is a Docker bind mount and cannot be replaced, it is written in place, inside the lock.
-4. **Lock.** `runtime_config_lock` (`config.py:304`) holds a reentrant lock for a whole generation. `_run_generation` takes it at `webui_task.py:94`. `try_runtime_config_lock` (`config.py:322`) is the non-blocking version, used by the WebUI for voice previews and LLM reads (`webui/Main.py:440`, `:3649`, `:6153`).
+4. **Lock.** `runtime_config_lock` (`config.py:304`) holds a reentrant lock for a whole generation. `_run_generation` takes it at `webui_task.py:94`. `try_runtime_config_lock` (`config.py:322`) is the non-blocking version, used by the WebUI for the voice preview (`webui/Main.py:6153`), the LLM connection test (`:3649`) and copying the configuration to generate new text (`:440`).
 5. **Write while the lock is held.** `update_config_nonblocking` (`config.py:92`) keeps only the latest value of each key and applies it when the lock is released. It does not block the interface and does not change the configuration of the running task.
 6. **Paths.** `app/paths.py`:
    - `runtime_root` (`paths.py:20`): uses `MPT_HOME` if set; otherwise the repository folder (checkout) or the user data folder for the OS;
@@ -62,7 +62,6 @@ Keys that are secrets (filled in by you, never in git): `api_key`, `loomloom_api
 
 - **The lock does not protect the API or the CLI.** Today only the WebUI writes configuration, so the risk is small. If other code starts writing in the same process, it will change the configuration of an API task that is running.
 - **Editing the file is not enough.** The configuration is read once, at import (`config.py:640-660`). After editing `config.toml` by hand, restart the process.
-- **`listen_host = "0.0.0.0"` with an empty `api_key`** leaves the API open on the network. The log only warns (`app/asgi.py:29-32`).
 - **`tls_verify = false`** turns off certificate checks for external APIs and material downloads. The example comment says to leave it on (`config.example.toml:69-71`).
 - **`AGENTS.md` says writes are "blocked" while the lock is held.** The code does something different: it defers the write, keeps the last value and applies it when the lock is released (`config.py:92`). The code is right.
 

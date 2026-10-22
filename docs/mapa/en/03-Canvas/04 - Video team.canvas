@@ -1,7 +1,7 @@
 {
   "nodes": [
     {
-      "id": "0120a4f9196a5f9e",
+      "id": "2bee2f2a139f9191",
       "type": "group",
       "label": "Research and critique (0–3)",
       "x": -30,
@@ -10,7 +10,7 @@
       "height": 220
     },
     {
-      "id": "e1c80488853d86ab",
+      "id": "f929b34474fd31fb",
       "type": "group",
       "label": "Art, approval and timing (4–6)",
       "x": 1570,
@@ -19,7 +19,7 @@
       "height": 220
     },
     {
-      "id": "8a9fd7dfda802921",
+      "id": "d20b2dbedf71a5f3",
       "type": "group",
       "label": "Clips, render and review (7–10)",
       "x": 770,
@@ -28,7 +28,7 @@
       "height": 220
     },
     {
-      "id": "b0b5c8f28ad7834e",
+      "id": "965b43ca338e37e4",
       "type": "group",
       "label": "Publishing and delivery (11–12)",
       "x": -30,

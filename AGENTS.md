@@ -118,3 +118,11 @@ faz commit, push nem PR sem pedido do usuário.
 - Na raiz do repositório, rode `grok --trust` (a pasta precisa de confiança) e confira o que foi encontrado com `grok inspect`.
 - Aviso: `model: sonnet` dos adaptadores Claude não existe no Grok. Por isso o `.grok/agents/` gerado usa `model: inherit`.
 - Grok Bot (app, não lê o repositório): o guia para montar o time está em `.agents/grok-bot.md`.
+
+## Mapa do projeto (`docs/mapa/`)
+
+Apostila 4D e mapa do repositório, em pt-BR e inglês: a lógica do pipeline, as integrações, o harness de agentes, Omni × Turbo e as branches (`main` = testado e provado; `unstable` = recém-adicionado).
+
+- `docs/mapa/MAPA.md` (ou `MAPA.en.md`) — o mapa em um arquivo só; **comece por ele**.
+- `docs/mapa/pt-BR/` e `docs/mapa/en/` — vaults Obsidian (32 notas e 8 canvas cada); `docs/mapa/site/index.html` mostra o mesmo conteúdo no navegador.
+- Ao mudar código que uma nota cita (`sources:` no frontmatter), atualize a nota nos dois idiomas e rode `python3 -m docs.mapa.tools.check_vault`. Detalhes em `docs/mapa/README.md`.

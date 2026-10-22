@@ -12,7 +12,7 @@ sources: [app/services/task.py, app/services/llm.py, app/services/voice.py, app/
 O pipeline é uma sequência fixa de etapas. `stop_at` diz em qual etapa parar, e a tarefa devolve o resultado daquela etapa.
 
 > [!warning] unstable
-> O movimento de imagem (`image_motion`, opções `static` e `zoom`) veio do merge do upstream Turbo v1.3.9. Ele aparece nas etapas de materiais e de vídeo (`app/services/video.py:1955`, `app/services/material.py:1741`). Estado a confirmar. O resto do pipeline está na `main`.
+> O movimento de imagem (`image_motion`, opções `static` e `zoom`) veio do merge do upstream Turbo v1.3.9. Ele aparece nas etapas de materiais e de vídeo (`app/services/video.py:1955`, `app/services/material.py:1740`). Estado a confirmar. O resto do pipeline está na `main`.
 
 ## Ideia central
 

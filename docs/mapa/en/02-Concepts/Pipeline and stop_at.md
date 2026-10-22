@@ -12,7 +12,7 @@ sources: [app/services/task.py, app/services/llm.py, app/services/voice.py, app/
 The pipeline is a fixed sequence of steps. `stop_at` says which step to stop after, and the task returns that step's result.
 
 > [!warning] unstable
-> Image motion (`image_motion`, options `static` and `zoom`) came from the upstream Turbo v1.3.9 merge. It appears in the materials and video steps (`app/services/video.py:1955`, `app/services/material.py:1741`). State to be confirmed. The rest of the pipeline is on `main`.
+> Image motion (`image_motion`, options `static` and `zoom`) came from the upstream Turbo v1.3.9 merge. It appears in the materials and video steps (`app/services/video.py:1955`, `app/services/material.py:1740`). State to be confirmed. The rest of the pipeline is on `main`.
 
 ## Core idea
 

@@ -1,6 +1,6 @@
 ---
 title: Remotion animations
-tags: [mapa, animacoes, status/stable]
+tags: [mapa, animacoes, status/unstable]
 aliases: [Animações com Remotion]
 lang: en
 sources: [animations/src/Root.tsx, animations/src/lib.tsx, animations/remotion.config.ts, animations/package.json, docs/animations.md, .agents/roles/animador.md, .agents/pipeline.md]

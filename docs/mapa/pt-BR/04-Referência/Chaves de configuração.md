@@ -136,7 +136,6 @@ O `deepseek_model_name` (358) vem vazio no exemplo, então preencha com o modelo
 
 - **`tls_verify` é uma chave só, para três provedores.** Ofox, MuAPI e Seedance leem a mesma chave de `[app]` (`app/services/ofox.py:157`, `muapi.py:139`, `volcengine_seedance.py:142`), com padrão `true`. Não há como desligar a verificação só para um deles.
 - **`redis_password` é texto puro.** O Redis precisa ficar em rede privada. O código confia no que vem do Redis (`app/services/state.py:300`).
-- **`listen_host = "0.0.0.0"` no exemplo.** Combinado com `api_key = ""`, a API fica aberta na rede. Use `127.0.0.1` para acesso local.
 - **O exemplo não tem todas as chaves de `[ui]`.** O padrão real vem do que a WebUI grava. Um `config.toml` antigo pode ter valores diferentes do exemplo.
 - **O exemplo tem chaves vazias.** Só o `config.toml` recebe valores reais. O `.gitignore` cobre esse arquivo (`.gitignore:2`).
 

@@ -29,7 +29,7 @@ There are two separate parts. The **state** (`app/services/state.py`) keeps what
    - otherwise, if the queue holds fewer than `max_queued_tasks` items, it enqueues;
    - otherwise it raises `TaskQueueFullError` (`base_manager.py:8`, `:78`).
 4. **Implementations.** `InMemoryTaskManager` (`memory_manager.py:7`) keeps the queue in memory. `RedisTaskManager` (`redis_manager.py:29`) keeps it in Redis and, when the API starts, resumes the queued tasks (`redis_manager.py:42`, called from `application_lifespan` in `app/asgi.py:24`).
-5. **Limits.** `max_concurrent_tasks = 5` and `max_queued_tasks = 100` by default (`config.example.toml:573-574`). The WebUI has its own queue, with a fixed `max_concurrent_tasks=1` (`app/services/webui_task.py:20`).
+5. **Limits.** `max_concurrent_tasks = 5` and `max_queued_tasks = 100` by default (`config.example.toml:573-574`). The WebUI has its own queue, with a fixed `max_concurrent_tasks=1` (`app/services/webui_task.py:24`).
 6. **HTTP mapping.** The API maps the exceptions like this:
    - `TaskQueueFullError` becomes **429** and the record just created is deleted (`app/controllers/v1/video.py:268` and `:272-277`);
    - deleting a busy task becomes **409** (`video.py:345`). "Busy" is what `is_task_busy` says (`app/services/task.py:117`): state `4` or an active `cross_post_state`;
@@ -50,7 +50,6 @@ Checked for this documentation: after restarting the API with in-memory state, `
 ## Pitfalls
 
 - **Limits are per process.** Two processes mean two queues. With `webui` and `api` separate, the total limit is the sum of both, and neither sees the other's queue.
-- **`max_queued_tasks` applies only when concurrency is full.** With free slots, the task starts at once and skips the queue.
 - **Without Redis, a restart drops the state.** The files remain on disk. Asking for the id returns 404.
 - **Redis is trusted.** Values from Redis come back through `ast.literal_eval` (`state.py:300`). Redis must stay private, with no write access for third parties.
 - **Network publishing does not survive a restart.** Publishing runs in a pool of two threads, outside the queue. On startup, the API marks interrupted publications as failed (`recover_interrupted_cross_posts`, `app/services/task.py:1217`).

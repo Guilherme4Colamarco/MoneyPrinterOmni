@@ -1,6 +1,6 @@
 ---
 title: Provedores e adaptadores
-tags: [mapa, integracoes, status/stable]
+tags: [mapa, integracoes, status/unstable]
 lang: pt-BR
 sources: [app/models/llm_provider.py, app/services/llm.py, app/services/voice.py, app/services/material.py, app/services/bgm.py, app/services/upload_post.py, config.example.toml]
 ---

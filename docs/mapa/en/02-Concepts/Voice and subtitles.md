@@ -1,6 +1,6 @@
 ---
 title: Voice and subtitles
-tags: [mapa, integracoes, status/stable]
+tags: [mapa, integracoes, status/unstable]
 lang: en
 sources: [app/services/voice.py, app/services/subtitle.py, app/services/task.py, app/utils/utils.py, app/utils/subtitle_writer.py, config.example.toml, app/models/schema.py]
 ---
@@ -55,6 +55,9 @@ Default voice in the schema: `zh-CN-XiaoxiaoNeural-Female` (`app/models/schema.p
 - **No subtitles is not an error.** An Edge failure gives a video without subtitles, and the task continues. The user has to check the subtitles.
 - **The prefix decides the provider.** A voice name without the right prefix falls back to Edge silently. E.g. `gemini-...` without `gemini:` goes to Azure.
 - **Pause tags with non-Edge providers.** The pause is removed, not turned into silence. The text loses the pause time.
+
+> [!warning] unstable
+> The voice and subtitle fixes from upstream Turbo v1.3.9 (SiliconFlow dB volume, pause tags after CJK keywords, symbol-only lines, rounded seconds and SRT timestamps, long-word line splitting) are only in the `unstable` branch. See [[Omni and Turbo]].
 
 ## Practice
 

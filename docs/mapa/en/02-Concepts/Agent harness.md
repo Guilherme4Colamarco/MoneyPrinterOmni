@@ -1,6 +1,6 @@
 ---
 title: Agent harness
-tags: [mapa, agentes, status/stable]
+tags: [mapa, agentes, status/unstable]
 aliases: [Harness de agentes]
 lang: en
 sources: [AGENTS.md, .agents/setup.md, .agents/tecnico.md, .agents/pipeline.md, .agents/grok-bot.md, .agents/comunicacao.md]

@@ -23,7 +23,7 @@ All three entry points call `task.start()` (`app/services/task.py:1907`). Before
 | Authentication | `x-api-key` when `app.api_key` is set (`app/controllers/base.py:47`). Without the key: 401. Also covers `/tasks/*` (`app/asgi.py:283`) | none on the page. By default it listens on `127.0.0.1` (`webui.sh:16`) | none. Runs with the permissions of whoever runs it |
 | Validation | pydantic schema: an error becomes **400** (`app/asgi.py:67`). Also subtitle colours and the font path, also **400** (`video.py:251-254`) | page widgets, then the pipeline | `argparse` (exit 2), `build_video_params` (2), `prepare_cli_files` (copies materials) |
 | `video_source` | not validated by the route. An invalid value fails at the preflight (`task.py:1543`) | by the widget | by the argparse `choices` (exit 2) |
-| Queue | yes: `add_task`, with 429 when full | yes: one task at a time (`webui_task.py:20`) | no: the call is synchronous |
+| Queue | yes: `add_task`, with 429 when full | yes: one task at a time (`webui_task.py:24`) | no: the call is synchronous |
 | Configuration lock | **no** | **yes**: `runtime_config_lock` (`webui_task.py:94`) | **no** |
 | User file paths | only inside `storage/tasks/<id>/`; fails in the pipeline if outside | uploads go to `storage/tasks/<id>/` | accepts absolute paths. Uses `allow_server_file_input=True` (`cli.py:1766`, `:1773`) |
 | Output | JSON `{status, message, data}` and polling with `GET /tasks/{id}` | page with state and live logs | one JSON line on stdout; logs on stderr |

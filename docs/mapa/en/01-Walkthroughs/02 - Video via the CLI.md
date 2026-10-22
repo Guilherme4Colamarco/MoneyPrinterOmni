@@ -21,7 +21,7 @@ The CLI is the most direct entry point: one command, one task, one JSON line on 
 2. **Build.** `build_video_params` (`cli.py:916`) creates the `VideoParams`. Without `--video-subject` or `--video-script`, `parser.error` exits with 2 (`cli.py:724`). `--video-source local` with `--stop-at terms` also exits with 2 (`cli.py:726`).
 3. **Local files.** `prepare_cli_files` (`cli.py:1643`) validates the materials. Files outside `storage/local_videos` are copied there as `cli-material-<hex>.<ext>` (`_prepare_cli_materials`, `cli.py:1597`).
 4. **Run.** `run_cli` (`cli.py:1735`) calls `tm.start(task_id=..., params=..., stop_at=args.stop_at, allow_server_file_input=True)` (`cli.py:1766`). The `task_id` is generated, or comes from `--task-id`.
-5. **Output.** Success: one line `{"task_id": ..., "result": {...}}` on stdout and exit 0 (`cli.py:1791-1792`). Logs go to stderr (`cli.py:1738`).
+5. **Output.** Success: one line `{"task_id": ..., "result": {...}}` on stdout and exit 0 (`cli.py:1791-1792`). Logs go to stderr (`cli.py:1742`).
 
 ## Example / walkthrough
 
@@ -92,7 +92,6 @@ Exit code summary:
 
 - **Paths outside `storage/local_videos` are copied.** The video uses the copy. Check `storage/local_videos` if the disk fills up.
 - **The CLI accepts absolute paths for custom audio.** Only here, because `allow_server_file_input=True` (`cli.py:1773`). The API and the WebUI do not (see [[Entry points]]).
-- **Stdout only carries JSON.** Logs go to stderr, so read stdout as data and stderr as logs.
 - **`--stop-at` applies to the whole batch.** In `--batch-file`, each manifest object does not set `--stop-at`; it comes from the command line (`cli.py:1191`).
 - **`stop_at=terms` with local material is an error.** There is no terms stage for `local`, so the CLI rejects the combination with exit 2 (`cli.py:726`).
 

@@ -31,7 +31,7 @@ Pedido `POST /api/v1/videos` com um roteiro e material local. O caminho é:
 
 `POST /api/v1/videos` → `create_video` (`video.py:215`) → `create_task` (`video.py:235`) → `add_task` (`base_manager.py:54`) → `tm.start` (`task.py:1907`) → `_run_pipeline` (`task.py:1519`) → `storage/tasks/<id>/final-1.mp4`.
 
-O percurso completo, com resposta real, está em [[Vídeo pela API]].
+O percurso completo, com resposta real, está em [[01 - Vídeo pela API]].
 
 Onde cada coisa mora no repositório:
 

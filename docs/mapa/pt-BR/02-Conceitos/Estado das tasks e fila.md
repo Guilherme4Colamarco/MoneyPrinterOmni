@@ -29,7 +29,7 @@ Há dois componentes separados. O **estado** (`app/services/state.py`) guarda o 
    - senão, se a fila tem menos de `max_queued_tasks` itens, enfileira;
    - senão, levanta `TaskQueueFullError` (`base_manager.py:8`, `:78`).
 4. **Implementações.** `InMemoryTaskManager` (`memory_manager.py:7`) guarda a fila na memória. `RedisTaskManager` (`redis_manager.py:29`) guarda a fila no Redis e, no início da API, retoma as tarefas que estavam na fila (`redis_manager.py:42`, chamado pelo `application_lifespan` em `app/asgi.py:24`).
-5. **Limites.** `max_concurrent_tasks = 5` e `max_queued_tasks = 100` por padrão (`config.example.toml:573-574`). A WebUI tem a sua própria fila, com `max_concurrent_tasks=1` fixo (`app/services/webui_task.py:20`).
+5. **Limites.** `max_concurrent_tasks = 5` e `max_queued_tasks = 100` por padrão (`config.example.toml:573-574`). A WebUI tem a sua própria fila, com `max_concurrent_tasks=1` fixo (`app/services/webui_task.py:24`).
 6. **Traduções para HTTP.** A API traduz as exceções assim:
    - `TaskQueueFullError` vira **429** e o registro criado é apagado (`app/controllers/v1/video.py:268` e `:272-277`);
    - delete de tarefa ocupada vira **409** (`video.py:345`). "Ocupada" é o que `is_task_busy` diz (`app/services/task.py:117`): estado `4` ou `cross_post_state` ativo;
@@ -50,7 +50,6 @@ Verificado nesta documentação: depois de reiniciar a API com estado em memóri
 ## Armadilhas
 
 - **Limites são por processo.** Dois processos têm duas filas. Com `webui` e `api` separados, o limite total é a soma dos dois, e nenhum deles vê a fila do outro.
-- **`max_queued_tasks` só vale com a concorrência cheia.** Com slots livres, a tarefa começa na hora e não passa pela fila.
 - **Sem Redis, reiniciar apaga o estado.** Os arquivos continuam em disco. A consulta pelo id devolve 404.
 - **O Redis é confiado.** Valores do Redis voltam por `ast.literal_eval` (`state.py:300`). O Redis precisa ficar privado, sem acesso de escrita por terceiros.
 - **Publicação em rede não sobrevive ao restart.** A publicação roda num pool de duas threads, fora da fila. Ao subir, a API marca como falhas as publicações interrompidas (`recover_interrupted_cross_posts`, `app/services/task.py:1217`).

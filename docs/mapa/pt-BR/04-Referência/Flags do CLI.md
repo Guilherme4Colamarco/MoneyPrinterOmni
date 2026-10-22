@@ -124,7 +124,7 @@ Saída 0, no stdout: `{"task_id": "...", "result": {"videos": [...], "combined_v
 | `1` | falha do pipeline ou exceção inesperada; em lote, pelo menos uma tarefa falhou (`cli.py:1732`) | vazio, ou o JSON parcial se já houver `videos` (`cli.py:1788`) |
 | `2` | argumento inválido (argparse), combinação recusada, manifesto inválido | vazio |
 
-Os logs vão para o stderr (`cli.py:1738`). O stdout contém só JSON.
+Os logs vão para o stderr (`cli.py:1742`). O stdout contém só JSON.
 
 ### Formato do resumo de lote
 
