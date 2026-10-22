@@ -11,7 +11,7 @@ from pathlib import Path
 from .manifest import CANVASES, INDEX, LANGS, NOTES, SECTION_TITLES, SECTIONS, canvas_path, note_path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "site" / "data.js"
+OUT_DIR = ROOT / "site"
 FRONT = re.compile(r"^---\n(.*?)\n---\n", re.S)
 
 
@@ -73,10 +73,12 @@ def build() -> dict:
 
 def main() -> int:
     data = build()
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text("window.MAPA = " + json.dumps(data, ensure_ascii=False, indent=1) + ";\n", encoding="utf-8")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    for lang, payload in data["langs"].items():
+        path = OUT_DIR / f"data.{lang}.js"
+        path.write_text("window.MAPA_LANG = " + json.dumps({"lang": lang, **payload}, ensure_ascii=False) + ";\n", encoding="utf-8")
     total = {lang: (len(v["notes"]), len(v["canvases"])) for lang, v in data["langs"].items()}
-    print(f"{OUT.relative_to(ROOT.parent.parent)}: {total}")
+    print(f"site/data.<idioma>.js: {total}")
     return 0
 
 

@@ -2,7 +2,19 @@
    Dados em data.js (gerado por tools/build_site.py). Rota: #/<idioma>/<id>, ex.: #/pt-BR/c02. */
 (function () {
   "use strict";
-  const DATA = window.MAPA;
+  // Dados por idioma (data.<lang>.js). Carrega o ativo antes de montar a página; o outro sob demanda.
+  const DATA = { langs: {} };
+  function loadLang(lg) {
+    return new Promise((resolve, reject) => {
+      if (DATA.langs[lg]) return resolve();
+      if (window.MAPA_EMBED && window.MAPA_EMBED[lg]) { DATA.langs[lg] = window.MAPA_EMBED[lg]; return resolve(); }
+      const s = document.createElement("script");
+      s.src = `data.${lg}.js`;
+      s.onload = () => { DATA.langs[lg] = window.MAPA_LANG; resolve(); };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const LANGS = ["pt-BR", "en"];
@@ -39,6 +51,7 @@
 
   /* ---------- estado ---------- */
   let lang = pickLang();
+  let booted = false;
   let current = { id: "home" };
 
   function pickLang() {
@@ -394,9 +407,10 @@
   results.addEventListener("click", () => { results.hidden = true; });
 
   /* ---------- roteamento ---------- */
-  function route() {
+  async function route() {
     const m = location.hash.match(/^#\/(pt-BR|en)(?:\/([\w-]+))?$/);
     if (m) lang = m[1];
+    if (!DATA.langs[lang]) await loadLang(lang);
     const id = (m && m[2]) || "home";
     try { localStorage.setItem("mapa-lang", lang); } catch (e) { /* sem storage */ }
     document.documentElement.lang = lang;
@@ -413,10 +427,11 @@
     reveal(view);
     window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
   }
-  window.addEventListener("hashchange", route);
+  window.addEventListener("hashchange", () => { if (booted) route(); });
 
-  $("#lang").addEventListener("click", () => {
+  $("#lang").addEventListener("click", async () => {
     const next = lang === "pt-BR" ? "en" : "pt-BR";
+    await loadLang(next);
     location.hash = current.id === "home" ? "#/" + next : `#/${next}/${current.id}`;
   });
   $("#toc").addEventListener("click", (e) => {
@@ -434,20 +449,21 @@
   });
   try { const th = localStorage.getItem("mapa-theme"); if (th) document.documentElement.dataset.theme = th; } catch (e) { /* sem storage */ }
 
-  /* scroll: barra de progresso, parallax do fundo e topbar */
-  let ticking = false;
+  /* scroll: barra de progresso e fundo, sem variáveis no :root (cada quadro só toca 2 elementos) */
+  const bar = $("#progress"), bgEl = $(".bg");
+  let ticking = false, scrolled = false;
   window.addEventListener("scroll", () => {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => {
       const y = window.scrollY, max = document.documentElement.scrollHeight - innerHeight;
-      document.documentElement.style.setProperty("--p", max > 0 ? (y / max).toFixed(4) : 0);
-      document.documentElement.style.setProperty("--sy", y);
-      document.body.classList.toggle("scrolled", y > 8);
+      bar.style.transform = `scaleX(${max > 0 ? (y / max).toFixed(4) : 0})`;
+      bgEl.style.transform = `translate3d(0, ${Math.round(-y * 0.05)}px, 0)`;
+      if ((y > 8) !== scrolled) { scrolled = y > 8; document.body.classList.toggle("scrolled", scrolled); }
       ticking = false;
     });
   }, { passive: true });
 
   document.documentElement.classList.add("js");
-  route();
+  loadLang(lang).then(() => { booted = true; route(); }).catch(() => { $("#view").textContent = "Não foi possível carregar o conteúdo."; });
 })();
