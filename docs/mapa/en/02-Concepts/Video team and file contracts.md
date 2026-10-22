@@ -94,8 +94,7 @@ The hunter writes the item. The editor reads `url` and `start` and calls `build_
 
 ## Pitfalls
 
-- **Fields with no reader.** `build_timeline.py` does not read `anim`, `props`, `phrases` or `why`. `anim` is an instruction for the agent, which renders `raw/anim_NN.mp4` and points `file` to it (`cacador-de-clipes.md:35-36`).
-- **Files no code reads.** `sources.json` has no script reader. And `arte.json.legenda` has no code reader: the montador translates it into flags by hand (`arte.py` has no defaults for it).
+- **Fields with no reader.** `build_timeline.py` does not read `anim`, `props`, `phrases` or `why`. `anim` is an instruction for the animador (`cacador-de-clipes.md:35-36`). `sources.json` and `arte.json.legenda` also have no script reader: the montador turns the subtitle block into flags by hand.
 - **The stop is not optional.** The package goes to the user before any download or edit (`setup.md:59-60`). Skipping step 5 reverses that order. The skill's rule is at `SKILL.md:125`.
 - **A folder outside the project.** `build_music.py` copies to `storage/bgm/`, outside `storage/projects/<slug>/`. The "do not delete outside the project" rule (`setup.md:76-77`) does not mention that folder.
 - **Review has a limit.** Two loops for each cycle. After that, take the problem to the user (`pipeline.md:53`).

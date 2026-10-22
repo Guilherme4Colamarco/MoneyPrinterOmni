@@ -94,8 +94,7 @@ O caçador escreve o item. O editor lê `url` e `start` e chama `build_timeline.
 
 ## Armadilhas
 
-- **Campos sem leitor.** `build_timeline.py` não lê `anim`, `props`, `phrases` nem `why`. O `anim` é só uma instrução para o agente, que renderiza o `raw/anim_NN.mp4` e aponta `file` (`cacador-de-clipes.md:35-36`).
-- **Campos que nenhum código lê.** `sources.json` não tem leitor em script. E `arte.json.legenda` não tem leitor no código: quem traduz para as flags é o montador (`arte.py` não tem padrões para ela).
+- **Campos sem leitor.** `build_timeline.py` não lê `anim`, `props`, `phrases` nem `why`. O `anim` é instrução para o animador (`cacador-de-clipes.md:35-36`). `sources.json` e `arte.json.legenda` também não têm leitor em script: a legenda vira flags pelo montador, à mão.
 - **Parada não é opcional.** O pacote vai ao usuário antes de baixar e editar (`setup.md:59-60`). Pular o passo 5 inverte essa ordem. A regra da skill está em `SKILL.md:125`.
 - **Pasta fora do projeto.** `build_music.py` copia para `storage/bgm/`, fora de `storage/projects/<slug>/`. A regra "não apagar fora do projeto" (`setup.md:76-77`) não cita essa pasta.
 - **Revisão tem limite.** Dois ciclos em cada laço. Depois disso, leve o problema ao usuário (`pipeline.md:53`).

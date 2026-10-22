@@ -31,8 +31,8 @@ def build(lang: str) -> Canvas:
                      "## 1 · pesquisador\n`research.md`, `sources.json`, `script.txt`, `music-plan.md`"), 1, 0, GREEN)
     c.text("rev", t("## 2 · revisão em paralelo\n`critico` → `critique/content-NN.md`\n`sugestor-de-pauta` → `critique/ideas-NN.md`\n`auditor` (fatos) → `audit/fatos-NN.md`",
                     "## 2 · parallel review\n`critico` → `critique/content-NN.md`\n`sugestor-de-pauta` → `critique/ideas-NN.md`\n`auditor` (facts) → `audit/fatos-NN.md`"), 2, 0, GREEN)
-    c.text("dec1", t("## Reprova ou sugere?\n`REVISAR`, `CORRIGIR` ou sugestão de alto ganho",
-                     "## Rejected or new ideas?\n`REVISAR`, `CORRIGIR` or a high-value suggestion"), 3, 0, YELLOW)
+    c.text("dec1", t("## 3 · reprova ou sugere?\n`REVISAR`, `CORRIGIR` ou sugestão de alto ganho",
+                     "## 3 · rejected or new ideas?\n`REVISAR`, `CORRIGIR` or a high-value suggestion"), 3, 0, YELLOW)
     c.text("arte", t("## 4 · diretor-de-arte\n`arte.md`, `arte.json`: legenda, textos, thumbnail",
                      "## 4 · diretor-de-arte\n`arte.md`, `arte.json`: subtitles, on-screen text, thumbnail"), 4, 0, GREEN)
     c.text("par", t("## 5 · diretor (aprovação)\n`aprovacao-NN.md`\n**PARADA:** só segue com o aval do usuário",
@@ -51,8 +51,8 @@ def build(lang: str) -> Canvas:
     c.text("dec2", t("## Reprova?\n`REVISAR` ou `CORRIGIR`", "## Rejected?\n`REVISAR` or `CORRIGIR`"), 2, 2, YELLOW)
     c.text("pub", t("## 11 · designer e redator\n`publicacao/thumb-*.png`, `publicacao.md`",
                     "## 11 · designer and writer\n`publicacao/thumb-*.png`, `publicacao.md`"), 1, 2, GREEN)
-    c.text("ent", t("## 12 · diretor (entrega)\n`entrega.md`: `PRONTO` ou `REFAZER <etapa>`\n*Nunca publica.*",
-                    "## 12 · diretor (delivery)\n`entrega.md`: `PRONTO` or `REFAZER <etapa>`\n*Never publishes.*"), 0, 2, PURPLE)
+    c.text("ent", t("## 12 · diretor (entrega)\n`entrega.md`: `PRONTO` ou `REFAZER <etapa>`\n## 13 · relatório\nNada é publicado.",
+                    "## 12 · diretor (delivery)\n`entrega.md`: `PRONTO` or `REFAZER <etapa>`\n## 13 · report\nNothing is published."), 0, 2, PURPLE)
 
     c.edge("brief", "pesq")
     c.edge("pesq", "rev")

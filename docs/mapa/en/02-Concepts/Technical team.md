@@ -79,9 +79,7 @@ A request to "add an LLM provider" touches the API and the config, so the plan g
 
 ## Pitfalls
 
-- **The skill says "six roles".** The frontmatter description (`manutencao/SKILL.md:3`) and the Claude adapter's description both list six. There are eight now, and the table in `AGENTS.md` (`AGENTS.md:102-109`) already has all eight.
-- **"Two modes" in `AGENTS.md`.** Line 94 says two modes. The skill has four.
-- **Not the video team.** `tecnico.md:6` says the video team does not touch code and this team does not make videos. A video request does not go here.
+- **Outdated texts.** The description in `manutencao/SKILL.md:3` and the Claude adapter's list six roles; there are eight. `AGENTS.md:94` says "two modes"; there are four.
 - **Git is not the team's job.** No role commits, pushes or opens a PR (`tecnico.md:60-61`).
 - **A red check is not ready.** "Red CI checks = not ready", whatever the verdict (`SKILL.md:68`).
 

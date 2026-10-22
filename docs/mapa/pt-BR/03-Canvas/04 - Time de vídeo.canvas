@@ -69,7 +69,7 @@
     {
       "id": "a3218734457b9a9b",
       "type": "text",
-      "text": "## Reprova ou sugere?\n`REVISAR`, `CORRIGIR` ou sugestão de alto ganho",
+      "text": "## 3 · reprova ou sugere?\n`REVISAR`, `CORRIGIR` ou sugestão de alto ganho",
       "x": 1200,
       "y": 0,
       "width": 320,
@@ -169,7 +169,7 @@
     {
       "id": "645ec79f22bec5ef",
       "type": "text",
-      "text": "## 12 · diretor (entrega)\n`entrega.md`: `PRONTO` ou `REFAZER <etapa>`\n*Nunca publica.*",
+      "text": "## 12 · diretor (entrega)\n`entrega.md`: `PRONTO` ou `REFAZER <etapa>`\n## 13 · relatório\nNada é publicado.",
       "x": 0,
       "y": 400,
       "width": 320,

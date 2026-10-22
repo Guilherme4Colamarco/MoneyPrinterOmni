@@ -37,7 +37,7 @@ The golden rule: **one source**. `AGENTS.md` and `.agents/` say what applies. Ea
 | `grok-bot.md` | guide to set up the team in Grok Bot, which does not read the repository |
 
 3. When two rules conflict, the order in `setup.md:6-15` wins: explicit request > `brief.md` > profile > tastes > setup. In the technical team the order is request > `pedido.md` > `AGENTS.md` > `tecnico.md` (`tecnico.md:8-13`).
-4. Each tool reads its own adapter folder. Claude Code reads `.claude/`; Grok Build reads `.grok/`. See [[Claude and Grok adapters]].
+4. Each tool reads its own adapter folder. Claude Code reads `.claude/`; Grok Build reads `.grok/` and, according to `AGENTS.md:116`, also `.claude/agents/`. See [[Claude and Grok adapters]].
 
 Rules the harness repeats everywhere: never publish, never change `config.toml`, an approval stop before download, and an audit before delivery (`setup.md:59-62`, `setup.md:76-77`).
 

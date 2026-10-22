@@ -79,9 +79,7 @@ Um pedido de "adicionar um provedor de LLM" toca API e config, então o plano va
 
 ## Armadilhas
 
-- **A skill diz "seis papéis".** A descrição do frontmatter (`manutencao/SKILL.md:3`) e a do adaptador Claude listam seis. Hoje são oito, e a tabela de `AGENTS.md` (`AGENTS.md:102-109`) já tem os oito.
-- **"Dois modos" no `AGENTS.md`.** O texto da linha 94 fala em dois modos. A skill tem quatro.
-- **Não é o time de vídeo.** `tecnico.md:6` diz que o time de vídeo não mexe no código e este não produz vídeo. Um pedido de vídeo não vai para cá.
+- **Textos desatualizados.** A descrição de `manutencao/SKILL.md:3` e a do adaptador Claude listam seis papéis; são oito. `AGENTS.md:94` diz "dois modos"; são quatro.
 - **Git não é do time.** Nenhum papel faz commit, push ou PR (`tecnico.md:60-61`).
 - **Checagem vermelha não passa.** "Checagens do CI vermelhas = não está pronto", qualquer que seja o veredito (`SKILL.md:68`).
 

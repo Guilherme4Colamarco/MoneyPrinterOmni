@@ -37,7 +37,7 @@ A regra de ouro: **uma fonte só**. `AGENTS.md` e `.agents/` dizem o que vale. A
 | `grok-bot.md` | guia para montar o time no Grok Bot, que não lê o repositório |
 
 3. Quando duas regras conflitam, vale a ordem de `setup.md:6-15`: pedido explícito > `brief.md` > perfil > gostos > setup. No time técnico a ordem é pedido > `pedido.md` > `AGENTS.md` > `tecnico.md` (`tecnico.md:8-13`).
-4. Cada ferramenta lê a própria pasta de adaptador. O Claude Code lê `.claude/`; o Grok Build lê `.grok/`. Ver [[Adaptadores Claude e Grok]].
+4. Cada ferramenta lê a própria pasta de adaptador. O Claude Code lê `.claude/`; o Grok Build lê `.grok/` e, segundo `AGENTS.md:116`, também `.claude/agents/`. Ver [[Adaptadores Claude e Grok]].
 
 Regras que o harness repete em todo lugar: nunca publicar, nunca mudar `config.toml`, parada de aprovação antes do download e auditoria antes da entrega (`setup.md:59-62`, `setup.md:76-77`).
 
