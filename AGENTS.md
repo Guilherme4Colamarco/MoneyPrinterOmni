@@ -61,7 +61,12 @@ Fluxo para produzir um vídeo sobre qualquer assunto, do tema ao arquivo final: 
   fontes, cuidados obrigatórios, canais de referência, histórico); modelo em `_modelo.md`.
 - `.agents/gostos.md` — gostos do criador: música, estilo artístico, narração, linguagem.
 - `.agents/pipeline.md` — pasta do projeto, etapas e contratos de arquivo.
-- `.agents/playbooks/` — `yt-dlp.md`, `ffmpeg-timeline.md`, `moneyprinter.md`.
+- `.agents/playbooks/` — `yt-dlp.md`, `redes-sociais.md`, `ffmpeg-timeline.md`, `moneyprinter.md`.
+- `.mcp.json` — servidores MCP gratuitos e só de leitura para redes sociais: `yt-dlp` (metadados e
+  download de X, TikTok, Instagram, Reddit), `reddit` (anônimo) e `apify` (Instagram/TikTok, exige
+  `APIFY_TOKEN`). Segredos só por variável de ambiente (`${VAR}`), nunca no git; o Claude Code
+  habilita e restringe em `.claude/settings.json` (escrita e publicação bloqueadas). Outros
+  assistentes copiam as entradas para a própria config de MCP.
 
 | Papel | Função |
 |---|---|
@@ -79,4 +84,37 @@ Fluxo para produzir um vídeo sobre qualquer assunto, do tema ao arquivo final: 
 
 Para usar: peça ao seu assistente "siga `.agents/skills/video/SKILL.md` para um vídeo sobre <tema>".
 Requisitos do assistente: terminal, busca na web e capacidade de ver imagens (para conferir
-quadros); sem visão, ele deve pedir ao usuário para conferir as prévias.
+quadros); sem visão, ele deve pedir ao usuário para conferir as prévias. MCP é opcional: sem ele,
+`redes-sociais.md` indica o caminho pelo `yt-dlp` e pela busca na web.
+
+## Manutenção do programa com agentes (time técnico)
+
+Para mudar ou auditar o código do MoneyPrinterOmni (não para produzir vídeo):
+
+- `.agents/skills/manutencao/SKILL.md` — orquestração em dois modos: **mudança** (plano → teste de
+  reprodução → código → testes → revisão e auditoria de segurança em paralelo) e **auditoria**
+  (saúde + segurança, lista priorizada; só vira mudança com o aval do usuário).
+- `.agents/tecnico.md` — regras do time, pasta da tarefa (`storage/manutencao/<slug>/`), checagens
+  do CI que precisam passar e vereditos.
+
+| Papel | Função |
+|---|---|
+| `arquiteto` | lê o código envolvido e escreve o `plano.md`; não edita código |
+| `desenvolvedor` | implementa o plano na camada de serviço e roda ruff e testes da área |
+| `testador` | reproduz bugs com teste, completa a cobertura e roda a suíte do CI; só edita `test/` |
+| `revisor-de-codigo` | revisa o diff: bugs, contratos entre API/WebUI/CLI, padrões; só aponta |
+| `auditor-de-seguranca` | arquivos, subprocess, SSRF, segredos, API e dependências; só aponta |
+| `auditor-de-saude` | CI, cobertura, código morto, dívida técnica, deps e docs; lista priorizada |
+| `pesquisador-de-integracoes` | pesquisa APIs, assinaturas, SDKs e MCPs candidatos (auth, custo, termos, segurança); só relata |
+| `mantenedor-do-harness` | cuida de `AGENTS.md`, `.agents/`, adaptadores, `.mcp.json` e permissões; audita e edita o harness quando pedido |
+
+Para usar: "siga `.agents/skills/manutencao/SKILL.md` para <bug, função ou auditoria>". O time não
+faz commit, push nem PR sem pedido do usuário.
+
+## Grok
+
+- Grok Build (`grok`) lê `AGENTS.md`, `.agents/skills/`, `.claude/agents/`, `.mcp.json` e `.claude/settings.json` sem arquivos extras.
+- `.grok/` é o adaptador robusto: `.grok/agents/` (um arquivo por papel, gerado de `.claude/agents/`) e `.grok/skills/video/`. Regere com `python3 .agents/tools/sync_grok_agents.py`; `--check` só confere. Não edite `.grok/agents/` à mão.
+- Na raiz do repositório, rode `grok --trust` (a pasta precisa de confiança) e confira o que foi encontrado com `grok inspect`.
+- Aviso: `model: sonnet` dos adaptadores Claude não existe no Grok. Por isso o `.grok/agents/` gerado usa `model: inherit`.
+- Grok Bot (app, não lê o repositório): o guia para montar o time está em `.agents/grok-bot.md`.

@@ -20,7 +20,7 @@ Você orquestra. Cada etapa tem um papel em `.agents/roles/` (`pesquisador`, `cr
 Regras gerais em `.agents/setup.md`; perfil de cada canal dark em `.agents/perfis/`; gostos do criador
 em `.agents/gostos.md`.
 Contratos de arquivo em `.agents/pipeline.md`; receitas em `.agents/playbooks/` (`yt-dlp.md`,
-`ffmpeg-timeline.md`, `moneyprinter.md`).
+`redes-sociais.md`, `ffmpeg-timeline.md`, `moneyprinter.md`).
 
 ## 0. Setup, perfil e brief
 
@@ -77,11 +77,12 @@ Resumo geral; o perfil tem o detalhe e os cuidados de cada assunto.
 
 | Assunto | Primeira opção | Alternativas |
 |---|---|---|
-| Jogos, apps, produtos, tecnologia | vídeo do criador/marca, demos, reviews (YouTube, X, TikTok) | gravação de tela do usuário, prints |
+| Jogos, apps, produtos, tecnologia | vídeo do criador/marca, demos, reviews (YouTube, X, TikTok, Instagram) | gravação de tela do usuário, prints |
 | Notícias e acontecimentos | vídeo da própria notícia, coletivas, canais oficiais | prints de manchetes (`image`), stock |
 | História, ciência, espaço, natureza | Wikimedia Commons, NASA/ESA, archive.org (domínio público) | documentários (trechos curtos), stock |
 | Dinheiro, economia, dados, saúde | gráfico gerado com os números do `research.md` (`image`) | stock de contexto |
 | Pessoas e lugares | vídeo oficial/entrevista; stock para lugares | fotos de Commons |
+| Reação do público, tendências, virais | post original no Reddit, X, TikTok ou Instagram (`redes-sociais.md`) | print do post (`image`), matéria sobre o viral |
 | Ideias abstratas, transições | stock Pexels/Pixabay | ilustração gerada, texto em tela |
 | Tutorial, passo a passo | gravação de tela do usuário | prints anotados |
 

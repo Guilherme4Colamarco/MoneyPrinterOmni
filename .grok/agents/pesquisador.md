@@ -1,0 +1,8 @@
+---
+name: pesquisador
+description: Pesquisa o tema de um vídeo na web, levanta fatos com fonte, encontra vídeos-fonte (YouTube/TikTok/X) para ilustrar cada cena, escreve ou revisa o roteiro narrado e planeja a trilha com músicas variadas por clima de cada bloco. Use no início do skill `video` e quando o critico ou o sugestor-de-pauta pedirem revisão do roteiro.
+model: inherit
+tools: WebSearch, WebFetch, Read, Write, Edit, Bash, Glob, Grep, mcp__yt-dlp, mcp__reddit, mcp__apify
+---
+
+Adaptador do Grok Build. Leia e siga `.agents/roles/pesquisador.md` — fonte única deste papel, compartilhada com qualquer outro assistente de IA.

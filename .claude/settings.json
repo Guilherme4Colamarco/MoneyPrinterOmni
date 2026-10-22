@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "enabledMcpjsonServers": ["yt-dlp", "reddit", "apify"],
+  "permissions": {
+    "allow": [
+      "mcp__yt-dlp__ytdlp_search_videos",
+      "mcp__yt-dlp__ytdlp_list_subtitle_languages",
+      "mcp__yt-dlp__ytdlp_download_video_subtitles",
+      "mcp__yt-dlp__ytdlp_download_transcript",
+      "mcp__yt-dlp__ytdlp_download_video",
+      "mcp__yt-dlp__ytdlp_download_audio",
+      "mcp__yt-dlp__ytdlp_get_video_metadata",
+      "mcp__yt-dlp__ytdlp_get_video_metadata_summary",
+      "mcp__yt-dlp__ytdlp_get_video_comments",
+      "mcp__yt-dlp__ytdlp_get_video_comments_summary",
+      "mcp__reddit__browse_subreddit",
+      "mcp__reddit__search_reddit",
+      "mcp__reddit__get_post_details",
+      "mcp__reddit__user_analysis",
+      "mcp__reddit__reddit_explain",
+      "mcp__apify__apify--instagram-scraper",
+      "mcp__apify__clockworks--tiktok-scraper",
+      "mcp__apify__trudax--reddit-scraper-lite",
+      "mcp__apify__get-actor-run",
+      "mcp__apify__get-dataset-items",
+      "mcp__apify__get-key-value-store-record"
+    ],
+    "deny": [
+      "mcp__apify__call-actor",
+      "mcp__apify__create-actor-task",
+      "mcp__apify__update-actor-task",
+      "mcp__apify__publish-actor-task",
+      "mcp__apify__unpublish-actor-task",
+      "mcp__apify__create-schedule",
+      "mcp__apify__update-schedule",
+      "mcp__apify__delete-schedule",
+      "mcp__apify__report-problem"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ensure-yt-dlp.sh",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

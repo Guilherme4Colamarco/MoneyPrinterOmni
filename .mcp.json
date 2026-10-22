@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "yt-dlp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@kevinwatt/yt-dlp-mcp@0.10.0"],
+      "env": {
+        "YTDLP_DOWNLOADS_DIR": "${HOME}/.cache/yt-dlp-mcp",
+        "YTDLP_DEFAULT_RESOLUTION": "1080p",
+        "YTDLP_DEFAULT_SUBTITLE_LANG": "pt",
+        "NODE_USE_ENV_PROXY": "1"
+      }
+    },
+    "reddit": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "reddit-mcp-buddy@1.1.14"],
+      "env": {
+        "REDDIT_CLIENT_ID": "${REDDIT_CLIENT_ID:-}",
+        "REDDIT_CLIENT_SECRET": "${REDDIT_CLIENT_SECRET:-}",
+        "REDDIT_USER_AGENT": "${REDDIT_USER_AGENT:-MoneyPrinterOmni-research/1.0}",
+        "NODE_USE_ENV_PROXY": "1"
+      }
+    },
+    "apify": {
+      "type": "http",
+      "url": "https://mcp.apify.com/?tools=apify/instagram-scraper,clockworks/tiktok-scraper,trudax/reddit-scraper-lite&telemetry-enabled=false",
+      "headers": {
+        "Authorization": "Bearer ${APIFY_TOKEN}"
+      }
+    }
+  }
+}
