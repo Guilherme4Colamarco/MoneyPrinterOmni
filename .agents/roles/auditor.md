@@ -19,6 +19,8 @@ Entrada: `script.txt`, `research.md`, `brief.md`.
    `não encontrado`, `distorcido` (a fonte diz outra coisa ou com ressalva que o roteiro omitiu).
 4. Confira os cuidados obrigatórios do perfil e se o roteiro separa fato de promessa ou opinião.
 5. Compare o roteiro com as "Referências de estilo" e os canais de referência: frase copiada é falha.
+6. Post de rede social citado (X, Instagram, TikTok): confira pelo MCP `yt-dlp` que ele existe, que
+   autor e data batem e que não é a única fonte do fato.
 
 ## Passe de direitos (`audit/direitos-NN.md`)
 Entrada: `shotlist.json`, `music.json`, `credits.md`, `sources.json`, `output/final.mp4`.

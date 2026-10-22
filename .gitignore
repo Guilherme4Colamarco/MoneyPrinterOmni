@@ -45,3 +45,9 @@ htmlcov/
 
 # Claude Code 订阅令牌（docker compose 自动读取），禁止提交
 .env
+.env.*
+!.env.example
+
+# Claude Code: settings pessoais e cookies de sites (nunca versionar)
+.claude/settings.local.json
+*cookies*.txt

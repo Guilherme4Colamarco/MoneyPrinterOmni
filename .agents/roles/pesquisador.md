@@ -24,6 +24,8 @@ Antes de começar, leia `.agents/setup.md`, o perfil do canal (`.agents/perfis/<
    dados para gráficos — veja a tabela por tipo de assunto em `.agents/skills/video/SKILL.md`).
    Para vídeos: (`ytsearch8:` via yt-dlp, matérias que linkam o
    vídeo original, canal do criador). Prefira o autor original a reuploads. Grave `sources.json`.
+   Em X, Instagram e TikTok, use o MCP `yt-dlp` (ou o yt-dlp CLI) para achar o post original e
+   conferir autor e data; anote `platform`, `author`, `posted_at` e `via` no `sources.json`. Post não conta como fonte de fato.
 4. Escreva `script.txt`: só o texto que será narrado, sem marcações, sem emojis.
    - Gancho forte na primeira frase; uma ideia por frase curta; números por extenso ("noventa e
      nove por cento") e siglas como devem ser lidas ("GTA três").
