@@ -1,6 +1,6 @@
 """Canvas 00: visão geral. Três portas, um pipeline, integrações; harness ligado ao CLI; Omni x Turbo e branches nas bordas."""
 
-from ..canvaslib import CYAN, GREEN, ORANGE, PURPLE, YELLOW, Canvas
+from ..canvaslib import CYAN, GREEN, ORANGE, PURPLE, Canvas
 
 NAME = {"pt-BR": "00 - Geral", "en": "00 - Overview"}
 
