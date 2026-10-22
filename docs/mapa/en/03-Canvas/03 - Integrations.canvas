@@ -1,0 +1,265 @@
+{
+  "nodes": [
+    {
+      "id": "b84d6fb6ada5da06",
+      "type": "group",
+      "label": "Pipeline (stages)",
+      "x": 370,
+      "y": 550,
+      "width": 2380,
+      "height": 220
+    },
+    {
+      "id": "ccdb3717dd1f8154",
+      "type": "text",
+      "text": "## Script and terms\n`llm.generate_script`",
+      "x": 400,
+      "y": 600,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "a5ca0b5894324f8b",
+      "type": "text",
+      "text": "## Audio\n`generate_audio` → `voice.tts`",
+      "x": 800,
+      "y": 600,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "88f7b0199083ab4f",
+      "type": "text",
+      "text": "## Subtitles\n`edge` or local `whisper`",
+      "x": 1200,
+      "y": 600,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "eec34d804c9ce6c8",
+      "type": "text",
+      "text": "## Material\n`get_video_materials`",
+      "x": 1600,
+      "y": 600,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "421b47ffd946ca08",
+      "type": "text",
+      "text": "## Final video\n`generate_final_videos`",
+      "x": 2000,
+      "y": 600,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "f8e71a764f4915da",
+      "type": "text",
+      "text": "# Publishing\n`_run_cross_post`",
+      "x": 2400,
+      "y": 600,
+      "width": 320,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "dae1be85dab3650e",
+      "type": "text",
+      "text": "## LLM\n37 providers (`LLM_PROVIDER_REGISTRY`)",
+      "x": 400,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "decc1eab6d0751fc",
+      "type": "text",
+      "text": "## Subscriptions (no key)\nClaude Code (CLI), Kimi Code (OAuth)",
+      "x": 0,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "72ecb0838c7b4ffb",
+      "type": "text",
+      "text": "## TTS\nEdge, Azure, Gemini, ElevenLabs and others",
+      "x": 800,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "76ee3de97a1b8b90",
+      "type": "text",
+      "text": "## upload-post\nTikTok, Instagram, YouTube",
+      "x": 2400,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "fd3ee263d1cd81c6",
+      "type": "text",
+      "text": "## Stock and AI\nPexels, Pixabay, Coverr; WaveSpeed, Seedance, OFox, MuAPI, Metaso, OpenAI image",
+      "x": 1600,
+      "y": 1000,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "ddc88111e7c64377",
+      "type": "text",
+      "text": "## AI music\nSonilo, ElevenLabs Music",
+      "x": 2000,
+      "y": 1000,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "19e74ab95eb54475",
+      "type": "text",
+      "text": "## Local SDXL\n`docs/local-image-server` (unstable)",
+      "x": 1200,
+      "y": 1000,
+      "width": 320,
+      "height": 140,
+      "color": "2"
+    },
+    {
+      "id": "d158ca5ea46eeded",
+      "type": "text",
+      "text": "## PLANNED\nCodex CLI, Gemini CLI, Grok Build, xAI STT/TTS",
+      "x": 0,
+      "y": 1000,
+      "width": 320,
+      "height": 140,
+      "color": "2"
+    }
+  ],
+  "edges": [
+    {
+      "id": "bef1323968238210",
+      "fromNode": "ccdb3717dd1f8154",
+      "fromSide": "right",
+      "toNode": "a5ca0b5894324f8b",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "058e5d75ce90e502",
+      "fromNode": "a5ca0b5894324f8b",
+      "fromSide": "right",
+      "toNode": "88f7b0199083ab4f",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "9c3bb4702f40cd8c",
+      "fromNode": "88f7b0199083ab4f",
+      "fromSide": "right",
+      "toNode": "eec34d804c9ce6c8",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "505f110c6c11a5a9",
+      "fromNode": "eec34d804c9ce6c8",
+      "fromSide": "right",
+      "toNode": "421b47ffd946ca08",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "9a1a7f8575cfacbd",
+      "fromNode": "421b47ffd946ca08",
+      "fromSide": "right",
+      "toNode": "f8e71a764f4915da",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "07ee9ba507f86e69",
+      "fromNode": "decc1eab6d0751fc",
+      "fromSide": "right",
+      "toNode": "dae1be85dab3650e",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "login",
+      "color": "5"
+    },
+    {
+      "id": "65b84a89323aa36a",
+      "fromNode": "dae1be85dab3650e",
+      "fromSide": "bottom",
+      "toNode": "ccdb3717dd1f8154",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "script",
+      "color": "5"
+    },
+    {
+      "id": "79a22992eb61f95e",
+      "fromNode": "72ecb0838c7b4ffb",
+      "fromSide": "bottom",
+      "toNode": "a5ca0b5894324f8b",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "voice",
+      "color": "5"
+    },
+    {
+      "id": "ab775b918cf886e1",
+      "fromNode": "fd3ee263d1cd81c6",
+      "fromSide": "top",
+      "toNode": "eec34d804c9ce6c8",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "clips",
+      "color": "5"
+    },
+    {
+      "id": "0f717fe5f5816300",
+      "fromNode": "ddc88111e7c64377",
+      "fromSide": "top",
+      "toNode": "421b47ffd946ca08",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "soundtrack",
+      "color": "5"
+    },
+    {
+      "id": "7adb0a69b95c2c93",
+      "fromNode": "76ee3de97a1b8b90",
+      "fromSide": "bottom",
+      "toNode": "f8e71a764f4915da",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "upload",
+      "color": "5"
+    },
+    {
+      "id": "3277e317c814dc99",
+      "fromNode": "19e74ab95eb54475",
+      "fromSide": "top",
+      "toNode": "eec34d804c9ce6c8",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "images",
+      "color": "2"
+    }
+  ]
+}

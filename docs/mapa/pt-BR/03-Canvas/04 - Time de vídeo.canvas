@@ -1,0 +1,309 @@
+{
+  "nodes": [
+    {
+      "id": "2bee2f2a139f9191",
+      "type": "group",
+      "label": "Pesquisa e crítica (0–3)",
+      "x": -30,
+      "y": -50,
+      "width": 1580,
+      "height": 220
+    },
+    {
+      "id": "f929b34474fd31fb",
+      "type": "group",
+      "label": "Arte, aprovação e tempo (4–6)",
+      "x": 1570,
+      "y": -50,
+      "width": 1180,
+      "height": 220
+    },
+    {
+      "id": "d20b2dbedf71a5f3",
+      "type": "group",
+      "label": "Clipes, render e revisão (7–10)",
+      "x": 770,
+      "y": 350,
+      "width": 1980,
+      "height": 220
+    },
+    {
+      "id": "965b43ca338e37e4",
+      "type": "group",
+      "label": "Publicação e entrega (11–12)",
+      "x": -30,
+      "y": 350,
+      "width": 780,
+      "height": 220
+    },
+    {
+      "id": "106f16a8fde7ae2e",
+      "type": "text",
+      "text": "# 0 · Pedido e brief\n`brief.md`: perfil, tema, duração, formato, idioma\n*orquestrador*",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "ba3902395ef335e4",
+      "type": "text",
+      "text": "## 1 · pesquisador\n`research.md`, `sources.json`, `script.txt`, `music-plan.md`",
+      "x": 400,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "48cd7517d21176f9",
+      "type": "text",
+      "text": "## 2 · revisão em paralelo\n`critico` → `critique/content-NN.md`\n`sugestor-de-pauta` → `critique/ideas-NN.md`\n`auditor` (fatos) → `audit/fatos-NN.md`",
+      "x": 800,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "a3218734457b9a9b",
+      "type": "text",
+      "text": "## 3 · reprova ou sugere?\n`REVISAR`, `CORRIGIR` ou sugestão de alto ganho",
+      "x": 1200,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "c8581bc43486c23e",
+      "type": "text",
+      "text": "## 4 · diretor-de-arte\n`arte.md`, `arte.json`: legenda, textos, thumbnail",
+      "x": 1600,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "d018268506e28685",
+      "type": "text",
+      "text": "## 5 · diretor (aprovação)\n`aprovacao-NN.md`\n**PARADA:** só segue com o aval do usuário",
+      "x": 2000,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "e34c64a05273012b",
+      "type": "text",
+      "text": "## 6 · montador-mpt (tempo)\n`--stop-at audio` e `subtitle`, `timing.json`, `music.json`, `bgm.mp3`",
+      "x": 2400,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "f6d8b886335927d4",
+      "type": "text",
+      "text": "## 7 · cacador-de-clipes\n`shotlist.json`, `raw/`\n7b · `animador`: `raw/anim_NN.mp4`",
+      "x": 2400,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "de95b43bceeb4b99",
+      "type": "text",
+      "text": "## 8 · editor-de-clipes\n`build_timeline.py` → `timeline/NN.mp4`, `credits.md`",
+      "x": 2000,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "9e5f0bb330344d58",
+      "type": "text",
+      "text": "## 9 · montador-mpt (render)\n`output/final.mp4`",
+      "x": 1600,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "c3e888ce42796ce1",
+      "type": "text",
+      "text": "## 10 · revisão final\n`critico` → `critique/visual-NN.md`\n`auditor` (direitos) → `audit/direitos-NN.md`",
+      "x": 1200,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "a585257a5b4d06da",
+      "type": "text",
+      "text": "## Reprova?\n`REVISAR` ou `CORRIGIR`",
+      "x": 800,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "3a21cd7317e1445b",
+      "type": "text",
+      "text": "## 11 · designer e redator\n`publicacao/thumb-*.png`, `publicacao.md`",
+      "x": 400,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "645ec79f22bec5ef",
+      "type": "text",
+      "text": "## 12 · diretor (entrega)\n`entrega.md`: `PRONTO` ou `REFAZER <etapa>`\n## 13 · relatório\nNada é publicado.",
+      "x": 0,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "6"
+    }
+  ],
+  "edges": [
+    {
+      "id": "42a6f2f12597381f",
+      "fromNode": "106f16a8fde7ae2e",
+      "fromSide": "right",
+      "toNode": "ba3902395ef335e4",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "ae1b0907ba95b60c",
+      "fromNode": "ba3902395ef335e4",
+      "fromSide": "right",
+      "toNode": "48cd7517d21176f9",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "cfd34e21e5850322",
+      "fromNode": "48cd7517d21176f9",
+      "fromSide": "right",
+      "toNode": "a3218734457b9a9b",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "ca80889801aa80cc",
+      "fromNode": "a3218734457b9a9b",
+      "fromSide": "right",
+      "toNode": "c8581bc43486c23e",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "não"
+    },
+    {
+      "id": "761f59688c20f567",
+      "fromNode": "c8581bc43486c23e",
+      "fromSide": "right",
+      "toNode": "d018268506e28685",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "e32fd3153c431314",
+      "fromNode": "d018268506e28685",
+      "fromSide": "right",
+      "toNode": "e34c64a05273012b",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "aprovado"
+    },
+    {
+      "id": "3a5cda6807b341b8",
+      "fromNode": "e34c64a05273012b",
+      "fromSide": "bottom",
+      "toNode": "f6d8b886335927d4",
+      "toSide": "top",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "c78d294bcc1a8d89",
+      "fromNode": "f6d8b886335927d4",
+      "fromSide": "left",
+      "toNode": "de95b43bceeb4b99",
+      "toSide": "right",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "c2267adb7e2d4687",
+      "fromNode": "de95b43bceeb4b99",
+      "fromSide": "left",
+      "toNode": "9e5f0bb330344d58",
+      "toSide": "right",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "29548060f0037337",
+      "fromNode": "9e5f0bb330344d58",
+      "fromSide": "left",
+      "toNode": "c3e888ce42796ce1",
+      "toSide": "right",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "8f9cb1564baafd35",
+      "fromNode": "c3e888ce42796ce1",
+      "fromSide": "left",
+      "toNode": "a585257a5b4d06da",
+      "toSide": "right",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "1351c8cd734c5bd5",
+      "fromNode": "a585257a5b4d06da",
+      "fromSide": "left",
+      "toNode": "3a21cd7317e1445b",
+      "toSide": "right",
+      "toEnd": "arrow",
+      "label": "não"
+    },
+    {
+      "id": "f9e89624094b3d35",
+      "fromNode": "3a21cd7317e1445b",
+      "fromSide": "left",
+      "toNode": "645ec79f22bec5ef",
+      "toSide": "right",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "381fa04edd730914",
+      "fromNode": "a3218734457b9a9b",
+      "fromSide": "bottom",
+      "toNode": "ba3902395ef335e4",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "sim: revisa (máx. 2)",
+      "color": "1"
+    },
+    {
+      "id": "8897182a8d7dc7b0",
+      "fromNode": "a585257a5b4d06da",
+      "fromSide": "top",
+      "toNode": "de95b43bceeb4b99",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "sim: refaz cenas (máx. 2)",
+      "color": "1"
+    }
+  ]
+}

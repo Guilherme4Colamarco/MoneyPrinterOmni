@@ -1,0 +1,136 @@
+{
+  "nodes": [
+    {
+      "id": "fad58de7366495db",
+      "type": "text",
+      "text": "## main\nOnly what is tested and proven",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "a6389c69fe881a8e",
+      "type": "text",
+      "text": "## unstable\nRecently added, lightly tested",
+      "x": 0,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "2"
+    },
+    {
+      "id": "3df851502f9c020b",
+      "type": "text",
+      "text": "## Upstream v1.3.9\nenters unstable",
+      "x": 0,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "2"
+    },
+    {
+      "id": "7fad4cee9e5014d0",
+      "type": "text",
+      "text": "## Fixed and tested?",
+      "x": 400,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "4f876ab4493c98f6",
+      "type": "text",
+      "text": "## No\nStays on unstable",
+      "x": 400,
+      "y": 400,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "ec92848559fdebdf",
+      "type": "text",
+      "text": "### On main\n- stock-video capture\n- AI scripts\n- Claude Code and other harnesses\n- Remotion, yt-dlp, Grok",
+      "x": 800,
+      "y": 0,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "ecc20679929e8f31",
+      "type": "text",
+      "text": "### On unstable\n- Reddit and Apify MCPs\n- technical team\n- channel profiles with assets\n- new animations\n- v1.3.9 merge\n- subscriptions",
+      "x": 800,
+      "y": 200,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "698dc19d489c4e4d",
+      "type": "text",
+      "text": "## Test before the PR\nActions are off on the fork: local ruff and pytest",
+      "x": 800,
+      "y": 400,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "30316cac0e49fe6c",
+      "type": "text",
+      "text": "## Rules\nNo force-push\nPromotion only by PR",
+      "x": 1200,
+      "y": 200,
+      "width": 320,
+      "height": 140
+    }
+  ],
+  "edges": [
+    {
+      "id": "834e8a020f710f55",
+      "fromNode": "3df851502f9c020b",
+      "fromSide": "top",
+      "toNode": "a6389c69fe881a8e",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "enters"
+    },
+    {
+      "id": "efa54da2f5cb2931",
+      "fromNode": "a6389c69fe881a8e",
+      "fromSide": "right",
+      "toNode": "7fad4cee9e5014d0",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "ready for PR"
+    },
+    {
+      "id": "4026a85b2e8f946e",
+      "fromNode": "7fad4cee9e5014d0",
+      "fromSide": "left",
+      "toNode": "fad58de7366495db",
+      "toSide": "right",
+      "toEnd": "arrow",
+      "label": "yes: PR to main"
+    },
+    {
+      "id": "a747e9c5a3b31881",
+      "fromNode": "7fad4cee9e5014d0",
+      "fromSide": "bottom",
+      "toNode": "4f876ab4493c98f6",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "no"
+    },
+    {
+      "id": "51fc0fda8cb3d1de",
+      "fromNode": "698dc19d489c4e4d",
+      "fromSide": "left",
+      "toNode": "7fad4cee9e5014d0",
+      "toSide": "right",
+      "toEnd": "arrow",
+      "label": "local checks"
+    }
+  ]
+}

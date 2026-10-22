@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa do MoneyPrinterOmni</title>
+<meta name="description" content="Apostila e mapa do MoneyPrinterOmni: pipeline, integrações, harness de agentes, Omni e Turbo, branches.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap"></noscript>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"></div>
+
+<header class="topbar glass">
+  <button id="menu" class="btn icon" aria-label="Menu">☰</button>
+  <a class="brand" href="#/"><span class="logo">◈</span><span id="brand-text">Mapa do MoneyPrinterOmni</span></a>
+  <div class="search">
+    <input id="q" type="search" autocomplete="off" spellcheck="false">
+    <kbd>/</kbd>
+    <div id="results" class="results glass" hidden></div>
+  </div>
+  <div class="spacer"></div>
+  <button id="lang" class="btn" aria-label="Language"></button>
+  <button id="theme" class="btn icon" aria-label="Theme">◐</button>
+</header>
+
+<div class="shell">
+  <nav id="sidebar" class="glass" aria-label="Navegação"></nav>
+  <main id="view" tabindex="-1"></main>
+  <aside id="toc" class="glass" hidden></aside>
+</div>
+
+<aside id="drawer" class="glass" hidden>
+  <button id="drawer-close" class="btn icon" aria-label="Fechar">✕</button>
+  <div id="drawer-body" class="prose"></div>
+</aside>
+
+
+<script src="app.js"></script>
+</body>
+</html>

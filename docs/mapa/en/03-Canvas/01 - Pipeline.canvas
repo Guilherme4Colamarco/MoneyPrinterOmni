@@ -1,0 +1,267 @@
+{
+  "nodes": [
+    {
+      "id": "051f9506323738e8",
+      "type": "group",
+      "label": "Preparation",
+      "x": -30,
+      "y": -50,
+      "width": 780,
+      "height": 420
+    },
+    {
+      "id": "cbcdec1b7b1b769b",
+      "type": "group",
+      "label": "Stages, fixed order",
+      "x": 770,
+      "y": -50,
+      "width": 2780,
+      "height": 220
+    },
+    {
+      "id": "893ce80729195afe",
+      "type": "text",
+      "text": "# Start\n`start()` → `_run_pipeline`",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "0b0088ea4af2070c",
+      "type": "text",
+      "text": "## Preflight\nsource, keys, ffmpeg",
+      "x": 400,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "a2843ebd03a7d7dd",
+      "type": "text",
+      "text": "# Failure\n`_mark_task_failed` writes `failed_stage`",
+      "x": 400,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "1"
+    },
+    {
+      "id": "ccdb3717dd1f8154",
+      "type": "text",
+      "text": "# 1 · Script\nLLM, skipped with `video_script`",
+      "x": 800,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "6f28133e9829d70f",
+      "type": "text",
+      "text": "# 2 · Terms\nLLM, optional rerank",
+      "x": 1200,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "a5ca0b5894324f8b",
+      "type": "text",
+      "text": "# 3 · Audio\nTTS or silence",
+      "x": 1600,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "88f7b0199083ab4f",
+      "type": "text",
+      "text": "# 4 · Subtitles\nedge or whisper",
+      "x": 2000,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "b0362266f4a485e9",
+      "type": "text",
+      "text": "# 5 · Materials\nlocal or video provider",
+      "x": 2400,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    },
+    {
+      "id": "421b47ffd946ca08",
+      "type": "text",
+      "text": "# 6 · Video\ncombine, mix, subtitles, BGM",
+      "x": 2800,
+      "y": 0,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "82f60b1d688c0223",
+      "type": "text",
+      "text": "# Done\n`state=1`; publishing runs in background",
+      "x": 3200,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "7fad4cee9e5014d0",
+      "type": "text",
+      "text": "## stop_at\nis this the target step? yes: return; no: continue",
+      "x": 800,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "f5cef96d7e57bb60",
+      "type": "text",
+      "text": "# Partial output\nthe step's dictionary",
+      "x": 800,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "312a2dad2be750a1",
+      "type": "text",
+      "text": "# Image motion\n`image_motion` (unstable)",
+      "x": 2400,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "2"
+    }
+  ],
+  "edges": [
+    {
+      "id": "bcd66e80dd4fc245",
+      "fromNode": "893ce80729195afe",
+      "fromSide": "right",
+      "toNode": "0b0088ea4af2070c",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "0c7b40c1054b5479",
+      "fromNode": "0b0088ea4af2070c",
+      "fromSide": "right",
+      "toNode": "ccdb3717dd1f8154",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "yes",
+      "color": "4"
+    },
+    {
+      "id": "2d82af9dbe09d9bd",
+      "fromNode": "0b0088ea4af2070c",
+      "fromSide": "bottom",
+      "toNode": "a2843ebd03a7d7dd",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "no",
+      "color": "1"
+    },
+    {
+      "id": "1267f2dc216bd071",
+      "fromNode": "ccdb3717dd1f8154",
+      "fromSide": "right",
+      "toNode": "6f28133e9829d70f",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "0d6d205ac92eef46",
+      "fromNode": "6f28133e9829d70f",
+      "fromSide": "right",
+      "toNode": "a5ca0b5894324f8b",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "058e5d75ce90e502",
+      "fromNode": "a5ca0b5894324f8b",
+      "fromSide": "right",
+      "toNode": "88f7b0199083ab4f",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "2a075b5d6ecf59c3",
+      "fromNode": "88f7b0199083ab4f",
+      "fromSide": "right",
+      "toNode": "b0362266f4a485e9",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "592e6d5177b8d610",
+      "fromNode": "b0362266f4a485e9",
+      "fromSide": "right",
+      "toNode": "421b47ffd946ca08",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "e2ca09f3a6237077",
+      "fromNode": "421b47ffd946ca08",
+      "fromSide": "right",
+      "toNode": "82f60b1d688c0223",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "f14339e09e9222e5",
+      "fromNode": "ccdb3717dd1f8154",
+      "fromSide": "bottom",
+      "toNode": "7fad4cee9e5014d0",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "after each step"
+    },
+    {
+      "id": "4b9591ac07468d75",
+      "fromNode": "7fad4cee9e5014d0",
+      "fromSide": "bottom",
+      "toNode": "f5cef96d7e57bb60",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "yes",
+      "color": "6"
+    },
+    {
+      "id": "ee69c977353552e0",
+      "fromNode": "7fad4cee9e5014d0",
+      "fromSide": "right",
+      "toNode": "6f28133e9829d70f",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "no"
+    },
+    {
+      "id": "28a562013fa42457",
+      "fromNode": "312a2dad2be750a1",
+      "fromSide": "top",
+      "toNode": "b0362266f4a485e9",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "static / zoom",
+      "color": "2"
+    }
+  ]
+}

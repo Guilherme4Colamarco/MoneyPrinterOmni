@@ -1,0 +1,218 @@
+{
+  "nodes": [
+    {
+      "id": "3899f0216ad054c5",
+      "type": "group",
+      "label": "Before start()",
+      "x": -30,
+      "y": -50,
+      "width": 1180,
+      "height": 620
+    },
+    {
+      "id": "8a5da52ed126447d",
+      "type": "text",
+      "text": "# API\n`POST /api/v1/videos`",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "55d456555ef94ef8",
+      "type": "text",
+      "text": "## Validates\nschema, colours, font, `x-api-key`",
+      "x": 400,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "085556ac79fd5c5f",
+      "type": "text",
+      "text": "# Queue\n`add_task`; full: 429",
+      "x": 800,
+      "y": 0,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "2567a5ec9705eb7a",
+      "type": "text",
+      "text": "# WebUI\nGenerate button",
+      "x": 0,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "a1939d60ac374a69",
+      "type": "text",
+      "text": "# WebUI queue\n1 task at a time; takes `runtime_config_lock`",
+      "x": 800,
+      "y": 200,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "0898b22730d57afc",
+      "type": "text",
+      "text": "# CLI\n`cli.py --video-script ...`",
+      "x": 0,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "1c58a6e55f600a41",
+      "type": "text",
+      "text": "## Validates\nargparse, materials copied",
+      "x": 400,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "6ba2b4705065d33c",
+      "type": "text",
+      "text": "# No queue\nsynchronous call, absolute path accepted",
+      "x": 800,
+      "y": 400,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "ea2b2676c28c0db2",
+      "type": "text",
+      "text": "# task.start()\n`_run_pipeline`",
+      "x": 1200,
+      "y": 200,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "f5cef96d7e57bb60",
+      "type": "text",
+      "text": "# Files\n`storage/tasks/<id>/`",
+      "x": 1600,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "0f9a758d5f89d8ce",
+      "type": "text",
+      "text": "# Refused\nAPI: 400, 401, 429 · CLI: exit 2",
+      "x": 400,
+      "y": 600,
+      "width": 320,
+      "height": 140,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "07dfccd85e617499",
+      "fromNode": "8a5da52ed126447d",
+      "fromSide": "right",
+      "toNode": "55d456555ef94ef8",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "6b93a921f82a521b",
+      "fromNode": "55d456555ef94ef8",
+      "fromSide": "right",
+      "toNode": "085556ac79fd5c5f",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "yes",
+      "color": "4"
+    },
+    {
+      "id": "974b4b5f74ebd7ac",
+      "fromNode": "55d456555ef94ef8",
+      "fromSide": "bottom",
+      "toNode": "0f9a758d5f89d8ce",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "no",
+      "color": "1"
+    },
+    {
+      "id": "c0d258b4ed3ef9e1",
+      "fromNode": "085556ac79fd5c5f",
+      "fromSide": "right",
+      "toNode": "ea2b2676c28c0db2",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "f1c46ef282244c35",
+      "fromNode": "2567a5ec9705eb7a",
+      "fromSide": "right",
+      "toNode": "a1939d60ac374a69",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "lock + queue"
+    },
+    {
+      "id": "a84884616d62a55a",
+      "fromNode": "a1939d60ac374a69",
+      "fromSide": "right",
+      "toNode": "ea2b2676c28c0db2",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "0682114e17b0897c",
+      "fromNode": "0898b22730d57afc",
+      "fromSide": "right",
+      "toNode": "1c58a6e55f600a41",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "1ad0345b26ffe129",
+      "fromNode": "1c58a6e55f600a41",
+      "fromSide": "right",
+      "toNode": "6ba2b4705065d33c",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "yes",
+      "color": "4"
+    },
+    {
+      "id": "97c80636dd65b052",
+      "fromNode": "1c58a6e55f600a41",
+      "fromSide": "bottom",
+      "toNode": "0f9a758d5f89d8ce",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "no",
+      "color": "1"
+    },
+    {
+      "id": "17155546e195d614",
+      "fromNode": "6ba2b4705065d33c",
+      "fromSide": "right",
+      "toNode": "ea2b2676c28c0db2",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "e2fdd4a164e9b15e",
+      "fromNode": "ea2b2676c28c0db2",
+      "fromSide": "right",
+      "toNode": "f5cef96d7e57bb60",
+      "toSide": "left",
+      "toEnd": "arrow"
+    }
+  ]
+}

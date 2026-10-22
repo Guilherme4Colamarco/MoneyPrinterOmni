@@ -1,0 +1,136 @@
+{
+  "nodes": [
+    {
+      "id": "fad58de7366495db",
+      "type": "text",
+      "text": "## main\nSó o testado e provado",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "a6389c69fe881a8e",
+      "type": "text",
+      "text": "## unstable\nRecém-adicionado, pouco testado",
+      "x": 0,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "2"
+    },
+    {
+      "id": "3df851502f9c020b",
+      "type": "text",
+      "text": "## Upstream v1.3.9\nentra na unstable",
+      "x": 0,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "2"
+    },
+    {
+      "id": "7fad4cee9e5014d0",
+      "type": "text",
+      "text": "## Corrigido e testado?",
+      "x": 400,
+      "y": 200,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "4f876ab4493c98f6",
+      "type": "text",
+      "text": "## Não\nFica na unstable",
+      "x": 400,
+      "y": 400,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "ec92848559fdebdf",
+      "type": "text",
+      "text": "### Na main\n- captura dos bancos de vídeo\n- roteiro com IA\n- harness Claude Code e outros\n- Remotion, yt-dlp, Grok",
+      "x": 800,
+      "y": 0,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "ecc20679929e8f31",
+      "type": "text",
+      "text": "### Na unstable\n- MCPs Reddit e Apify\n- time técnico\n- perfis com assets\n- animações novas\n- merge v1.3.9\n- assinaturas",
+      "x": 800,
+      "y": 200,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "698dc19d489c4e4d",
+      "type": "text",
+      "text": "## Teste antes da PR\nActions desligadas no fork: ruff e pytest locais",
+      "x": 800,
+      "y": 400,
+      "width": 320,
+      "height": 140
+    },
+    {
+      "id": "30316cac0e49fe6c",
+      "type": "text",
+      "text": "## Regras\nSem force-push\nPromoção só por PR",
+      "x": 1200,
+      "y": 200,
+      "width": 320,
+      "height": 140
+    }
+  ],
+  "edges": [
+    {
+      "id": "93575361e8e46c3e",
+      "fromNode": "3df851502f9c020b",
+      "fromSide": "top",
+      "toNode": "a6389c69fe881a8e",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "entra"
+    },
+    {
+      "id": "13436a6523d0536e",
+      "fromNode": "a6389c69fe881a8e",
+      "fromSide": "right",
+      "toNode": "7fad4cee9e5014d0",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "pronto para PR"
+    },
+    {
+      "id": "e6531dcf10427221",
+      "fromNode": "7fad4cee9e5014d0",
+      "fromSide": "left",
+      "toNode": "fad58de7366495db",
+      "toSide": "right",
+      "toEnd": "arrow",
+      "label": "sim: PR para a main"
+    },
+    {
+      "id": "30efa12275fd76c1",
+      "fromNode": "7fad4cee9e5014d0",
+      "fromSide": "bottom",
+      "toNode": "4f876ab4493c98f6",
+      "toSide": "top",
+      "toEnd": "arrow",
+      "label": "não"
+    },
+    {
+      "id": "83078b5d2e1ee788",
+      "fromNode": "698dc19d489c4e4d",
+      "fromSide": "left",
+      "toNode": "7fad4cee9e5014d0",
+      "toSide": "right",
+      "toEnd": "arrow",
+      "label": "checagens locais"
+    }
+  ]
+}

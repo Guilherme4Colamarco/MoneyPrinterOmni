@@ -1,0 +1,259 @@
+{
+  "nodes": [
+    {
+      "id": "26515233cb2ee04f",
+      "type": "group",
+      "label": "Change mode (unstable)",
+      "x": -30,
+      "y": -50,
+      "width": 3580,
+      "height": 220,
+      "color": "2"
+    },
+    {
+      "id": "1a31333e681725a5",
+      "type": "group",
+      "label": "Audit mode (unstable)",
+      "x": -30,
+      "y": 350,
+      "width": 1180,
+      "height": 220,
+      "color": "2"
+    },
+    {
+      "id": "c95e3dd9ec923045",
+      "type": "text",
+      "text": "# Change\n`pedido.md` → `arquiteto` → `plano.md`",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "a3218734457b9a9b",
+      "type": "text",
+      "text": "## Touches API, schema, config, dependency or 5+ files?",
+      "x": 400,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "d018268506e28685",
+      "type": "text",
+      "text": "## Stop\nThe user approves the plan",
+      "x": 800,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "83f1535f99ab0bf4",
+      "type": "text",
+      "text": "## testador (reproduction)\na failing test; bugs only",
+      "x": 1200,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "e77989ed21758e78",
+      "type": "text",
+      "text": "## desenvolvedor\ncode in the service layer; ruff and area tests; `mudancas-NN.md`",
+      "x": 1600,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "0f826a89cf68c399",
+      "type": "text",
+      "text": "## testador (coverage)\nfull suite and coverage; `testes-NN.md`",
+      "x": 2000,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "48cd7517d21176f9",
+      "type": "text",
+      "text": "## revisor-de-codigo + auditor-de-seguranca\nin parallel: `revisao-NN.md`, `seguranca-NN.md`",
+      "x": 2400,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "a585257a5b4d06da",
+      "type": "text",
+      "text": "## REVISAR?\nblocker, or 3+ important (max 2 rounds)",
+      "x": 2800,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "7ffc4d510260a854",
+      "type": "text",
+      "text": "## Report\nfiles, CI output, verdicts. No commit.",
+      "x": 3200,
+      "y": 0,
+      "width": 320,
+      "height": 140,
+      "color": "6"
+    },
+    {
+      "id": "a1213419a0c503fc",
+      "type": "text",
+      "text": "# Audit\n`auditor-de-saude` → `saude.md`\n`auditor-de-seguranca` → `seguranca-01.md`",
+      "x": 0,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "ecd2ec43c588ae01",
+      "type": "text",
+      "text": "## Ranked list\nSTOP: the user picks the items",
+      "x": 400,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "3"
+    },
+    {
+      "id": "447b7147e84be512",
+      "type": "text",
+      "text": "## Approved item\nbecomes a change run, with the item as the request",
+      "x": 800,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "4"
+    },
+    {
+      "id": "5d8d1cb9136777c8",
+      "type": "text",
+      "text": "## Integration research and harness\n`pesquisador-de-integracoes` (installs nothing) · `mantenedor-do-harness`",
+      "x": 1200,
+      "y": 400,
+      "width": 320,
+      "height": 140,
+      "color": "5"
+    }
+  ],
+  "edges": [
+    {
+      "id": "ba80ef139c51128f",
+      "fromNode": "c95e3dd9ec923045",
+      "fromSide": "right",
+      "toNode": "a3218734457b9a9b",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "f03fd20189ad32ca",
+      "fromNode": "a3218734457b9a9b",
+      "fromSide": "right",
+      "toNode": "d018268506e28685",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "yes"
+    },
+    {
+      "id": "b6efc8a6fbe39d14",
+      "fromNode": "d018268506e28685",
+      "fromSide": "right",
+      "toNode": "83f1535f99ab0bf4",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "approved"
+    },
+    {
+      "id": "4e3b032b715ba65a",
+      "fromNode": "a3218734457b9a9b",
+      "fromSide": "bottom",
+      "toNode": "83f1535f99ab0bf4",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "no"
+    },
+    {
+      "id": "fa972c41fcac7c78",
+      "fromNode": "83f1535f99ab0bf4",
+      "fromSide": "right",
+      "toNode": "e77989ed21758e78",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "617c96977635c108",
+      "fromNode": "e77989ed21758e78",
+      "fromSide": "right",
+      "toNode": "0f826a89cf68c399",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "96c25ee5b1638b00",
+      "fromNode": "0f826a89cf68c399",
+      "fromSide": "right",
+      "toNode": "48cd7517d21176f9",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "c91f10962cb2e666",
+      "fromNode": "48cd7517d21176f9",
+      "fromSide": "right",
+      "toNode": "a585257a5b4d06da",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "912c692638d8cd9d",
+      "fromNode": "a585257a5b4d06da",
+      "fromSide": "right",
+      "toNode": "7ffc4d510260a854",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "no"
+    },
+    {
+      "id": "978bcb3e827a4a9c",
+      "fromNode": "a585257a5b4d06da",
+      "fromSide": "bottom",
+      "toNode": "e77989ed21758e78",
+      "toSide": "bottom",
+      "toEnd": "arrow",
+      "label": "yes: back (max 2)",
+      "color": "1"
+    },
+    {
+      "id": "f69545fd8235a915",
+      "fromNode": "a1213419a0c503fc",
+      "fromSide": "right",
+      "toNode": "ecd2ec43c588ae01",
+      "toSide": "left",
+      "toEnd": "arrow"
+    },
+    {
+      "id": "f20bdd25d11a2939",
+      "fromNode": "ecd2ec43c588ae01",
+      "fromSide": "right",
+      "toNode": "447b7147e84be512",
+      "toSide": "left",
+      "toEnd": "arrow",
+      "label": "chosen"
+    }
+  ]
+}
