@@ -10,7 +10,7 @@ nix shell nixpkgs#yt-dlp nixpkgs#ffmpeg -c yt-dlp ...
 ```
 
 Com MCP, as mesmas operações existem no servidor `yt-dlp` (metadados, legendas, comentários,
-download).
+download); busca e conferência de posts em Reddit, X, Instagram e TikTok estão em `redes-sociais.md`.
 
 ## Buscar no YouTube sem navegador
 
@@ -19,7 +19,7 @@ yt-dlp --no-warnings --flat-playlist \
   --print "%(id)s | %(duration_string)s | %(channel)s | %(title)s" "ytsearch8:<consulta>"
 ```
 
-Para TikTok, X/Twitter e Instagram, cole a URL do post. Na nuvem, sem login, só o X costuma
+Para TikTok, X/Twitter, Instagram e Reddit, cole a URL do post. Na nuvem, sem login, só o X costuma
 funcionar (veja "Problemas conhecidos").
 
 ## Assistir barato (low-res)
@@ -58,8 +58,8 @@ Baixe 1 s a mais de margem nas pontas.
 
 - "Sign in to confirm you're not a bot": pule o vídeo e use outro candidato. Não peça cookies.
 - Na nuvem (IP de datacenter) também falham sem login: TikTok ("Unexpected response from webpage
-  request") e Instagram ("empty media response").
-  Confira o post pela URL original, troque de candidato ou peça o arquivo ao usuário.
+  request"), Instagram ("empty media response") e Reddit ("Account authentication is required").
+  Ache e confira o post pela Apify (`redes-sociais.md`), troque de candidato ou peça o arquivo ao usuário.
 - Facecam do youtuber, marca d'água, legendas queimadas: anote no shotlist; o editor corta.
 
 ## Estudar um canal de referência

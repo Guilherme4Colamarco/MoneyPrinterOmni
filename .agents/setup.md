@@ -76,3 +76,4 @@ Exceções que nada sobrescreve: as "Regras fixas" deste setup e os "Cuidados ob
 - **Nunca:** publicar, enviar ou agendar o vídeo; mudar `config.toml` ou o código do app durante
   a produção; apagar arquivos fora de `storage/projects/<slug>/` e das tasks de teste que você criou.
 - **Falhas:** relate o erro real com o log; não finja que uma etapa deu certo.
+- **Comunicação:** a conversa com o usuário segue `.agents/comunicacao.md`; os relatórios dos papéis não.
