@@ -110,3 +110,11 @@ Para mudar ou auditar o código do MoneyPrinterOmni (não para produzir vídeo):
 
 Para usar: "siga `.agents/skills/manutencao/SKILL.md` para <bug, função ou auditoria>". O time não
 faz commit, push nem PR sem pedido do usuário.
+
+## Grok
+
+- Grok Build (`grok`) lê `AGENTS.md`, `.agents/skills/`, `.claude/agents/`, `.mcp.json` e `.claude/settings.json` sem arquivos extras.
+- `.grok/` é o adaptador robusto: `.grok/agents/` (um arquivo por papel, gerado de `.claude/agents/`) e `.grok/skills/video/`. Regere com `python3 .agents/tools/sync_grok_agents.py`; `--check` só confere. Não edite `.grok/agents/` à mão.
+- Na raiz do repositório, rode `grok --trust` (a pasta precisa de confiança) e confira o que foi encontrado com `grok inspect`.
+- Aviso: `model: sonnet` dos adaptadores Claude não existe no Grok. Por isso o `.grok/agents/` gerado usa `model: inherit`.
+- Grok Bot (app, não lê o repositório): o guia para montar o time está em `.agents/grok-bot.md`.
