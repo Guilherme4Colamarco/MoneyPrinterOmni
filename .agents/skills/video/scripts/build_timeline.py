@@ -13,7 +13,8 @@ kind:
   window  igual a fill, mas tira a barra de título de uma gravação de janela ("top", padrão 0.05).
   fit     mostra o conteúdo inteiro sobre ele mesmo desfocado (tela de programa, slide, gráfico,
           documento, vídeo de orientação diferente). "zoom" (0–1) mantém só a faixa central da
-          largura; "crop" aceita um filtro crop do ffmpeg no lugar.
+          largura; "crop" aceita um filtro crop do ffmpeg no lugar. Com imagem (png/jpg/webp)
+          ganha zoom-in lento de 8%; "motion": false deixa parado.
   image   imagem estática (foto, print, gráfico gerado) com zoom lento.
 Aliases antigos: game/vert → fill, gta → window, app → fit com zoom 0.62.
 
@@ -53,7 +54,15 @@ def _fit(w: int, h: int, item: dict) -> str:
     if not crop and "zoom" in item:
         z = float(item["zoom"])
         crop = f"crop=iw*{z}:ih*0.8:iw*{(1 - z) / 2}:ih*0.08"  # corta também legendas queimadas
-    fg = f"[0]{crop + ',' if crop else ''}scale={w}:{h}:force_original_aspect_ratio=decrease,setsar=1[fg]"
+    still = str(item.get("file", "")).lower().endswith((".png", ".jpg", ".jpeg", ".webp"))
+    if still and item.get("motion", True):
+        # print parado ganha zoom-in lento (+8% ao longo da cena) sem sair do quadro
+        frames = max(1, round(float(item["dur"]) * 30))
+        grow = f"trunc(iw*(1+0.08*min(n\\,{frames})/{frames})/2)*2"
+        fg = (f"[0]{crop + ',' if crop else ''}scale={w}/1.08:{h}/1.08:force_original_aspect_ratio=decrease,"
+              f"scale=w='{grow}':h=-2:eval=frame,setsar=1[fg]")
+    else:
+        fg = f"[0]{crop + ',' if crop else ''}scale={w}:{h}:force_original_aspect_ratio=decrease,setsar=1[fg]"
     bg = (
         f"[0]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
         "boxblur=30:5,eq=brightness=-0.2[bg]"
