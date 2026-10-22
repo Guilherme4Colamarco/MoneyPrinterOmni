@@ -83,3 +83,11 @@ Fluxo para produzir um vídeo sobre qualquer assunto, do tema ao arquivo final: 
 Para usar: peça ao seu assistente "siga `.agents/skills/video/SKILL.md` para um vídeo sobre <tema>".
 Requisitos do assistente: terminal, busca na web e capacidade de ver imagens (para conferir
 quadros); sem visão, ele deve pedir ao usuário para conferir as prévias.
+
+## Grok
+
+- Grok Build (`grok`) lê `AGENTS.md`, `.agents/skills/`, `.claude/agents/`, `.mcp.json` e `.claude/settings.json` sem arquivos extras.
+- `.grok/` é o adaptador robusto: `.grok/agents/` (um arquivo por papel, gerado de `.claude/agents/`) e `.grok/skills/video/`. Regere com `python3 .agents/tools/sync_grok_agents.py`; `--check` só confere. Não edite `.grok/agents/` à mão.
+- Na raiz do repositório, rode `grok --trust` (a pasta precisa de confiança) e confira o que foi encontrado com `grok inspect`.
+- Aviso: `model: sonnet` dos adaptadores Claude não existe no Grok. Por isso o `.grok/agents/` gerado usa `model: inherit`.
+- Grok Bot (app, não lê o repositório): o guia para montar o time está em `.agents/grok-bot.md`.
