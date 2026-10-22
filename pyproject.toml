@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mpt"
-version = "1.3.8"
+version = "1.3.9"
 description = "MoneyPrinterOmni, a fork of MoneyPrinterTurbo by harry0703, with WebUI and CLI."
 readme = "docs/pypi-description.md"
 requires-python = ">=3.11"
