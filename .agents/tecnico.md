@@ -60,6 +60,7 @@ Cada tarefa tem a pasta `storage/manutencao/<slug>/` (fora do git, como `storage
 - **Git:** o time não faz commit, push, nem abre PR; quem decide é o usuário (ou o orquestrador
   com o aval dele). Não reescreva histórico.
 - **Falhas:** relate o erro real com a saída do comando; não finja que uma checagem passou.
+- **Comunicação:** a conversa com o usuário segue `.agents/comunicacao.md`; estes relatórios ficam completos, com a saída real dos comandos.
 - **Modelo por papel:** julgamento e código (arquiteto, desenvolvedor, revisor, auditores) em
   modelo intermediário; trabalho mecânico em modelo pequeno; modelo mais forte só se um papel
   errar repetidamente. No Claude Code, é a linha `model:` de `.claude/agents/<papel>.md`.
