@@ -5,7 +5,7 @@
       "command": "npx",
       "args": ["-y", "@kevinwatt/yt-dlp-mcp@0.10.0"],
       "env": {
-        "YTDLP_DOWNLOADS_DIR": "${YTDLP_DOWNLOADS_DIR:-/tmp/mpt-downloads}",
+        "YTDLP_DOWNLOADS_DIR": "${HOME}/.cache/yt-dlp-mcp",
         "YTDLP_DEFAULT_RESOLUTION": "1080p",
         "YTDLP_DEFAULT_SUBTITLE_LANG": "pt",
         "NODE_USE_ENV_PROXY": "1"

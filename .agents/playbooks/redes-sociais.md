@@ -6,7 +6,7 @@ Servidores MCP do projeto (`.mcp.json`), todos gratuitos e só de leitura:
 
 | Servidor | Cobre | Custo | Variáveis |
 |---|---|---|---|
-| `yt-dlp` (`@kevinwatt/yt-dlp-mcp`) | metadados, legendas, transcrição, comentários e download de qualquer URL do yt-dlp (X, TikTok, Instagram, Reddit, YouTube) | grátis | `YTDLP_DOWNLOADS_DIR` (opcional, padrão `/tmp/mpt-downloads`) |
+| `yt-dlp` (`@kevinwatt/yt-dlp-mcp`) | metadados, legendas, transcrição, comentários e download de qualquer URL do yt-dlp (X, TikTok, Instagram, Reddit, YouTube) | grátis | — (baixa em `~/.cache/yt-dlp-mcp`) |
 | `reddit` (`reddit-mcp-buddy`) | busca, subreddits, post com comentários, perfil de usuário | grátis; anônimo (10 req/min) | `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` (opcionais, sobem o limite) |
 | `apify` (Apify MCP) | busca por hashtag, perfil e termo no Instagram e no TikTok; Reddit como reserva | plano Free: US$ 5/mês de crédito, sem cartão | `APIFY_TOKEN` |
 
@@ -75,7 +75,7 @@ Se a ferramenta não trouxer os itens na resposta, leia com `mcp__apify__get-act
 ## Assistir e baixar
 
 - Assistir barato: `mcp__yt-dlp__ytdlp_download_video` com `resolution: "480p"` (e `startTime`/
-  `endTime` para só um pedaço). O arquivo cai em `YTDLP_DOWNLOADS_DIR`: mova para
+  `endTime` para só um pedaço). O arquivo cai em `~/.cache/yt-dlp-mcp`: mova para
   `storage/projects/<slug>/raw/` e siga a contact sheet de `yt-dlp.md`.
 - O trecho em 1080p continua com o `build_timeline.py` (`url` + `start` no `shotlist.json`).
 
