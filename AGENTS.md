@@ -86,3 +86,25 @@ Para usar: peça ao seu assistente "siga `.agents/skills/video/SKILL.md` para um
 Requisitos do assistente: terminal, busca na web e capacidade de ver imagens (para conferir
 quadros); sem visão, ele deve pedir ao usuário para conferir as prévias. MCP é opcional: sem ele,
 `redes-sociais.md` indica o caminho pelo `yt-dlp` e pela busca na web.
+
+## Manutenção do programa com agentes (time técnico)
+
+Para mudar ou auditar o código do MoneyPrinterOmni (não para produzir vídeo):
+
+- `.agents/skills/manutencao/SKILL.md` — orquestração em dois modos: **mudança** (plano → teste de
+  reprodução → código → testes → revisão e auditoria de segurança em paralelo) e **auditoria**
+  (saúde + segurança, lista priorizada; só vira mudança com o aval do usuário).
+- `.agents/tecnico.md` — regras do time, pasta da tarefa (`storage/manutencao/<slug>/`), checagens
+  do CI que precisam passar e vereditos.
+
+| Papel | Função |
+|---|---|
+| `arquiteto` | lê o código envolvido e escreve o `plano.md`; não edita código |
+| `desenvolvedor` | implementa o plano na camada de serviço e roda ruff e testes da área |
+| `testador` | reproduz bugs com teste, completa a cobertura e roda a suíte do CI; só edita `test/` |
+| `revisor-de-codigo` | revisa o diff: bugs, contratos entre API/WebUI/CLI, padrões; só aponta |
+| `auditor-de-seguranca` | arquivos, subprocess, SSRF, segredos, API e dependências; só aponta |
+| `auditor-de-saude` | CI, cobertura, código morto, dívida técnica, deps e docs; lista priorizada |
+
+Para usar: "siga `.agents/skills/manutencao/SKILL.md` para <bug, função ou auditoria>". O time não
+faz commit, push nem PR sem pedido do usuário.
