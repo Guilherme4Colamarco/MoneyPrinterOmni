@@ -2,11 +2,15 @@
 
 ## Ferramenta
 
-`yt-dlp` não está instalado globalmente; use via Nix:
+Use o `yt-dlp` do PATH: o `nix develop` já inclui, e na nuvem o hook
+`.claude/hooks/ensure-yt-dlp.sh` instala com `uv tool install yt-dlp`. Sem ele, rode via Nix:
 
 ```sh
 nix shell nixpkgs#yt-dlp nixpkgs#ffmpeg -c yt-dlp ...
 ```
+
+Com MCP, as mesmas operações existem no servidor `yt-dlp` (metadados, legendas, comentários,
+download).
 
 ## Buscar no YouTube sem navegador
 
@@ -15,7 +19,8 @@ yt-dlp --no-warnings --flat-playlist \
   --print "%(id)s | %(duration_string)s | %(channel)s | %(title)s" "ytsearch8:<consulta>"
 ```
 
-Funciona igual para TikTok, X/Twitter e Instagram colando a URL.
+Para TikTok, X/Twitter e Instagram, cole a URL do post. Na nuvem, sem login, só o X costuma
+funcionar (veja "Problemas conhecidos").
 
 ## Assistir barato (low-res)
 
@@ -52,6 +57,9 @@ Baixe 1 s a mais de margem nas pontas.
 ## Problemas conhecidos
 
 - "Sign in to confirm you're not a bot": pule o vídeo e use outro candidato. Não peça cookies.
+- Na nuvem (IP de datacenter) também falham sem login: TikTok ("Unexpected response from webpage
+  request") e Instagram ("empty media response").
+  Confira o post pela URL original, troque de candidato ou peça o arquivo ao usuário.
 - Facecam do youtuber, marca d'água, legendas queimadas: anote no shotlist; o editor corta.
 
 ## Estudar um canal de referência

@@ -62,6 +62,9 @@ Fluxo para produzir um vídeo sobre qualquer assunto, do tema ao arquivo final: 
 - `.agents/gostos.md` — gostos do criador: música, estilo artístico, narração, linguagem.
 - `.agents/pipeline.md` — pasta do projeto, etapas e contratos de arquivo.
 - `.agents/playbooks/` — `yt-dlp.md`, `ffmpeg-timeline.md`, `moneyprinter.md`.
+- `.mcp.json` — servidor MCP `yt-dlp` (só leitura e download de vídeos); segredos só por `${VAR}`,
+  nunca no git. O Claude Code habilita em `.claude/settings.json`. MCP é opcional: sem ele,
+  `.agents/playbooks/yt-dlp.md` indica o caminho pelo yt-dlp CLI.
 
 | Papel | Função |
 |---|---|

@@ -33,6 +33,7 @@
               pkgs.git
               pkgs.nodejs_24 # animations/ (Remotion); versão em animations/.nvmrc
               pkgs.chromium # render do Remotion sem baixar browser em runtime
+              pkgs.yt-dlp # MCP `yt-dlp` (.mcp.json) e .agents/playbooks/yt-dlp.md
             ];
 
             env = {
