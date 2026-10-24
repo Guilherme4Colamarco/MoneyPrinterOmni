@@ -11,6 +11,7 @@ import { ReverseFlow, reverseFlowDefaults } from "./ReverseFlow";
 import { TerminalAntigo, terminalAntigoDefaults } from "./TerminalAntigo";
 import { TimelineAnos, timelineAnosDefaults } from "./TimelineAnos";
 import { CourageScene, courageSceneDefaults } from "./CoragemCena";
+import { KidsScene, kidsDefaults } from "./KidsScenes";
 
 // Formato do brief (9:16). Para 16:9/1:1 passe --width/--height ao render; os layouts são 9:16.
 const W = 1080;
@@ -137,6 +138,18 @@ export const RemotionRoot: React.FC = () => {
         width={W}
         height={H}
         defaultProps={quoteCardDefaults}
+      />
+      <Composition
+        id="KidsScene"
+        component={KidsScene}
+        durationInFrames={90}
+        fps={FPS}
+        width={W}
+        height={H}
+        defaultProps={kidsDefaults}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.max(1, Math.round(props.durationSeconds * FPS)),
+        })}
       />
     </>
   );
