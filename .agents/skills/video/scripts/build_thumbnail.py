@@ -28,6 +28,15 @@ def _outline_color_arg(value: str) -> str:
         raise argparse.ArgumentTypeError(str(exc)) from exc
 
 
+def _run_ffmpeg(cmd: list[str], **kwargs) -> None:
+    result = subprocess.run(cmd, capture_output=True, check=False, **kwargs)
+    if result.returncode == 0:
+        return
+    tail = (result.stderr or b"").decode("utf-8", errors="replace").strip().splitlines()[-8:]
+    detail = "\n".join(tail)
+    raise SystemExit(f"ffmpeg saiu {result.returncode}" + (f":\n{detail}" if detail else ""))
+
+
 def build(project: str, args: argparse.Namespace) -> str:
     w, h = (int(v) for v in args.size.split("x"))
     style = arte.load(project)["thumbnail"]
@@ -72,11 +81,12 @@ def build(project: str, args: argparse.Namespace) -> str:
                 border=max(4, size // 14), border_color=outline, assets=assets,
             ))
         graph = assets.write_graph(",".join(chain))
-        subprocess.run(
+        if os.path.isfile(out):
+            os.remove(out)
+        _run_ffmpeg(
             ["ffmpeg", "-v", "error", "-y", *seek, "-i", os.path.abspath(resolve(src)),
              "-frames:v", "1", "-filter_script:v", graph, "-update", "1", out],
             cwd=assets.dir,
-            check=True,
         )
     if not os.path.isfile(out):
         raise SystemExit(

@@ -74,6 +74,7 @@ def _capture_ffmpeg(monkeypatch):
         dest = Path(cmd[-1])
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(b"out")
+        return subprocess.CompletedProcess(cmd, 0, b"", b"")
 
     monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
     return seen
@@ -315,6 +316,7 @@ def test_thumbnail_missing_output_exits_nonzero(tmp_path, monkeypatch):
         dest.parent.mkdir(parents=True, exist_ok=True)
         sibling = dest.with_name("a1.png")
         sibling.write_bytes(b"out")
+        return subprocess.CompletedProcess(cmd, 0, b"", b"")
 
     monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
     try:
@@ -337,3 +339,43 @@ def test_thumbnail_special_out_name_stays_out_of_the_filtergraph(tmp_path, monke
     assert "textfile=t1.txt" in graph
     assert "fontcolor=red" not in graph
     assert "'" not in graph.split("drawtext=", 1)[-1].split(":expansion=", 1)[0]
+
+
+def test_thumbnail_stale_output_does_not_count_as_success(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    dest = tmp_path / "publicacao" / "thumb-A.png"
+    dest.parent.mkdir(parents=True)
+    dest.write_bytes(b"stale-thumb")
+
+    def fake_run(cmd, check=True, **kwargs):
+        return subprocess.CompletedProcess(cmd, 0, b"", b"")
+
+    monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+    try:
+        build_thumbnail.build(str(tmp_path), _args())
+    except SystemExit as exc:
+        assert exc.code != 0
+        assert "thumb-A.png" in str(exc)
+    else:
+        raise AssertionError("arquivo antigo não pode passar na checagem")
+    assert not dest.exists()
+
+
+def test_thumbnail_ffmpeg_failure_exits_without_traceback(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+
+    def fake_run(cmd, check=True, **kwargs):
+        return subprocess.CompletedProcess(
+            cmd, 234, b"", b"ignored\nNo such filter: boom\n"
+        )
+
+    monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+    try:
+        build_thumbnail.build(str(tmp_path), _args())
+    except SystemExit as exc:
+        assert exc.code != 0
+        text = str(exc)
+        assert "ffmpeg saiu 234" in text
+        assert "No such filter: boom" in text
+    else:
+        raise AssertionError("ffmpeg != 0 deveria virar SystemExit")
