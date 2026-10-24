@@ -1,6 +1,7 @@
-"""Contorno configurável e vinheta opcional do build_thumbnail.py."""
+"""Contorno configurável, vinheta opcional e validação de cores do ffmpeg."""
 
 from argparse import Namespace
+import json
 from pathlib import Path
 import sys
 
@@ -9,6 +10,8 @@ sys.path.insert(0, str(SCRIPTS))
 
 import arte  # noqa: E402
 import build_thumbnail  # noqa: E402
+
+INJECT = "white:enable=0"
 
 
 def _args(**extra) -> Namespace:
@@ -24,6 +27,17 @@ def _args(**extra) -> Namespace:
     )
     values.update(extra)
     return Namespace(**values)
+
+
+def _reject(fn, *args, field: str, value: str = INJECT, **kwargs):
+    try:
+        fn(*args, **kwargs)
+    except ValueError as exc:
+        text = str(exc)
+        assert f"{field} inválida" in text
+        assert repr(value) in text
+    else:
+        raise AssertionError(f"deveria rejeitar {value!r} em {field}")
 
 
 def test_drawtext_default_outline_keeps_current_color(tmp_path):
@@ -110,6 +124,8 @@ def test_validate_color_accepts_named_hex_and_alpha():
     for value in (
         "black",
         "White",
+        "AliceBlue",
+        "darkorange",
         "black@0.85",
         "red@0",
         "blue@1",
@@ -117,14 +133,30 @@ def test_validate_color_accepts_named_hex_and_alpha():
         "yellow@.5",
         "#112233",
         "#ff00ff@0.9",
+        "#11223344",
+        "#AABBCCDD@0.5",
         "0xAABBCC",
         "0x112233@1",
+        "0x11223344",
+        "0xFF00FF80@0.25",
     ):
         assert arte.validate_color(value) == value
 
 
+def test_validate_color_rejects_unknown_name_and_short_hex():
+    for value in ("fooobar", "random", "enable", "#FFF", "#GGGGGG", "0x12345"):
+        try:
+            arte.validate_color(value)
+        except ValueError as exc:
+            assert "cor inválida" in str(exc)
+            assert repr(value) in str(exc)
+        else:
+            raise AssertionError(f"deveria rejeitar {value!r}")
+
+
 def test_validate_color_rejects_filter_injection_and_invalid_values():
     for value in (
+        "white:enable=0",
         "black@0.85:enable=1",
         "red:foo",
         "#FFFFFF@1,drawbox=x=0",
@@ -133,34 +165,83 @@ def test_validate_color_rejects_filter_injection_and_invalid_values():
         "black@2",
         "black@-0.1",
         "black@1.01",
-        "#FFF",
-        "#GGGGGG",
-        "0x12345",
         "",
         "white@1e1",
         "black@0.85]",
     ):
         try:
-            arte.validate_color(value, field="contorno")
+            arte.validate_color(value, field="outline")
         except ValueError as exc:
-            assert "contorno inválida" in str(exc)
+            assert "outline inválida" in str(exc)
             assert repr(value) in str(exc)
         else:
             raise AssertionError(f"deveria rejeitar {value!r}")
 
 
-def test_drawtext_rejects_injected_outline(tmp_path):
-    textfile = tmp_path / "line.txt"
-    try:
-        arte.drawtext(
-            "OI", str(textfile), font="BeVietnamPro-Bold.ttf", color="#FFFFFF",
-            size=48, x="0", y="0", border=4,
-            border_color="black@0.85:enable=1",
-        )
-    except ValueError as exc:
-        assert "contorno inválida" in str(exc)
-    else:
-        raise AssertionError("drawtext deveria rejeitar injeção no contorno")
+def test_ffmpeg_color_list_is_the_documented_set():
+    assert len(arte.FFMPEG_COLOR_NAMES) == 140
+    assert "White" in arte.FFMPEG_COLOR_NAMES
+    assert "YellowGreen" in arte.FFMPEG_COLOR_NAMES
+    assert "random" not in {name.lower() for name in arte.FFMPEG_COLOR_NAMES}
+
+
+def test_load_rejects_injected_thumbnail_color(tmp_path):
+    (tmp_path / "arte.json").write_text(
+        json.dumps({"thumbnail": {"color": INJECT}}), encoding="utf-8"
+    )
+    _reject(arte.load, str(tmp_path), field="thumbnail.color")
+
+
+def test_load_rejects_injected_thumbnail_accent(tmp_path):
+    (tmp_path / "arte.json").write_text(
+        json.dumps({"thumbnail": {"accent": INJECT}}), encoding="utf-8"
+    )
+    _reject(arte.load, str(tmp_path), field="thumbnail.accent")
+
+
+def test_load_rejects_injected_thumbnail_outline(tmp_path):
+    (tmp_path / "arte.json").write_text(
+        json.dumps({"thumbnail": {"outline": INJECT}}), encoding="utf-8"
+    )
+    _reject(arte.load, str(tmp_path), field="thumbnail.outline")
+
+
+def test_load_rejects_injected_texto_na_tela_color(tmp_path):
+    (tmp_path / "arte.json").write_text(
+        json.dumps({"texto_na_tela": {"color": INJECT}}), encoding="utf-8"
+    )
+    _reject(arte.load, str(tmp_path), field="texto_na_tela.color")
+
+
+def test_load_rejects_injected_texto_na_tela_box_color(tmp_path):
+    (tmp_path / "arte.json").write_text(
+        json.dumps({"texto_na_tela": {"box_color": INJECT}}), encoding="utf-8"
+    )
+    _reject(arte.load, str(tmp_path), field="texto_na_tela.box_color")
+
+
+def test_drawtext_rejects_injected_color(tmp_path):
+    _reject(
+        arte.drawtext, "OI", str(tmp_path / "line.txt"),
+        field="color", font="BeVietnamPro-Bold.ttf", color=INJECT,
+        size=48, x="0", y="0",
+    )
+
+
+def test_drawtext_rejects_injected_box_color(tmp_path):
+    _reject(
+        arte.drawtext, "OI", str(tmp_path / "line.txt"),
+        field="box_color", font="BeVietnamPro-Bold.ttf", color="#FFFFFF",
+        size=48, x="0", y="0", box=True, box_color=INJECT,
+    )
+
+
+def test_drawtext_rejects_injected_border_color(tmp_path):
+    _reject(
+        arte.drawtext, "OI", str(tmp_path / "line.txt"),
+        field="border_color", font="BeVietnamPro-Bold.ttf", color="#FFFFFF",
+        size=48, x="0", y="0", border=4, border_color=INJECT,
+    )
 
 
 def test_cli_rejects_injected_outline_with_clear_error(capsys, monkeypatch):
@@ -168,7 +249,7 @@ def test_cli_rejects_injected_outline_with_clear_error(capsys, monkeypatch):
         "sys.argv",
         [
             "build_thumbnail.py", "/tmp/proj", "--image", "bg.png",
-            "--text", "X", "--outline-color", "black@0.85:enable=1",
+            "--text", "X", "--outline-color", INJECT,
         ],
     )
     try:
@@ -178,20 +259,14 @@ def test_cli_rejects_injected_outline_with_clear_error(capsys, monkeypatch):
     else:
         raise AssertionError("CLI deveria sair com código 2")
     err = capsys.readouterr().err
-    assert "contorno inválida" in err
-    assert "black@0.85:enable=1" in err
+    assert "outline inválida" in err
+    assert INJECT in err
 
 
 def test_thumbnail_rejects_injected_outline_from_arte_json(tmp_path, monkeypatch):
     (tmp_path / "bg.png").write_bytes(b"png")
     (tmp_path / "arte.json").write_text(
-        '{"thumbnail": {"outline": "black@0.85:enable=1"}}', encoding="utf-8"
+        json.dumps({"thumbnail": {"outline": INJECT}}), encoding="utf-8"
     )
     monkeypatch.setattr(build_thumbnail.subprocess, "run", lambda *a, **k: None)
-    try:
-        build_thumbnail.build(str(tmp_path), _args())
-    except ValueError as exc:
-        assert "contorno inválida" in str(exc)
-        assert "enable=1" in str(exc)
-    else:
-        raise AssertionError("build deveria rejeitar thumbnail.outline injetado")
+    _reject(build_thumbnail.build, str(tmp_path), _args(), field="thumbnail.outline")
