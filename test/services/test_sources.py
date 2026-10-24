@@ -41,7 +41,11 @@ from app.services.sources import (
     validate_search_results,
 )
 from app.services.sources.base import parse_optional_text
-from app.services.sources.licencas import _validate_sequence, main as licencas_main
+from app.services.sources.licencas import (
+    _validate_sequence,
+    main as licencas_main,
+    mask_secret_urls,
+)
 
 LICENCAS_FIXTURE = (
     Path(__file__).resolve().parents[1]
@@ -624,6 +628,9 @@ def test_validate_licencas_json_reports_invalid_entries(tmp_path, capsys):
     assert issues[1].value is None
     assert issues[4].value is None
     assert issues[5].value is None
+    assert "missing license" in str(issues[1])
+    assert mask_secret_urls(12) == 12
+    assert mask_secret_urls(None) is None
 
     mapped = validate_licencas(
         {"good": "cc0", "bad": "MIT", "obj": {"title": "x"}, "num": 12}
