@@ -3,6 +3,8 @@
 import json
 import os
 import re
+import shutil
+import tempfile
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 FONTS = os.path.join(REPO, "resource", "fonts")
@@ -101,6 +103,51 @@ def font_path(name: str) -> str:
     return path
 
 
+_SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]+$")
+
+
+class FilterAssets:
+    """Fonte e textos com nomes seguros; o filtergraph só cita esses nomes (cwd = dir)."""
+
+    def __init__(self) -> None:
+        self.dir = tempfile.mkdtemp(prefix="mpt-arte-")
+        self._fonts: dict[str, str] = {}
+        self._n = 0
+
+    def font(self, name: str) -> str:
+        src = font_path(name)
+        if src not in self._fonts:
+            ext = os.path.splitext(src)[1] or ".ttf"
+            if not _SAFE_NAME.fullmatch(ext):
+                ext = ".ttf"
+            dest = f"f{len(self._fonts)}{ext}"
+            shutil.copy2(src, os.path.join(self.dir, dest))
+            self._fonts[src] = dest
+        return self._fonts[src]
+
+    def text(self, content: str) -> str:
+        self._n += 1
+        dest = f"t{self._n}.txt"
+        with open(os.path.join(self.dir, dest), "w", encoding="utf-8") as f:
+            f.write(content)
+        return dest
+
+    def write_graph(self, graph: str) -> str:
+        dest = "graph.txt"
+        with open(os.path.join(self.dir, dest), "w", encoding="utf-8") as f:
+            f.write(graph)
+        return dest
+
+    def close(self) -> None:
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def __enter__(self) -> "FilterAssets":
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
+
+
 def _quote(value: str) -> str:
     # valor entre aspas simples dentro de um filtergraph do ffmpeg
     return "'" + value.replace("\\", "\\\\").replace("'", "'\\''") + "'"
@@ -108,14 +155,27 @@ def _quote(value: str) -> str:
 
 def drawtext(text: str, textfile: str, *, font: str, color: str, size: int, x: str, y: str,
              box: bool = False, box_color: str = "#000000@0.55", border: int = 0,
-             border_color: str = DEFAULT_OUTLINE) -> str:
-    """Filtro drawtext lendo o texto de um arquivo (evita escapar acentos, ':' e '%')."""
-    os.makedirs(os.path.dirname(textfile), exist_ok=True)
+             border_color: str = DEFAULT_OUTLINE, assets: FilterAssets | None = None) -> str:
+    """Filtro drawtext lendo o texto de um arquivo (evita escapar acentos, ':' e '%').
+
+    Com `assets`, fontfile/textfile no filtro são só nomes seguros (f0.ttf, t1.txt);
+    o ffmpeg deve rodar com cwd=assets.dir. Sem `assets`, mantém o comportamento
+    antigo (caminho no filtro) para callers que ainda não migraram.
+    """
+    parent = os.path.dirname(textfile)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
     with open(textfile, "w", encoding="utf-8") as f:
         f.write(text)
+    if assets is not None:
+        font_ref = assets.font(font)
+        text_ref = assets.text(text)
+    else:
+        font_ref = _quote(font_path(font))
+        text_ref = _quote(textfile)
     color = validate_color(color, field="color")
     parts = [
-        f"fontfile={_quote(font_path(font))}", f"textfile={_quote(textfile)}", "expansion=none",
+        f"fontfile={font_ref}", f"textfile={text_ref}", "expansion=none",
         f"fontcolor={color}", f"fontsize={size}", f"x={x}", f"y={y}", "line_spacing=12",
     ]
     if box:

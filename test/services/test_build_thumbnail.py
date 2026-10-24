@@ -3,7 +3,10 @@
 from argparse import Namespace
 import json
 from pathlib import Path
+import subprocess
 import sys
+
+import pytest
 
 SCRIPTS = Path(__file__).resolve().parents[2] / ".agents/skills/video/scripts"
 sys.path.insert(0, str(SCRIPTS))
@@ -59,40 +62,43 @@ def test_drawtext_accepts_custom_outline(tmp_path):
     assert "bordercolor=black@0.85" not in filt
 
 
-def test_thumbnail_default_keeps_vignette_and_default_outline(tmp_path, monkeypatch):
-    (tmp_path / "bg.png").write_bytes(b"png")
+def _capture_ffmpeg(monkeypatch):
     seen = {}
 
-    def fake_run(cmd, check):
+    def fake_run(cmd, check=True, **kwargs):
         seen["cmd"] = cmd
-        Path(cmd[-1]).parent.mkdir(parents=True, exist_ok=True)
-        Path(cmd[-1]).write_bytes(b"out")
+        seen["cwd"] = kwargs.get("cwd")
+        if "-filter_script:v" in cmd:
+            graph = Path(kwargs["cwd"], cmd[cmd.index("-filter_script:v") + 1])
+            seen["graph"] = graph.read_text(encoding="utf-8")
+        dest = Path(cmd[-1])
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(b"out")
 
     monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+    return seen
+
+
+def test_thumbnail_default_keeps_vignette_and_default_outline(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    seen = _capture_ffmpeg(monkeypatch)
     out = build_thumbnail.build(str(tmp_path), _args())
-    vf = seen["cmd"][seen["cmd"].index("-vf") + 1]
-    assert "vignette=PI/4.5" in vf
-    assert "bordercolor=black@0.85" in vf
+    assert "vignette=PI/4.5" in seen["graph"]
+    assert "bordercolor=black@0.85" in seen["graph"]
     assert out.endswith("publicacao/thumb-A.png")
+    assert "fontfile=f0.ttf" in seen["graph"]
+    assert "textfile=t1.txt" in seen["graph"]
 
 
 def test_thumbnail_no_vignette_and_custom_outline(tmp_path, monkeypatch):
     (tmp_path / "bg.png").write_bytes(b"png")
-    seen = {}
-
-    def fake_run(cmd, check):
-        seen["cmd"] = cmd
-        Path(cmd[-1]).parent.mkdir(parents=True, exist_ok=True)
-        Path(cmd[-1]).write_bytes(b"out")
-
-    monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+    seen = _capture_ffmpeg(monkeypatch)
     build_thumbnail.build(
         str(tmp_path),
         _args(outline_color="#ff00ff@0.9", no_vignette=True),
     )
-    vf = seen["cmd"][seen["cmd"].index("-vf") + 1]
-    assert "vignette=" not in vf
-    assert "bordercolor=#ff00ff@0.9" in vf
+    assert "vignette=" not in seen["graph"]
+    assert "bordercolor=#ff00ff@0.9" in seen["graph"]
 
 
 def test_kabel_font_is_gone():
@@ -270,3 +276,35 @@ def test_thumbnail_rejects_injected_outline_from_arte_json(tmp_path, monkeypatch
     )
     monkeypatch.setattr(build_thumbnail.subprocess, "run", lambda *a, **k: None)
     _reject(build_thumbnail.build, str(tmp_path), _args(), field="thumbnail.outline")
+
+
+def _write_bg(path: Path) -> None:
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "color=c=0x1e3a5f:s=320x180:d=1",
+         "-frames:v", "1", str(path)],
+        check=True,
+    )
+
+
+@pytest.mark.parametrize("name", ["a:b.png", "a'b.png", "x:fontcolor=red.png"])
+def test_thumbnail_special_out_name_renders_without_filter_injection(tmp_path, name):
+    _write_bg(tmp_path / "bg.png")
+    dest = tmp_path / "publicacao" / name
+    out = build_thumbnail.build(str(tmp_path), _args(out=str(Path("publicacao") / name)))
+    assert Path(out) == dest
+    assert dest.is_file()
+    assert dest.name == name
+    assert dest.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+@pytest.mark.parametrize("name", ["a:b.png", "a'b.png", "x:fontcolor=red.png"])
+def test_thumbnail_special_out_name_stays_out_of_the_filtergraph(tmp_path, monkeypatch, name):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    seen = _capture_ffmpeg(monkeypatch)
+    build_thumbnail.build(str(tmp_path), _args(out=str(Path("publicacao") / name)))
+    graph = seen["graph"]
+    assert name not in graph
+    assert "fontfile=f0.ttf" in graph
+    assert "textfile=t1.txt" in graph
+    assert "fontcolor=red" not in graph
+    assert "'" not in graph.split("drawtext=", 1)[-1].split(":expansion=", 1)[0]
