@@ -519,6 +519,16 @@ class SourceItem(BaseModel):
         return parse_published_at(value)
 
 
+def _public_error_item(item: Mapping[str, Any]) -> dict[str, Any]:
+    """Keep loc/type/msg only — never ``input``, ``ctx`` or ``url``."""
+    loc = item.get("loc", ())
+    return {
+        "type": item.get("type"),
+        "loc": [getattr(part, "value", part) for part in loc],
+        "msg": item.get("msg"),
+    }
+
+
 class SourceItemError(ValueError):
     """Validation error that never exposes the rejected input.
 
@@ -527,9 +537,9 @@ class SourceItemError(ValueError):
     """
 
     def __init__(self, details: list[dict[str, Any]]):
-        self._details = details
+        self._details = [_public_error_item(item) for item in details]
         message = "; ".join(
-            str(item.get("msg", "")) for item in details if item.get("msg")
+            str(item.get("msg", "")) for item in self._details if item.get("msg")
         )
         super().__init__(message or "invalid SourceItem")
 
@@ -545,7 +555,10 @@ def source_item_error_details(exc: BaseException) -> list[dict[str, Any]]:
     if isinstance(exc, SourceItemError):
         return exc.errors()
     if isinstance(exc, ValidationError):
-        return exc.errors(include_input=False, include_url=False)
+        return [
+            _public_error_item(item)
+            for item in exc.errors(include_input=False, include_url=False)
+        ]
     raise TypeError("expected a SourceItemError or ValidationError")
 
 
