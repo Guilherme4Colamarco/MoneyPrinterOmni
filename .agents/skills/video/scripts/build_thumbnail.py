@@ -16,6 +16,7 @@ Tire o quadro de timeline/ ou raw/: o output/final.mp4 tem a legenda queimada.
 import argparse
 import glob
 import os
+import stat
 import subprocess
 import tempfile
 
@@ -34,6 +35,8 @@ def _outline_color_arg(value: str) -> str:
 
 
 def _validate_out(path: str) -> None:
+    if path.endswith(("/", "\\")):
+        raise SystemExit(f"--out recusado: termina com '/' ({path})")
     suffix = os.path.splitext(path)[1].lower()
     if suffix not in _ALLOWED_OUT_SUFFIXES:
         raise SystemExit(f"--out recusado: só .png, .jpg/.jpeg ou .webp ({path})")
@@ -41,6 +44,20 @@ def _validate_out(path: str) -> None:
         raise SystemExit(f"--out recusado: symlink ({path})")
     if os.path.isdir(path):
         raise SystemExit(f"--out recusado: pasta ({path})")
+
+
+def _read_umask() -> int:
+    mask = os.umask(0)
+    os.umask(mask)
+    return mask
+
+
+def _chmod_for_replace(tmp: str, out: str) -> None:
+    if os.path.isfile(out) and not os.path.islink(out):
+        mode = stat.S_IMODE(os.stat(out).st_mode)
+    else:
+        mode = 0o666 & ~_read_umask()
+    os.chmod(tmp, mode)
 
 
 def _format_ffmpeg_stderr(stderr: bytes) -> str:
@@ -70,6 +87,7 @@ def _ffmpeg_write_image(cmd: list[str], out: str, **kwargs) -> None:
                 f"thumbnail não foi escrita em {out} "
                 "(ffmpeg pode ter interpretado '%' no --out como padrão de sequência)"
             )
+        _chmod_for_replace(tmp, out)
         os.replace(tmp, out)
         pending = None
     finally:
@@ -84,8 +102,11 @@ def build(project: str, args: argparse.Namespace) -> str:
     def resolve(path: str) -> str:
         return path if os.path.isabs(path) else os.path.join(project, path)
 
-    out = os.path.abspath(resolve(args.out))
-    _validate_out(out)
+    raw = resolve(args.out)
+    _validate_out(raw)
+    out = os.path.abspath(raw)
+    if out != raw:
+        _validate_out(out)
 
     w, h = (int(v) for v in args.size.split("x"))
     style = arte.load(project)["thumbnail"]
