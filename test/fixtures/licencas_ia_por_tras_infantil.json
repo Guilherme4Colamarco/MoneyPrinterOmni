@@ -1,0 +1,82 @@
+{
+  "versao": "1",
+  "music": [
+    {
+      "title": "Monkeys Spinning Monkeys",
+      "author": "Kevin MacLeod",
+      "origin": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Monkeys%20Spinning%20Monkeys.mp3",
+      "license": "cc-by",
+      "used_from_s": 0,
+      "track_duration_s": 34.5,
+      "license_note": "Credit Kevin MacLeod (incompetech.com), CC BY 4.0"
+    },
+    {
+      "title": "Darkest Child",
+      "author": "Kevin MacLeod",
+      "origin": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Darkest%20Child.mp3",
+      "license": "cc-by",
+      "used_from_s": 34.5,
+      "track_duration_s": 20,
+      "license_note": "Credit Kevin MacLeod (incompetech.com), CC BY 4.0"
+    },
+    {
+      "title": "Cipher",
+      "author": "Kevin MacLeod",
+      "origin": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Cipher.mp3",
+      "license": "cc-by",
+      "used_from_s": 54.5,
+      "track_duration_s": 18,
+      "license_note": "Credit Kevin MacLeod (incompetech.com), CC BY 4.0"
+    }
+  ],
+  "images": [
+    {
+      "file": "raw/thumb_ref.png",
+      "origin": "channel archive",
+      "license": "proprio",
+      "license_note": "Frame produced for this video"
+    }
+  ],
+  "clips": [
+    {
+      "n": "01",
+      "file": "timeline/01.mp4",
+      "source_render": "raw/anim3_01.mp4",
+      "origin": "Remotion composition Intro",
+      "license": "proprio",
+      "duration_s": 3.2,
+      "license_note": "Rendered for this channel"
+    },
+    {
+      "n": "02",
+      "file": "timeline/02.mp4",
+      "source_render": "raw/anim3_02.mp4",
+      "origin": "Remotion composition Board",
+      "license": "proprio",
+      "duration_s": 4.1,
+      "license_note": "Rendered for this channel"
+    }
+  ],
+  "voice": {
+    "tts": "edge",
+    "rate": 1.0,
+    "duration_s": 62.4,
+    "license": "terceiro",
+    "license_note": "Synthetic narration"
+  },
+  "render": {
+    "license": "proprio",
+    "license_note": "Final edit owned by the channel",
+    "subtitles": true
+  },
+  "fonts": [
+    {
+      "name": "BeVietnamPro-Bold",
+      "file": "resource/fonts/BeVietnamPro-Bold.ttf",
+      "license": "terceiro",
+      "license_file": "resource/fonts/OFL.txt",
+      "used_in": ["legenda", "thumbnail"],
+      "license_note": "SIL Open Font License"
+    }
+  ]
+}
