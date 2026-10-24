@@ -8,6 +8,8 @@ Uso:
 Tire o quadro de timeline/ ou raw/: o output/final.mp4 tem a legenda queimada.
 "|" separa as linhas: a primeira sai na cor "color" e as seguintes na cor "accent" do bloco
 "thumbnail" do arte.json (padrões em arte.py). O tamanho da fonte se ajusta à linha mais longa.
+--outline-color define a cor do contorno do texto (padrão: black@0.85, ou thumbnail.outline).
+--no-vignette desliga a vinheta; o padrão continua com ela ligada.
 --preview junta todas as publicacao/thumb-*.png num mosaico (publicacao/thumbs_preview.png).
 """
 
@@ -30,6 +32,7 @@ def build(project: str, args: argparse.Namespace) -> str:
     top = h * (0.92 if w > h else 0.72) - gap * len(lines)
 
     src = args.image or args.source
+    outline = getattr(args, "outline_color", None) or style.get("outline") or arte.DEFAULT_OUTLINE
 
     def resolve(path: str) -> str:
         return path if os.path.isabs(path) else os.path.join(project, path)
@@ -38,15 +41,17 @@ def build(project: str, args: argparse.Namespace) -> str:
     chain = [
         f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h}",
         "eq=contrast=1.12:saturation=1.3:brightness=-0.04",
-        "vignette=PI/4.5",
-        f"drawbox=x=0:y={int(top - gap * 0.4)}:w={w}:h={h}:color=black@0.35:t=fill",
     ]
+    if not getattr(args, "no_vignette", False):
+        chain.append("vignette=PI/4.5")
+    chain.append(f"drawbox=x=0:y={int(top - gap * 0.4)}:w={w}:h={h}:color=black@0.35:t=fill")
     out = resolve(args.out)
     for i, line in enumerate(lines):
         chain.append(arte.drawtext(
             line, os.path.join(project, "raw", f"_thumb_{os.path.basename(out)}_{i}.txt"),
             font=style["font"], color=style["color"] if i == 0 else style["accent"], size=size,
             x="(w-text_w)/2", y=str(int(top + gap * i)), border=max(4, size // 14),
+            border_color=outline,
         ))
     os.makedirs(os.path.dirname(out), exist_ok=True)
     subprocess.run(
@@ -80,6 +85,16 @@ def main() -> None:
     parser.add_argument("--text", required=True, help='linhas separadas por "|"')
     parser.add_argument("--size", default="1280x720", help="1280x720 (YouTube) ou 1080x1920 (Shorts)")
     parser.add_argument("--out", default="publicacao/thumb-A.png")
+    parser.add_argument(
+        "--outline-color",
+        default=None,
+        help=f"cor do contorno do texto (padrão: {arte.DEFAULT_OUTLINE} ou thumbnail.outline)",
+    )
+    parser.add_argument(
+        "--no-vignette",
+        action="store_true",
+        help="desliga a vinheta (ligada por padrão)",
+    )
     parser.add_argument("--preview", action="store_true")
     args = parser.parse_args()
 
