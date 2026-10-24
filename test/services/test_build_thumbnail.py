@@ -297,6 +297,35 @@ def test_thumbnail_special_out_name_renders_without_filter_injection(tmp_path, n
     assert dest.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
 
 
+def test_thumbnail_percent_d_writes_the_exact_filename(tmp_path):
+    _write_bg(tmp_path / "bg.png")
+    dest = tmp_path / "publicacao" / "a%d.png"
+    out = build_thumbnail.build(str(tmp_path), _args(out=str(Path("publicacao") / "a%d.png")))
+    assert Path(out) == dest
+    assert dest.is_file()
+    assert dest.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+    assert not (tmp_path / "publicacao" / "a1.png").exists()
+
+
+def test_thumbnail_missing_output_exits_nonzero(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+
+    def fake_run(cmd, check=True, **kwargs):
+        dest = Path(cmd[-1])
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        sibling = dest.with_name("a1.png")
+        sibling.write_bytes(b"out")
+
+    monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+    try:
+        build_thumbnail.build(str(tmp_path), _args(out=str(Path("publicacao") / "a%d.png")))
+    except SystemExit as exc:
+        assert exc.code != 0
+        assert "a%d.png" in str(exc)
+    else:
+        raise AssertionError("deveria falhar se o arquivo exato não existir")
+
+
 @pytest.mark.parametrize("name", ["a:b.png", "a'b.png", "x:fontcolor=red.png"])
 def test_thumbnail_special_out_name_stays_out_of_the_filtergraph(tmp_path, monkeypatch, name):
     (tmp_path / "bg.png").write_bytes(b"png")

@@ -74,9 +74,14 @@ def build(project: str, args: argparse.Namespace) -> str:
         graph = assets.write_graph(",".join(chain))
         subprocess.run(
             ["ffmpeg", "-v", "error", "-y", *seek, "-i", os.path.abspath(resolve(src)),
-             "-frames:v", "1", "-filter_script:v", graph, out],
+             "-frames:v", "1", "-filter_script:v", graph, "-update", "1", out],
             cwd=assets.dir,
             check=True,
+        )
+    if not os.path.isfile(out):
+        raise SystemExit(
+            f"thumbnail não foi escrita em {out} "
+            "(ffmpeg pode ter interpretado '%' no --out como padrão de sequência)"
         )
     return out
 
