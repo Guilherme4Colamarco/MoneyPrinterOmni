@@ -2,7 +2,9 @@
 
 from argparse import Namespace
 import json
+import os
 from pathlib import Path
+import stat
 import subprocess
 import sys
 
@@ -478,6 +480,46 @@ def test_thumbnail_ffmpeg_error_truncates_long_stderr_lines(tmp_path, monkeypatc
     assert "line12" in text
     assert "X" * build_thumbnail._STDERR_LINE_MAX in text
     assert "X" * (build_thumbnail._STDERR_LINE_MAX + 1) not in text
+
+
+def test_thumbnail_new_file_mode_follows_umask(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    _capture_ffmpeg(monkeypatch)
+    previous = os.umask(0o022)
+    try:
+        out = build_thumbnail.build(str(tmp_path), _args())
+    finally:
+        os.umask(previous)
+    assert stat.S_IMODE(os.stat(out).st_mode) == 0o644
+
+
+def test_thumbnail_preserves_existing_file_mode(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    dest = tmp_path / "publicacao" / "thumb-A.png"
+    dest.parent.mkdir()
+    dest.write_bytes(b"old-thumb")
+    dest.chmod(0o640)
+    _capture_ffmpeg(monkeypatch)
+    out = build_thumbnail.build(str(tmp_path), _args())
+    assert Path(out) == dest
+    assert dest.read_bytes() == b"out"
+    assert stat.S_IMODE(dest.stat().st_mode) == 0o640
+
+
+def test_thumbnail_rejects_out_ending_with_slash(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    called = []
+    monkeypatch.setattr(
+        build_thumbnail.subprocess, "run",
+        lambda *a, **k: called.append(a) or subprocess.CompletedProcess(a[0], 0),
+    )
+    text = _assert_system_exit(
+        build_thumbnail.build, str(tmp_path), _args(out="publicacao/thumb-A.png/")
+    )
+    assert "--out recusado" in text
+    assert "termina com '/'" in text
+    assert called == []
+    assert not (tmp_path / "publicacao" / "thumb-A.png").exists()
 
 
 def test_preview_ffmpeg_failure_exits_without_traceback(tmp_path, monkeypatch):
