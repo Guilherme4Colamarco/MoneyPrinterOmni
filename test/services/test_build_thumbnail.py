@@ -163,6 +163,25 @@ def test_drawtext_rejects_injected_outline(tmp_path):
         raise AssertionError("drawtext deveria rejeitar injeção no contorno")
 
 
+def test_cli_rejects_injected_outline_with_clear_error(capsys, monkeypatch):
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "build_thumbnail.py", "/tmp/proj", "--image", "bg.png",
+            "--text", "X", "--outline-color", "black@0.85:enable=1",
+        ],
+    )
+    try:
+        build_thumbnail.main()
+    except SystemExit as exc:
+        assert exc.code == 2
+    else:
+        raise AssertionError("CLI deveria sair com código 2")
+    err = capsys.readouterr().err
+    assert "contorno inválida" in err
+    assert "black@0.85:enable=1" in err
+
+
 def test_thumbnail_rejects_injected_outline_from_arte_json(tmp_path, monkeypatch):
     (tmp_path / "bg.png").write_bytes(b"png")
     (tmp_path / "arte.json").write_text(
