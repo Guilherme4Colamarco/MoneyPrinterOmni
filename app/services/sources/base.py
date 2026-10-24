@@ -449,6 +449,14 @@ _SENSITIVE_QUERY_KEYS = frozenset(
         "signature",
         "auth",
         "access_token",
+        "apikey",
+        "api_key",
+        "password",
+        "passwd",
+        "client_secret",
+        "secret",
+        "session",
+        "signed",
     }
 )
 _AMZ_QUERY_PREFIX = "x-amz-"
@@ -459,13 +467,34 @@ def _is_sensitive_query_key(name: str) -> bool:
     return lowered in _SENSITIVE_QUERY_KEYS or lowered.startswith(_AMZ_QUERY_PREFIX)
 
 
+def _param_pairs(part: str) -> list[tuple[str, str]]:
+    """Parse ``&`` and ``;`` separated key/value pairs."""
+    if not part:
+        return []
+    return parse_qsl(part.replace(";", "&"), keep_blank_values=True)
+
+
+def _host_is_percent_encoded(parsed: Any) -> bool:
+    host = parsed.hostname or ""
+    netloc = parsed.netloc or ""
+    if "@" in netloc:
+        netloc = netloc.rsplit("@", 1)[-1]
+    return "%" in host or "%" in netloc
+
+
 def _parsed_url_is_sensitive(parsed: Any) -> bool:
+    if _host_is_percent_encoded(parsed):
+        return True
     if parsed.username is not None or parsed.password is not None:
         return True
     for part in (parsed.query, parsed.fragment):
-        if not part:
-            continue
-        for key, _value in parse_qsl(part, keep_blank_values=True):
+        for key, _value in _param_pairs(part):
+            if _is_sensitive_query_key(key):
+                return True
+    path = parsed.path or ""
+    if ";" in path:
+        _prefix, _sep, matrix = path.partition(";")
+        for key, _value in _param_pairs(matrix):
             if _is_sensitive_query_key(key):
                 return True
     return False
@@ -509,9 +538,12 @@ def parse_url(value: Any) -> str:
 
     Rejects ``javascript:``, ``ftp:``, ``file:``, bare paths such as
     ``/etc/passwd``, userinfo (``user:pass@`` or ``user@``), and signed
-    or secret query/fragment keys (``token``, ``key``, ``sig``,
-    ``signature``, ``auth``, ``access_token``, ``X-Amz-*``, case
-    insensitive). The error message is fixed and never repeats the URL.
+    or secret query/fragment/matrix keys (``token``, ``key``, ``sig``,
+    ``signature``, ``auth``, ``access_token``, ``apikey``, ``api_key``,
+    ``password``, ``passwd``, ``client_secret``, ``secret``, ``session``,
+    ``signed``, ``X-Amz-*``, case insensitive; ``&`` and ``;`` both
+    separate parameters). Hosts with ``%`` (percent-encoding) are
+    rejected. The error message is fixed and never repeats the URL.
 
     Adapters must pass the public page URL, not a signed file URL.
     """
