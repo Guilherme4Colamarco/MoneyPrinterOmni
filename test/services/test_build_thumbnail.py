@@ -12,7 +12,7 @@ import build_thumbnail  # noqa: E402
 
 
 def _args(**extra) -> Namespace:
-    return Namespace(
+    values = dict(
         size="1280x720",
         text="TESTE|LINHA",
         image="bg.png",
@@ -21,8 +21,9 @@ def _args(**extra) -> Namespace:
         out="publicacao/thumb-A.png",
         outline_color=None,
         no_vignette=False,
-        **extra,
     )
+    values.update(extra)
+    return Namespace(**values)
 
 
 def test_drawtext_default_outline_keeps_current_color(tmp_path):
