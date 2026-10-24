@@ -256,6 +256,7 @@ _RUNTIME_CONFIG_SECTIONS = {
     "siliconflow": config.siliconflow,
     "fish_audio": config.fish_audio,
     "voxcpm": config.voxcpm,
+    "xai": config.xai,
     "ui": config.ui,
 }
 # 设置预设与密钥备份使用各自的文件标识。导入时先校验 schema 和版本，
@@ -1499,6 +1500,8 @@ def _infer_tts_server_from_voice(voice_name):
         return "siliconflow"
     if voice.is_gemini_voice(voice_name):
         return "gemini-tts"
+    if voice.is_xai_voice(voice_name):
+        return "xai-tts"
     if voice.is_mimo_voice(voice_name):
         return "mimo-tts"
     if voice.is_minimax_voice(voice_name):
@@ -7007,6 +7010,7 @@ def _render_audio_settings(panel, params):
                 ("azure-tts-v2", "Azure TTS V2"),
                 ("siliconflow", "SiliconFlow TTS"),
                 ("gemini-tts", "Google Gemini TTS"),
+                ("xai-tts", "xAI Grok Voice TTS"),
                 ("mimo-tts", "Xiaomi MiMo TTS"),
                 ("minimax-tts", "MiniMax TTS"),
                 ("elevenlabs", "ElevenLabs TTS"),
@@ -7064,6 +7068,8 @@ def _render_audio_settings(panel, params):
             elif selected_tts_server == "gemini-tts":
                 # 获取Gemini TTS的声音列表
                 filtered_voices = voice.get_gemini_voices()
+            elif selected_tts_server == "xai-tts":
+                filtered_voices = voice.get_xai_voices()
             elif selected_tts_server == "mimo-tts":
                 # 获取 Xiaomi MiMo TTS 的预置音色列表
                 filtered_voices = voice.get_mimo_voices()
@@ -7126,6 +7132,12 @@ def _render_audio_settings(panel, params):
                     )
                 if voice.is_voxcpm_voice(v):
                     return v.split(":", 1)[1] or DEFAULT_VOXCPM_VOICE
+                if voice.is_xai_voice(v):
+                    rest = v.split(":", 1)[1] if ":" in v else v
+                    if "-" in rest:
+                        voice_id, style = rest.split("-", 1)
+                        return f"{voice_id} ({style})"
+                    return rest
                 return (
                     v.replace("Female", tr("Female"))
                     .replace("Male", tr("Male"))
@@ -7247,6 +7259,18 @@ def _render_audio_settings(panel, params):
                     key="gemini_tts_api_key_input",
                 )
                 _set_runtime_config("app", "gemini_api_key", gemini_tts_api_key)
+
+            if tts_mode_enabled and (
+                selected_tts_server == "xai-tts"
+                or (voice_name and voice.is_xai_voice(voice_name))
+            ):
+                xai_api_key = st.text_input(
+                    tr("xAI API Key"),
+                    value=config.xai.get("api_key", "") if hasattr(config, "xai") else "",
+                    type="password",
+                    key="xai_api_key_input",
+                )
+                _set_runtime_config("xai", "api_key", xai_api_key)
 
             # 当选择硅基流动时，显示API key输入框和说明信息
             if tts_mode_enabled and (

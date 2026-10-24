@@ -92,7 +92,7 @@
     {
       "id": "72ecb0838c7b4ffb",
       "type": "text",
-      "text": "## TTS\nEdge, Azure, Gemini, ElevenLabs and others",
+      "text": "## TTS\nEdge, Azure, Gemini, xAI, ElevenLabs and others",
       "x": 800,
       "y": 200,
       "width": 320,
@@ -142,7 +142,7 @@
     {
       "id": "d158ca5ea46eeded",
       "type": "text",
-      "text": "## PLANNED\nCodex CLI, Gemini CLI, Grok Build, xAI STT/TTS",
+      "text": "## PLANNED\nCodex CLI, Gemini CLI, Grok Build",
       "x": 0,
       "y": 1000,
       "width": 320,

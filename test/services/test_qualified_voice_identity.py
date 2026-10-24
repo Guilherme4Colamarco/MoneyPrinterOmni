@@ -64,6 +64,7 @@ def test_provider_label_handlers_still_remove_display_suffixes(tmp_path):
         ("kokoro:af_heart-Female", "kokoro_tts", 1, "af_heart"),
         ("chatterbox:default-Female", "chatterbox_tts", 1, "default"),
         ("gemini:Kore-Female", "gemini_tts", 1, "Kore"),
+        ("xai:eve-Energetic", "xai_tts", 1, "eve"),
     ]
     for label, adapter, argument, expected in cases:
         with patch.object(voice, adapter, return_value=object()) as provider:

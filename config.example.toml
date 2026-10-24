@@ -729,6 +729,20 @@ api_key = ""
 model_id = ""
 voice_id = "default"
 
+[xai]
+# xAI Grok Voice TTS (official Voice API, not the Grok chat completions endpoint).
+# Docs: https://docs.x.ai/developers/model-capabilities/audio/text-to-speech
+# REST: POST https://api.x.ai/v1/tts
+# Voices: GET https://api.x.ai/v1/tts/voices
+# Auth: Authorization: Bearer <key>. Create a key at https://console.x.ai/
+# You can also set the XAI_API_KEY environment variable.
+# If api_key is empty, grok_api_key (the Grok LLM key) is reused.
+# Leave empty here; put the real key only in config.toml or the environment.
+api_key = ""
+# Required BCP-47 language for synthesis (en, pt-BR, zh, auto, ...).
+# Official default when unset is auto (language detection).
+language = "auto"
+
 # =============================================================================
 # WebUI Preferences / WebUI 偏好
 # =============================================================================

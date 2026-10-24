@@ -261,6 +261,7 @@
     "No voices available for the selected TTS server. Please select another server.": "Không có giọng nói nào cho máy chủ TTS đã chọn. Vui lòng chọn máy chủ khác.",
     "SiliconFlow API Key": "Khóa API SiliconFlow ([Lấy khóa](https://cloud.siliconflow.cn/account/ak))",
     "Gemini API Key": "Khóa API Google Gemini ([Lấy khóa](https://aistudio.google.com/app/apikey))",
+    "xAI API Key": "Khóa API xAI ([Lấy khóa](https://console.x.ai/))",
     "MiMo API Key": "Khóa API Xiaomi MiMo ([Lấy khóa](https://mimo.mi.com/docs/quick-start/first-api-call))",
     "MiniMax TTS API Key": "MiniMax TTS API Key ([China](https://platform.minimaxi.com/user-center/basic-information/interface-key) / [Global](https://platform.minimax.io/user-center/basic-information/interface-key))",
     "MiniMax TTS Endpoint": "MiniMax TTS Endpoint",

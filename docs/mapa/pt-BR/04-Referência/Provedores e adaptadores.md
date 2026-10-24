@@ -73,22 +73,23 @@ Colunas: `Base URL padrão` mostra o `effective_default_base_url` do registro. Q
 
 ## Vozes (TTS)
 
-Roteamento em `_single_tts` (`app/services/voice.py:640`), pelo prefixo do nome da voz.
+Roteamento em `_single_tts` (`app/services/voice.py:745`), pelo prefixo do nome da voz.
 
 | Prefixo | Função | Chave em config |
 |---|---|---|
-| (padrão, Edge/Azure v1) | `azure_tts_v1` (`voice.py:1535`) | `edge_tts_timeout` |
-| `-V2` | `azure_tts_v2` (`:1784`) | `[azure]` speech_key, speech_region |
-| `siliconflow:` | `siliconflow_tts` (`:1604`) | `[siliconflow]` api_key |
-| `gemini:` | `gemini_tts` (`:1913`) | `gemini_api_key` |
-| `mimo:` | `mimo_tts` (`:2055`) | mimo_api_key, mimo_base_url, mimo_tts_model_name |
-| `minimax:` | `minimax_tts` (`:2380`) | `[minimax_tts]` |
-| `elevenlabs:` | `elevenlabs_tts` (`:2473`) | `[elevenlabs]` api_key |
-| `chatterbox:` | `chatterbox_tts` (`:2766`) | `[chatterbox]` |
-| `kokoro:` | `kokoro_tts` (`:2808`) | `[kokoro]` |
-| `fish_audio:` | `fish_audio_tts` (`:2862`) | `[fish_audio]` ou `FISH_API_KEY` |
-| `voxcpm:` | `voxcpm_tts` (`:3210`) | `[voxcpm]` |
-| `no-voice` | `generate_silent_audio` (`:593`) | nenhuma |
+| (padrão, Edge/Azure v1) | `azure_tts_v1` (`voice.py:1647`) | `edge_tts_timeout` |
+| `-V2` | `azure_tts_v2` (`:1896`) | `[azure]` speech_key, speech_region |
+| `siliconflow:` | `siliconflow_tts` (`:1716`) | `[siliconflow]` api_key |
+| `gemini:` | `gemini_tts` (`:2025`) | `gemini_api_key` |
+| `xai:` | `xai_tts` (`:2304`) | `[xai]` api_key, `XAI_API_KEY` ou `grok_api_key` |
+| `mimo:` | `mimo_tts` (`:2462`) | mimo_api_key, mimo_base_url, mimo_tts_model_name |
+| `minimax:` | `minimax_tts` (`:2787`) | `[minimax_tts]` |
+| `elevenlabs:` | `elevenlabs_tts` (`:2880`) | `[elevenlabs]` api_key |
+| `chatterbox:` | `chatterbox_tts` (`:3173`) | `[chatterbox]` |
+| `kokoro:` | `kokoro_tts` (`:3215`) | `[kokoro]` |
+| `fish_audio:` | `fish_audio_tts` (`:3269`) | `[fish_audio]` ou `FISH_API_KEY` |
+| `voxcpm:` | `voxcpm_tts` (`:3617`) | `[voxcpm]` |
+| `no-voice` | `generate_silent_audio` (`:698`) | nenhuma |
 
 ## Material de vídeo
 
