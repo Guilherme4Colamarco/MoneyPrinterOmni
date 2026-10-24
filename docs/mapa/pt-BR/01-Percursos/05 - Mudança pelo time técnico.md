@@ -31,8 +31,8 @@ Uma mudança no programa passa por quem planeja, quem escreve, quem testa e quem
 **Implementação (`desenvolvedor`).** Adiciona a entrada no registro, usa a chave de config e roda as checagens da área:
 
 ```sh
-uv run ruff check app cli.py main.py webui test docs/skill
-uv run python -X utf8 -m pytest -q test/services
+nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+nix develop --command uv run python -X utf8 -m pytest -q test/services
 ```
 
 O resultado vai para `mudancas-01.md`, com o comando e a saída.
@@ -40,7 +40,7 @@ O resultado vai para `mudancas-01.md`, com o comando e a saída.
 **Cobertura (`testador`).** Escreve testes para as funções novas e roda a suíte completa com a cobertura do CI:
 
 ```sh
-uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report  # fail_under = 70
+nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'  # fail_under = 70
 ```
 
 O resultado vai para `testes-01.md`. O testador só edita arquivos em `test/`.

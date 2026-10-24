@@ -65,7 +65,7 @@ With this, `_generate_response` builds `OpenAI(api_key=..., base_url="https://ap
 1. **Registry.** Add an `LLMProviderSpec` to `LLM_PROVIDER_REGISTRY` (`app/models/llm_provider.py:195`). The tuple order is the dropdown order. For an OpenAI-compatible provider, `provider_id`, `default_label`, `api_key_url`, `default_model` and `default_base_url` are enough. Only write a new branch in `llm.py` if the protocol is different.
 2. **Config.** Copy an existing block in `config.example.toml`, inside `[app]`: `<id>_api_key`, `<id>_base_url` and `<id>_model_name` (e.g. the `groq_*` block).
 3. **Interface.** Add `llm_provider_label.<id>` to all 14 `webui/i18n/*.json` files (AGENTS.md). The WebUI falls back to `default_label` if the key is missing (`webui/Main.py:2277`). `llm_provider_tips.<id>` is optional and only shown if present (`Main.py:2196`).
-4. **Test.** Use `test/services/test_fluxionai_llm.py` as a model: `uv run python -X utf8 -m pytest -q test/services/test_fluxionai_llm.py test/services/test_llm.py`.
+4. **Test.** Use `test/services/test_fluxionai_llm.py` as a model: `nix develop --command uv run python -X utf8 -m pytest -q test/services/test_fluxionai_llm.py test/services/test_llm.py`.
 
 ## Practice
 

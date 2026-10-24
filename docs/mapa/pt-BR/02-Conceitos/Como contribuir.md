@@ -28,9 +28,9 @@ Todo comportamento novo entra em `app/services/`. Assim a API, a WebUI e a CLI r
    - `uv run python cli.py --help`: CLI.
 3. **Checar antes de declarar pronto** (os mesmos comandos do CI):
    ```sh
-   uv run ruff check app cli.py main.py webui test docs/skill
-   uv run python -X utf8 -m pytest -q test
-   uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report   # fail_under = 70
+   nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+   nix develop --command uv run python -X utf8 -m pytest -q test
+   nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'   # fail_under = 70
    ```
 4. **Convenções.**
    - Comportamento novo vai em `app/services/`. As portas de entrada só chamam `task.start()` (`app/services/task.py:1907`), que roda `_run_pipeline` (`app/services/task.py:1519`).
@@ -51,8 +51,8 @@ Corrigir um bug pequeno em `app/services/`, do começo ao fim:
 1. `uv sync --frozen` (ou `nix develop` antes).
 2. Escreva um teste que **falha antes** da correção. A regra do time é: todo bug corrigido ganha um teste que falhava.
 3. Corrija o código em `app/services/`.
-4. Rode `uv run ruff check app cli.py main.py webui test docs/skill`. Na cópia usada para este mapa, a saída foi `All checks passed!`.
-5. Rode a suíte da área, por exemplo `uv run python -X utf8 -m pytest -q test/services/test_task.py`, e depois a suíte inteira com coverage.
+4. Rode `nix develop --command uv run ruff check app cli.py main.py webui test docs/skill`. Na cópia usada para este mapa, a saída foi `All checks passed!`.
+5. Rode a suíte da área, por exemplo `nix develop --command uv run python -X utf8 -m pytest -q test/services/test_task.py`, e depois a suíte inteira com coverage.
 6. Leve a mudança para a `unstable`; a promoção para a `main` segue [[Branches main e unstable]].
 
 ## Armadilhas

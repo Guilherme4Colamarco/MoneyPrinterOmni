@@ -28,9 +28,9 @@ All new behaviour goes into `app/services/`, so the API, the WebUI and the CLI r
    - `uv run python cli.py --help`: CLI.
 3. **Check before saying "done"** (the same commands CI runs):
    ```sh
-   uv run ruff check app cli.py main.py webui test docs/skill
-   uv run python -X utf8 -m pytest -q test
-   uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report   # fail_under = 70
+   nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+   nix develop --command uv run python -X utf8 -m pytest -q test
+   nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'   # fail_under = 70
    ```
 4. **Conventions.**
    - New behaviour goes in `app/services/`. The entry points only call `task.start()` (`app/services/task.py:1907`), which runs `_run_pipeline` (`app/services/task.py:1519`).
@@ -51,8 +51,8 @@ Fixing a small bug in `app/services/`, start to finish:
 1. `uv sync --frozen` (or `nix develop` first).
 2. Write a test that **fails before** the fix. The team's rule: every fixed bug gets a test that failed before.
 3. Fix the code in `app/services/`.
-4. Run `uv run ruff check app cli.py main.py webui test docs/skill`. In the copy used for this map, the output was `All checks passed!`.
-5. Run the relevant suite, for example `uv run python -X utf8 -m pytest -q test/services/test_task.py`, then the full suite with coverage.
+4. Run `nix develop --command uv run ruff check app cli.py main.py webui test docs/skill`. In the copy used for this map, the output was `All checks passed!`.
+5. Run the relevant suite, for example `nix develop --command uv run python -X utf8 -m pytest -q test/services/test_task.py`, then the full suite with coverage.
 6. Take the change to `unstable`; promotion to `main` follows [[Branches main and unstable]].
 
 ## Pitfalls

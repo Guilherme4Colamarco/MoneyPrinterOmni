@@ -35,9 +35,9 @@ Promoting the Reddit MCP (an `unstable` item):
 2. Fix what the tests and the review find.
 3. Run the checks the CI would run (the fork's CI is off, so the check is local):
    ```sh
-   uv run ruff check app cli.py main.py webui test docs/skill
-   uv run python -X utf8 -m pytest -q test
-   uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report   # fail_under = 70
+   nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+   nix develop --command uv run python -X utf8 -m pytest -q test
+   nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'   # fail_under = 70
    ```
 4. Open the pull request into `main` with only that item.
 
@@ -64,7 +64,7 @@ Promoting the Reddit MCP (an `unstable` item):
 > [!faq]- Answer key
 > 1. It starts on `unstable`. What is missing: fix what the tests find, run the checks, and open a pull request into `main` with only that item.
 > 2. Because it also carries every other item that is only on `unstable` (technical team, new animations, and so on), none of which has been proven yet.
-> 3. `uv run ruff check app cli.py main.py webui test docs/skill`; `uv run python -X utf8 -m pytest -q test`; and the coverage command with `fail_under = 70` (see [[Tests and CI]]).
+> 3. `nix develop --command uv run ruff check app cli.py main.py webui test docs/skill`; `nix develop --command uv run python -X utf8 -m pytest -q test`; and the coverage command with `fail_under = 70` (see [[Tests and CI]]).
 
 ## Connections
 

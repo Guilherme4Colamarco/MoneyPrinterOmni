@@ -3,7 +3,7 @@ title: Roles and models
 tags: [mapa, referencia, status/unstable]
 aliases: [Papéis e modelos]
 lang: en
-sources: [.agents/roles/, .claude/agents/, .grok/agents/, .agents/setup.md, .agents/tecnico.md, .agents/tools/sync_grok_agents.py, AGENTS.md]
+sources: [.agents/roles/, .claude/agents/, .grok/agents/, .grok/personas/, .agents/setup.md, .agents/tecnico.md, .agents/tools/sync_grok_agents.py, AGENTS.md]
 ---
 # Roles and models
 
@@ -57,14 +57,14 @@ A new role, `revisor-de-acessibilidade`, would need:
 
 1. `.agents/roles/revisor-de-acessibilidade.md`, with `name` and `description` (no model);
 2. `.claude/agents/revisor-de-acessibilidade.md`, with `model:` and `tools:`;
-3. a run of `python3 .agents/tools/sync_grok_agents.py`, which generates the Grok adapter with `model: inherit`;
+3. a run of `python3 .agents/tools/sync_grok_agents.py`, which generates `.grok/agents/` with `model: inherit` and `.grok/personas/`;
 4. a row in the table in `AGENTS.md`.
 
 ## Pitfalls
 
 - **The model is not in the source.** The headers of `.agents/roles/` have only `name` and `description`. To learn the model, you must read the Claude adapter. This is inconsistency 12 in the map.
 - **`AGENTS.md` lists 11 video roles.** `animador` is missing. The table at `AGENTS.md:73-83` is incomplete.
-- **Grok has no fixed model.** All generated adapters use `inherit`, so the Grok model is the session's. See [[Claude and Grok adapters]].
+- **Grok has no fixed model.** Generated agents use `inherit` and personas do not pin a model, so the Grok model is the session's. See [[Claude and Grok adapters]].
 
 > [!warning] unstable
 > The eight technical team roles, including `mantenedor-do-harness` and `pesquisador-de-integracoes`, are `status/unstable`. The twelve video roles are on `main`.

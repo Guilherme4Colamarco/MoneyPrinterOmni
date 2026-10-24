@@ -42,19 +42,19 @@ Cada tarefa tem a pasta `storage/manutencao/<slug>/` (fora do git, como `storage
   helpers de `app/utils/file_security.py`; `allow_server_file_input` é só do CLI.
 - **Config:** novas chaves em `app/config/config.py` e em `config.example.toml`; nunca editar o
   `config.toml` do usuário; respeite o `runtime_config_lock`.
-- **Dependências:** só pelo `uv add`/`uv lock` (`pyproject.toml` + `uv.lock`); `requirements.txt` é
-  legado. Dependência nova precisa de justificativa no `plano.md`.
+- **Dependências:** só pelo `nix develop --command uv add` / `uv lock` (`pyproject.toml` + `uv.lock`);
+  `requirements.txt` é legado. Dependência nova precisa de justificativa no `plano.md`.
 - **Provedores:** LLM e música são plugáveis (`app/models/llm_provider.py`,
   `_VIDEO_MUSIC_PROVIDERS` em `task.py`); nenhum provedor ganha tratamento especial.
 - **Testes:** todo bug corrigido ganha um teste que falhava antes; toda função nova ganha teste.
   Nada de pular, desligar ou marcar teste como esperado-falhar para ficar verde.
-- **Checagens (as mesmas do CI)**, antes de declarar pronto:
+- **Checagens (as mesmas do CI)**, da raiz, dentro do flake (`nix develop --command ...`; fora do shell o numpy não acha `libstdc++.so.6`):
   ```sh
-  uv run ruff check app cli.py main.py webui test docs/skill
-  uv run python -X utf8 -m pytest -q test
-  uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report  # fail_under = 70
+  nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+  nix develop --command uv run python -X utf8 -m pytest -q test
+  nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'  # fail_under = 70
   ```
-  Mudança em `animations/` também roda `npm run typecheck --prefix animations`.
+  Mudança em `animations/` também roda `nix develop --command npm run typecheck --prefix animations`.
 - **Segredos:** nunca em código, teste, log ou relatório; chaves vêm do `config.toml` ou de
   variável de ambiente.
 - **Git:** o time não faz commit, push, nem abre PR; quem decide é o usuário (ou o orquestrador

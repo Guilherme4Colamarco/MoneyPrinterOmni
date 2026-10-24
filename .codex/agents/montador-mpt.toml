@@ -1,0 +1,1 @@
+developer_instructions = "Leia e siga as instrucoes completas do papel em .agents/roles/montador-mpt.md. Use AGENTS.md e CLAUDE.md como regra do repositorio: comandos do projeto rodam com `nix develop --command ...`. Antes de agir, leia a skill `video` em .agents/skills/. Respeite o escopo do papel e reporte evidencias, arquivos afetados e limitacoes."

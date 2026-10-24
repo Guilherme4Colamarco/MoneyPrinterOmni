@@ -64,12 +64,12 @@ Changing code without a plan causes regressions. So the team separates who plans
 **CI checks**, which must pass before anything is declared ready (`tecnico.md:51-57`):
 
 ```sh
-uv run ruff check app cli.py main.py webui test docs/skill
-uv run python -X utf8 -m pytest -q test
-uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report  # fail_under = 70
+nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+nix develop --command uv run python -X utf8 -m pytest -q test
+nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'  # fail_under = 70
 ```
 
-If the change touches `animations/`, also run `npm run typecheck --prefix animations`.
+If the change touches `animations/`, also run `nix develop --command npm run typecheck --prefix animations`.
 
 **Verdicts** (`tecnico.md:68-73`): each item is `bloqueia` (blocker), `importante` (important) or `detalhe` (detail). The reviewer and the security auditor end with `APROVADO` or `REVISAR`. `REVISAR` means at least one blocker or three or more important items.
 

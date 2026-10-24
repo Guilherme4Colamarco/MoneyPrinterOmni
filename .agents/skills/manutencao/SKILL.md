@@ -58,7 +58,7 @@ pergunte antes.
 ## Modo harness
 
 1. `mantenedor-do-harness` → `harness-NN.md`: duplicado, desatualizado, sem dono, permissões
-   largas e divergência entre `.claude/agents` e `.grok/agents`.
+   largas e divergência entre `.claude/agents`, `.grok/agents` e `.grok/personas`.
 2. Se o usuário pediu edição, o `mantenedor-do-harness` edita só o que o pedido cobre e registra o diff.
 3. `revisor-de-codigo` → `revisao-NN.md` sobre as edições do harness (contratos, padrões, escopo).
 
@@ -67,3 +67,4 @@ pergunte antes.
 - Um papel que só aponta (revisor, auditores) nunca edita código.
 - Checagens do CI vermelhas = não está pronto, qualquer que seja o veredito.
 - Sem commit, push ou PR sem pedido do usuário.
+- Ambiente Nix: as checagens do CI e o Python do projeto rodam da raiz com `nix develop --command ...` (`AGENTS.md`, `CLAUDE.md`, `.agents/tecnico.md`). Fora do shell o numpy não acha `libstdc++.so.6`.

@@ -77,3 +77,4 @@ Exceções que nada sobrescreve: as "Regras fixas" deste setup e os "Cuidados ob
   a produção; apagar arquivos fora de `storage/projects/<slug>/` e das tasks de teste que você criou.
 - **Falhas:** relate o erro real com o log; não finja que uma etapa deu certo.
 - **Comunicação:** a conversa com o usuário segue `.agents/comunicacao.md`; os relatórios dos papéis não.
+- **Ambiente Nix:** Python do projeto, `uv`, `pytest`, `ffmpeg`, `yt-dlp` e `npm` em `animations/` rodam da raiz com `nix develop --command ...`, como em `AGENTS.md` e `CLAUDE.md`. Fora desse shell o numpy não acha `libstdc++.so.6`.

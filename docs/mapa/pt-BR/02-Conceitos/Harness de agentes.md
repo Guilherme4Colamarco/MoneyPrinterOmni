@@ -33,7 +33,7 @@ A regra de ouro: **uma fonte só**. `AGENTS.md` e `.agents/` dizem o que vale. A
 | `roles/` | um arquivo por papel: 20 ao todo |
 | `playbooks/` | receitas de ferramenta: `yt-dlp`, `redes-sociais`, `ffmpeg-timeline`, `moneyprinter` |
 | `skills/` | orquestração: `video/` e `manutencao/`, com scripts |
-| `tools/` | `sync_grok_agents.py`, que gera os adaptadores do Grok |
+| `tools/` | `sync_grok_agents.py`, que gera `.grok/agents/` e `.grok/personas/` |
 | `grok-bot.md` | guia para montar o time no Grok Bot, que não lê o repositório |
 
 3. Quando duas regras conflitam, vale a ordem de `setup.md:6-15`: pedido explícito > `brief.md` > perfil > gostos > setup. No time técnico a ordem é pedido > `pedido.md` > `AGENTS.md` > `tecnico.md` (`tecnico.md:8-13`).

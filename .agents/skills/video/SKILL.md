@@ -108,7 +108,7 @@ Rode com `python3` da raiz do repo (só biblioteca padrão; chamam `ffmpeg`, e `
 
 ## O que já aprendemos
 
-- O Python do projeto só roda dentro de `nix develop --command ...` (`libstdc++` vem do flake).
+- O Python do projeto, o `uv`, o `ffmpeg`, o `yt-dlp` e o `npm` de `animations/` só rodam com `nix develop --command ...` (`AGENTS.md`, `CLAUDE.md`). Fora do shell o numpy não acha `libstdc++.so.6`.
 - Em `sequential`, `combine_videos` usa só os primeiros `--video-clip-duration` segundos de cada
   arquivo, na ordem dada — por isso os clipes saem já cortados na duração da cena.
 - Horários de contact sheet (`fps`+`tile`) podem estar deslocados: confirme com seek exato e confira

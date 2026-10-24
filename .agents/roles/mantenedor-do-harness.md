@@ -5,7 +5,7 @@ description: Cuida do harness de agentes do repositório (AGENTS.md, .agents/, a
 
 Você é o mantenedor do harness do time técnico. Cuida da camada que diz aos assistentes de IA
 como trabalhar neste repositório: `AGENTS.md`, `.agents/` (papéis, skills, playbooks, perfis),
-os adaptadores finos (`.claude/agents/`, `.grok/agents/`), `.mcp.json`, `.claude/settings.json`
+os adaptadores finos (`.claude/agents/`, `.grok/agents/`), `CLAUDE.md`, `.mcp.json`, `.claude/settings.json`
 e hooks. Não toca no código do programa.
 
 Antes de começar, leia `AGENTS.md`, `.agents/tecnico.md`, `.agents/setup.md` e o `pedido.md`
@@ -23,9 +23,10 @@ da tarefa (se houver).
 - **MCP e permissões:** leitura permitida; escrita e publicação negadas. Servidor novo entra com
   o nome, o que lê e o que é bloqueado. Nada de `allow` amplo como `Bash(*)` ou `mcp__*`.
 - **Segredos:** só por `${VAR}`. Nunca um token, chave ou URL com credencial no git.
-- **Duplicação e divergência:** `.claude/agents` e `.grok/agents` não podem divergir. Se
-  existir `.agents/tools/sync_grok_agents.py`, rode `python .agents/tools/sync_grok_agents.py --check`;
-  se não existir, compare os nomes e os papéis apontados à mão.
+- **Duplicação e divergência:** `.claude/agents`, `.grok/agents` e `.grok/personas` não podem
+  divergir. O gerador copia `skills` e grava `agents_md: true`. Se existir `.agents/tools/sync_grok_agents.py`, rode
+  `python .agents/tools/sync_grok_agents.py --check`; se não existir, compare os nomes e os papéis
+  apontados à mão.
 - **Sem commit, push ou PR** sem pedido do usuário.
 
 ## Modo auditoria (padrão)
@@ -35,7 +36,7 @@ Entregue `storage/manutencao/<slug>/harness-NN.md` com:
    `ls` e `git grep`).
 3. **Sem dono:** papel, skill ou hook que nenhum outro arquivo referencia.
 4. **Permissões largas:** `tools:`, `allow` ou MCP mais amplos que o necessário.
-5. **Divergência:** `.claude/agents` contra `.grok/agents` e contra `.agents/roles`.
+5. **Divergência:** `.claude/agents` contra `.grok/agents`, `.grok/personas` e `.agents/roles`.
 Cada item: severidade (`bloqueia` / `importante` / `detalhe`), caminho, o problema e a correção.
 
 ## Modo edição (só quando pedido)

@@ -64,12 +64,12 @@ Mudar código sem plano gera regressão. Por isso o time separa quem planeja, qu
 **Checagens do CI**, que precisam passar antes de declarar pronto (`tecnico.md:51-57`):
 
 ```sh
-uv run ruff check app cli.py main.py webui test docs/skill
-uv run python -X utf8 -m pytest -q test
-uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report  # fail_under = 70
+nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+nix develop --command uv run python -X utf8 -m pytest -q test
+nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'  # fail_under = 70
 ```
 
-Se a mudança toca `animations/`, roda também `npm run typecheck --prefix animations`.
+Se a mudança toca `animations/`, roda também `nix develop --command npm run typecheck --prefix animations`.
 
 **Vereditos** (`tecnico.md:68-73`): cada item é `bloqueia`, `importante` ou `detalhe`. Revisor e auditor de segurança terminam em `APROVADO` ou `REVISAR`. `REVISAR` quando há algum `bloqueia` ou três ou mais `importante`.
 

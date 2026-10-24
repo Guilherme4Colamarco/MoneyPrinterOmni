@@ -35,9 +35,9 @@ Promover o MCP da Reddit (item da `unstable`):
 2. Corrija o que os testes e a revisão acharem.
 3. Rode as checagens que o CI rodaria (o CI do fork está desligado, então a checagem é local):
    ```sh
-   uv run ruff check app cli.py main.py webui test docs/skill
-   uv run python -X utf8 -m pytest -q test
-   uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report   # fail_under = 70
+   nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+   nix develop --command uv run python -X utf8 -m pytest -q test
+   nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'   # fail_under = 70
    ```
 4. Abra a PR para a `main` com só esse item.
 
@@ -64,7 +64,7 @@ Promover o MCP da Reddit (item da `unstable`):
 > [!faq]- Gabarito
 > 1. Nasce na `unstable`. Falta corrigir o que os testes acharem, rodar as checagens e abrir uma PR para a `main` só com esse item.
 > 2. Porque ela leva junto todos os outros itens que estão só na `unstable` (time técnico, animações novas etc.), que ainda não foram provados.
-> 3. `uv run ruff check app cli.py main.py webui test docs/skill`; `uv run python -X utf8 -m pytest -q test`; e o comando de coverage com `fail_under = 70` (ver [[Testes e CI]]).
+> 3. `nix develop --command uv run ruff check app cli.py main.py webui test docs/skill`; `nix develop --command uv run python -X utf8 -m pytest -q test`; e o comando de coverage com `fail_under = 70` (ver [[Testes e CI]]).
 
 ## Conexões
 

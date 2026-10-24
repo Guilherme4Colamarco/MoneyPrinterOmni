@@ -31,8 +31,8 @@ A change to the program goes through whoever plans, whoever writes, whoever test
 **Implementation (`desenvolvedor`).** It adds the entry to the registry, uses the config key and runs the area checks:
 
 ```sh
-uv run ruff check app cli.py main.py webui test docs/skill
-uv run python -X utf8 -m pytest -q test/services
+nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+nix develop --command uv run python -X utf8 -m pytest -q test/services
 ```
 
 The result goes into `mudancas-01.md`, with the command and its output.
@@ -40,7 +40,7 @@ The result goes into `mudancas-01.md`, with the command and its output.
 **Coverage (`testador`).** It writes tests for the new functions and runs the full suite with the CI coverage check:
 
 ```sh
-uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report  # fail_under = 70
+nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'  # fail_under = 70
 ```
 
 The result goes into `testes-01.md`. The tester edits only files in `test/`.

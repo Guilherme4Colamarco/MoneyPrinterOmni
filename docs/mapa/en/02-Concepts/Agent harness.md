@@ -33,7 +33,7 @@ The golden rule: **one source**. `AGENTS.md` and `.agents/` say what applies. Ea
 | `roles/` | one file per role: 20 in total |
 | `playbooks/` | tool recipes: `yt-dlp`, `redes-sociais`, `ffmpeg-timeline`, `moneyprinter` |
 | `skills/` | orchestration: `video/` and `manutencao/`, with scripts |
-| `tools/` | `sync_grok_agents.py`, which generates the Grok adapters |
+| `tools/` | `sync_grok_agents.py`, which generates `.grok/agents/` and `.grok/personas/` |
 | `grok-bot.md` | guide to set up the team in Grok Bot, which does not read the repository |
 
 3. When two rules conflict, the order in `setup.md:6-15` wins: explicit request > `brief.md` > profile > tastes > setup. In the technical team the order is request > `pedido.md` > `AGENTS.md` > `tecnico.md` (`tecnico.md:8-13`).

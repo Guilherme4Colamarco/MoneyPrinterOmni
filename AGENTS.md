@@ -7,22 +7,22 @@ tool-specific folders (such as `.claude/`) only hold thin adapters that point ba
 ## Commands
 
 Dependencies are pinned in `pyproject.toml` + `uv.lock` (`requirements.txt` is legacy). Python 3.11+.
-`flake.nix` provides a dev shell (python311, uv, ffmpeg): `nix develop`, then `uv sync --frozen`.
-When the `.venv` was created by the Nix Python, run project Python inside the shell
-(`nix develop --command ...`), otherwise numpy fails to load `libstdc++.so.6`.
+`flake.nix` is the dev shell (python311, uv, ffmpeg, imagemagick, git, nodejs, chromium, yt-dlp).
+Run every project command from the repo root as `nix develop --command ...`.
+Outside that shell, numpy fails to load `libstdc++.so.6`.
 
 ```sh
-uv sync --frozen                      # install (add --extra twelvelabs for the optional integration)
-cp config.example.toml config.toml    # required runtime config (API keys, providers)
+nix develop --command uv sync --frozen   # install (add --extra twelvelabs for the optional integration)
+cp config.example.toml config.toml       # required runtime config (API keys, providers)
 
-./webui.sh                            # Streamlit WebUI (webui/Main.py), default 127.0.0.1:8501
-python main.py                        # FastAPI server (app.asgi:app), docs at /docs
-uv run python cli.py --help           # CLI (also `mpt cli`, `mpt webui` once packaged)
+nix develop --command ./webui.sh         # Streamlit WebUI (webui/Main.py), default 127.0.0.1:8501
+nix develop --command python main.py     # FastAPI server (app.asgi:app), docs at /docs
+nix develop --command uv run python cli.py --help   # CLI (also `mpt cli`, `mpt webui` once packaged)
 
 # CI equivalents
-uv run ruff check app cli.py main.py webui test docs/skill
-uv run python -X utf8 -m pytest -q test
-uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report   # fail_under = 70
+nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+nix develop --command uv run python -X utf8 -m pytest -q test
+nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'   # fail_under = 70
 ```
 
 ## Architecture
@@ -111,12 +111,26 @@ Para mudar ou auditar o código do MoneyPrinterOmni (não para produzir vídeo):
 Para usar: "siga `.agents/skills/manutencao/SKILL.md` para <bug, função ou auditoria>". O time não
 faz commit, push nem PR sem pedido do usuário.
 
+## Codex
+
+- `.codex/config.toml` contém os MCPs de pesquisa do projeto (yt-dlp, Reddit e Apify), o MCP de
+  documentação OpenAI e os papéis customizados do Codex. Segredos são lidos do ambiente: `APIFY_TOKEN`,
+  `REDDIT_CLIENT_ID` e `REDDIT_CLIENT_SECRET`; nenhum valor secreto fica no repositório.
+- As skills compartilhadas ficam em `.agents/skills/` e os papéis fonte em `.agents/roles/`.
+  `.codex/agents/` só aponta para esses papéis, usando os adaptadores Claude como referência.
+- Sempre consulte o MCP OpenAI Docs para dúvidas de Codex, ChatGPT ou APIs OpenAI.
+- Para vídeo, siga a skill `video`; para manutenção, siga `manutencao`. A skill
+  `remotion-best-practices` do Codex encaminha ao pacote detalhado em `.claude/skills/`.
+- MCPs do Codex são habilitados somente em projetos confiáveis. Instale Node.js/npm (`npx`) para os
+  servidores locais; configure os tokens no ambiente antes de iniciar o Codex.
+
 ## Grok
 
 - Grok Build (`grok`) lê `AGENTS.md`, `.agents/skills/`, `.claude/agents/`, `.mcp.json` e `.claude/settings.json` sem arquivos extras.
-- `.grok/` é o adaptador robusto: `.grok/agents/` (um arquivo por papel, gerado de `.claude/agents/`) e `.grok/skills/video/`. Regere com `python3 .agents/tools/sync_grok_agents.py`; `--check` só confere. Não edite `.grok/agents/` à mão.
+- `.grok/` é o adaptador robusto: `.grok/agents/` e `.grok/personas/` (um arquivo por papel, gerados de `.claude/agents/`) e `.grok/skills/` (`video` e `manutencao`, escritos à mão). Regere agentes e personas com `python3 .agents/tools/sync_grok_agents.py`; `--check` só confere. Não edite `.grok/agents/` nem `.grok/personas/` à mão.
 - Na raiz do repositório, rode `grok --trust` (a pasta precisa de confiança) e confira o que foi encontrado com `grok inspect`.
 - Aviso: `model: sonnet` dos adaptadores Claude não existe no Grok. Por isso o `.grok/agents/` gerado usa `model: inherit`.
+- Cada agente gerado liga `agents_md: true` e copia `skills:` do adaptador Claude (`video` ou `manutencao`; o `animador` também leva `remotion-best-practices`). O corpo manda seguir `AGENTS.md` e `CLAUDE.md`.
 - Grok Bot (app, não lê o repositório): o guia para montar o time está em `.agents/grok-bot.md`.
 
 ## Mapa do projeto (`docs/mapa/`)

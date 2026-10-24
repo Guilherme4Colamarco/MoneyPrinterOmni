@@ -1,0 +1,124 @@
+# Project Codex configuration; keep credentials in the process environment.
+[mcp_servers.yt-dlp]
+command = "npx"
+args = ["-y", "@kevinwatt/yt-dlp-mcp@0.10.0"]
+enabled_tools = ["ytdlp_search_videos", "ytdlp_list_subtitle_languages", "ytdlp_download_video_subtitles", "ytdlp_download_transcript", "ytdlp_download_video", "ytdlp_download_audio", "ytdlp_get_video_metadata", "ytdlp_get_video_metadata_summary", "ytdlp_get_video_comments", "ytdlp_get_video_comments_summary"]
+env_vars = ["HOME", "NODE_USE_ENV_PROXY"]
+enabled = true
+default_tools_approval_mode = "prompt"
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+
+[mcp_servers.yt-dlp.env]
+YTDLP_DEFAULT_RESOLUTION = "1080p"
+YTDLP_DEFAULT_SUBTITLE_LANG = "pt"
+
+[mcp_servers.reddit]
+command = "npx"
+args = ["-y", "reddit-mcp-buddy@1.1.14"]
+enabled_tools = ["browse_subreddit", "search_reddit", "get_post_details", "user_analysis", "reddit_explain"]
+env_vars = ["REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET", "REDDIT_USER_AGENT", "NODE_USE_ENV_PROXY"]
+enabled = true
+default_tools_approval_mode = "prompt"
+startup_timeout_sec = 30
+
+[mcp_servers.reddit.env]
+REDDIT_USER_AGENT = "MoneyPrinterOmni-research/1.0"
+
+[mcp_servers.apify]
+url = "https://mcp.apify.com/?tools=apify/instagram-scraper,clockworks/tiktok-scraper,trudax/reddit-scraper-lite&telemetry-enabled=false"
+bearer_token_env_var = "APIFY_TOKEN"
+enabled_tools = ["apify--instagram-scraper", "clockworks--tiktok-scraper", "trudax--reddit-scraper-lite", "get-actor-run", "get-dataset-items", "get-key-value-store-record"]
+enabled = true
+default_tools_approval_mode = "prompt"
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+enabled = true
+startup_timeout_sec = 20
+
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 6
+
+[agents.animador]
+description = "Especialista em animações com Remotion — cria gráficos animados, plantas técnicas, diagramas e ilustrações animadas em animations/ e renderiza o mp4 para raw/ do projeto, no formato do brief, para entrar na timeline. Use quando uma cena pede gráfico, planta, esquema ou ilustração que não existe como vídeo/imagem."
+config_file = "agents/animador.toml"
+
+[agents.arquiteto]
+description = "Planeja mudanças no programa antes de qualquer código — lê o código envolvido, mapeia arquivos, portas de entrada (API, WebUI, CLI) e riscos, e escreve o plano.md com passos e testes. Não edita código. Use no início do modo mudança da skill `manutencao`."
+config_file = "agents/arquiteto.toml"
+
+[agents.auditor-de-saude]
+description = "Audita a saúde geral do programa sem mudar nada — checagens do CI, cobertura por módulo, código morto e duplicado, dívida técnica, dependências desatualizadas, documentação que não bate com o código e pontos frágeis do pipeline — e entrega uma lista priorizada por severidade e esforço. Use no modo auditoria da skill `manutencao`."
+config_file = "agents/auditor-de-saude.toml"
+
+[agents.auditor-de-seguranca]
+description = "Auditoria de segurança independente — na mudança (diff) ou em varredura do programa — procurando leitura/escrita de arquivo fora do permitido, injeção em subprocess/ffmpeg, SSRF em downloads, segredos em código ou log, endpoints sem proteção e dependências vulneráveis. Só aponta; não corrige. Use no modo mudança e no modo auditoria da skill `manutencao`."
+config_file = "agents/auditor-de-seguranca.toml"
+
+[agents.auditor]
+description = "Pesquisa independente que confere o trabalho do time — cada afirmação do roteiro contra a fonte original, fatos de fonte única, licenças de música e imagem, duração dos trechos de terceiros, créditos completos, frases copiadas de canais de referência e cuidados obrigatórios do perfil. Só aponta; não corrige. Use depois do roteiro (passe de fatos) e depois do render (passe de direitos)."
+config_file = "agents/auditor.toml"
+
+[agents.cacador-de-clipes]
+description = "“Assiste” vídeos-fonte (baixa em baixa resolução, gera contact sheets e quadros com horário exato, olha as imagens) e escolhe o trecho certo para cada frase da narração. Produz o shotlist.json. Use depois que o montador-mpt gerar o timing.json."
+config_file = "agents/cacador-de-clipes.toml"
+
+[agents.critico]
+description = "Crítico exigente que procura o que deixa o vídeo raso — fatos sem fonte, falta de contexto ou contraponto, gancho fraco, saltos lógicos e, no passe visual, cenas que não batem com a fala, ritmo ruim, facecam/marca d'água ou legenda tampando a imagem. Só aponta problemas; não edita nada. Use após o rascunho do roteiro e após o render."
+config_file = "agents/critico.toml"
+
+[agents.desenvolvedor]
+description = "Implementa mudanças no programa seguindo o plano.md — código na camada de serviço, config, i18n e testes da área —, roda ruff e pytest e registra tudo em mudancas-NN.md. Use no modo mudança da skill `manutencao` e para corrigir o que o revisor ou o auditor de segurança apontarem."
+config_file = "agents/desenvolvedor.toml"
+
+[agents.designer-de-thumbnail]
+description = "Cria as thumbnails do vídeo — escolhe os quadros mais fortes dos clipes da timeline e monta 2–3 variações com texto curto seguindo o arte.json (build_thumbnail.py), em 1280x720 para YouTube e 1080x1920 para a capa de Shorts. Use depois do render aprovado."
+config_file = "agents/designer-de-thumbnail.toml"
+
+[agents.diretor-de-arte]
+description = "Define a identidade visual de cada vídeo a partir dos gostos e do perfil do canal — estilo e cores da legenda, fonte, textos na tela por cena (números, nomes, datas), ritmo e transições, direção da thumbnail. Entrega arte.md (explicação) e arte.json (parâmetros que os scripts e o montador aplicam). Use depois que o roteiro foi revisado e antes da aprovação do usuário."
+config_file = "agents/diretor-de-arte.toml"
+
+[agents.diretor]
+description = "Revisão e aprovação — reúne roteiro, trilha, arte e as pendências da crítica e da auditoria num pacote de aprovação para o usuário; no fim, roda o checklist de entrega (vídeo, thumbnails, textos de publicação, créditos, auditoria OK) e decide PRONTO ou REFAZER <etapa>. Nunca publica. Use antes da parada de aprovação e no fim da produção."
+config_file = "agents/diretor.toml"
+
+[agents.editor-de-clipes]
+description = "Edita os clipes — roda build_timeline.py sobre o shotlist (baixa só os trechos em 1080p, enquadra no formato do brief, tira áudio, facecam e marca d'água), gera gráficos/prints quando a cena pede, confere cada clipe e escreve credits.md."
+config_file = "agents/editor-de-clipes.toml"
+
+[agents.mantenedor-do-harness]
+description = "Cuida do harness de agentes do repositório (AGENTS.md, .agents/, adaptadores finos em .claude/ e .grok/, .mcp.json, permissões e hooks) com boas práticas: fonte única, descrições enxutas, modelo e ferramentas mínimos, segredos só por variável. Audita e, quando pedido, edita o harness. Use para revisar ou ajustar papéis, skills e configuração de agentes."
+config_file = "agents/mantenedor-do-harness.toml"
+
+[agents.montador-mpt]
+description = "Opera o MoneyPrinterOmni pelo CLI — gera narração de teste para acertar a duração, extrai os tempos das frases (timing.json) da legenda e faz o render final com os clipes da timeline (ou stock do Pexels). Use nas etapas de áudio/tempo e de render do skill `video`."
+config_file = "agents/montador-mpt.toml"
+
+[agents.pesquisador-de-integracoes]
+description = "Pesquisa APIs, assinaturas, SDKs e servidores MCP candidatos a integrar ao MoneyPrinterOmni e recomenda usar, descartar ou pesquisar mais. Use antes de integrar um provedor, uma API ou um MCP novo. Só pesquisa e escreve o relatório; não instala nem edita código."
+config_file = "agents/pesquisador-de-integracoes.toml"
+
+[agents.pesquisador]
+description = "Pesquisa o tema de um vídeo na web, levanta fatos com fonte, encontra vídeos-fonte (YouTube/TikTok/X) para ilustrar cada cena, escreve ou revisa o roteiro narrado e planeja a trilha com músicas variadas por clima de cada bloco. Use no início do skill `video` e quando o critico ou o sugestor-de-pauta pedirem revisão do roteiro."
+config_file = "agents/pesquisador.toml"
+
+[agents.redator-de-publicacao]
+description = "Escreve a embalagem de publicação — 3 opções de título, descrição com resumo, fontes e créditos, tags, hashtags, capítulos (vídeos longos) e comentário fixado — no estilo do canal, sem clickbait enganoso. Entrega publicacao/publicacao.md pronto para colar. Use depois do render aprovado, em paralelo com o designer-de-thumbnail."
+config_file = "agents/redator-de-publicacao.toml"
+
+[agents.revisor-de-codigo]
+description = "Revisor de código exigente que lê o diff da mudança e procura bugs, regressões, quebras de contrato entre API/WebUI/CLI, desvios dos padrões do repositório e falta de teste. Só aponta; não edita código. Use depois do desenvolvedor e do testador no modo mudança da skill `manutencao`."
+config_file = "agents/revisor-de-codigo.toml"
+
+[agents.sugestor-de-pauta]
+description = "Propõe o que pode deixar o vídeo mais rico — casos e exemplos extras, dados impactantes, ganchos alternativos, cenas visuais melhores, contrapontos e ideias de continuação ou série. Complementa o critico (que só aponta falhas). Use após o rascunho do roteiro, junto com o critico."
+config_file = "agents/sugestor-de-pauta.toml"
+
+[agents.testador]
+description = "Garante os testes da mudança — reproduz bugs com um teste que falha, completa testes de funções novas, roda a suíte inteira e a cobertura do CI (fail_under = 70) e registra em testes-NN.md. Só edita arquivos em test/. Use no modo mudança da skill `manutencao`."
+config_file = "agents/testador.toml"

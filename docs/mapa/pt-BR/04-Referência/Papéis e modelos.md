@@ -3,7 +3,7 @@ title: Papéis e modelos
 tags: [mapa, referencia, status/unstable]
 aliases: [Roles and models]
 lang: pt-BR
-sources: [.agents/roles/, .claude/agents/, .grok/agents/, .agents/setup.md, .agents/tecnico.md, .agents/tools/sync_grok_agents.py, AGENTS.md]
+sources: [.agents/roles/, .claude/agents/, .grok/agents/, .grok/personas/, .agents/setup.md, .agents/tecnico.md, .agents/tools/sync_grok_agents.py, AGENTS.md]
 ---
 # Papéis e modelos
 
@@ -57,14 +57,14 @@ Um papel novo, `revisor-de-acessibilidade`, precisaria de:
 
 1. `.agents/roles/revisor-de-acessibilidade.md`, com `name` e `description` (sem modelo);
 2. `.claude/agents/revisor-de-acessibilidade.md`, com `model:` e `tools:`;
-3. a rodada `python3 .agents/tools/sync_grok_agents.py`, que gera o adaptador do Grok com `model: inherit`;
+3. a rodada `python3 .agents/tools/sync_grok_agents.py`, que gera `.grok/agents/` com `model: inherit` e `.grok/personas/`;
 4. a linha na tabela de `AGENTS.md`.
 
 ## Armadilhas
 
 - **O modelo não está na fonte.** Os cabeçalhos de `.agents/roles/` têm só `name` e `description`. Para saber o modelo, é preciso ler o adaptador Claude. Isso é a inconsistência 12 do mapa.
 - **`AGENTS.md` lista 11 papéis de vídeo.** Falta o `animador`. A tabela de `AGENTS.md:73-83` está incompleta.
-- **Grok não tem modelo fixo.** Todos os adaptadores gerados usam `inherit`, então o modelo do Grok é o da sessão. Ver [[Adaptadores Claude e Grok]].
+- **Grok não tem modelo fixo.** Os agentes gerados usam `inherit` e as personas não fixam modelo, então o modelo do Grok é o da sessão. Ver [[Adaptadores Claude e Grok]].
 
 > [!warning] unstable
 > Os 8 papéis do time técnico, incluindo `mantenedor-do-harness` e `pesquisador-de-integracoes`, são `status/unstable`. Os 12 papéis de vídeo estão na `main`.

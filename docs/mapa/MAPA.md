@@ -26,7 +26,7 @@ Fonte única: `AGENTS.md` + `.agents/`. Os adaptadores só apontam para lá.
 | Papéis | `.agents/roles/*.md` (20) | um por função; o modelo vive só nos adaptadores |
 | Skills | `.agents/skills/video/` (13 etapas, scripts em `scripts/`), `.agents/skills/manutencao/` | orquestração |
 | Playbooks e perfis | `.agents/playbooks/`, `.agents/perfis/` | receitas (yt-dlp, redes sociais, ffmpeg, MPT) e um perfil por canal |
-| Adaptadores | `.claude/agents/`, `.claude/skills/`, `.grok/agents/` (gerado por `.agents/tools/sync_grok_agents.py`) | Claude Code e Grok Build |
+| Adaptadores | `.claude/agents/`, `.claude/skills/`, `.grok/agents/` e `.grok/personas/` (gerados por `.agents/tools/sync_grok_agents.py`) | Claude Code e Grok Build |
 | MCP | `.mcp.json`, `.claude/settings.json`, `.claude/hooks/ensure-yt-dlp.sh` | yt-dlp (main); reddit e apify (unstable); só leitura |
 
 Time de vídeo (12 papéis, pasta `storage/projects/<slug>/`): pesquisador → (critico, sugestor-de-pauta, auditor) → diretor-de-arte → **diretor (parada de aprovação)** → montador-mpt (áudio, `timing.json`) → cacador-de-clipes → animador → editor-de-clipes → montador-mpt (render) → critico + auditor → designer-de-thumbnail + redator-de-publicacao → diretor (entrega). Nunca publica. Time técnico (8 papéis, `storage/manutencao/<slug>/`): arquiteto, desenvolvedor, testador, revisor-de-codigo, auditor-de-seguranca, auditor-de-saude, pesquisador-de-integracoes, mantenedor-do-harness.
@@ -38,10 +38,10 @@ Fork do MoneyPrinterTurbo no commit `9e7d8b7`; rebrand `a6c685c` (`app/paths.py:
 
 ## 4. Comandos
 ```sh
-nix develop && uv sync --frozen            # ambiente (o ffmpeg do Nix passa nos testes de áudio)
-uv run ruff check app cli.py main.py webui test docs/skill
-uv run python -X utf8 -m pytest -q test
-uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report   # fail_under = 70
+nix develop --command uv sync --frozen            # ambiente (o ffmpeg do Nix passa nos testes de áudio)
+nix develop --command uv run ruff check app cli.py main.py webui test docs/skill
+nix develop --command uv run python -X utf8 -m pytest -q test
+nix develop --command bash -c 'uv run python -X utf8 -m coverage run -m pytest -q test && uv run python -m coverage report'   # fail_under = 70
 python3 -m docs.mapa.tools.check_vault     # confere esta apostila
 ```
 Camada de serviço primeiro (as três portas herdam); texto novo da WebUI em todos os `webui/i18n/*.json`; dependências só por `uv`.
