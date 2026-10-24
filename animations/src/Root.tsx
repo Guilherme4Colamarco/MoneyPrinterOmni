@@ -10,6 +10,7 @@ import { QuoteCard, quoteCardDefaults } from "./QuoteCard";
 import { ReverseFlow, reverseFlowDefaults } from "./ReverseFlow";
 import { TerminalAntigo, terminalAntigoDefaults } from "./TerminalAntigo";
 import { TimelineAnos, timelineAnosDefaults } from "./TimelineAnos";
+import { CourageScene, courageSceneDefaults } from "./CoragemCena";
 
 // Formato do brief (9:16). Para 16:9/1:1 passe --width/--height ao render; os layouts são 9:16.
 const W = 1080;
@@ -35,6 +36,18 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={helloChartDefaults}
+      />
+      <Composition
+        id="CourageScene"
+        component={CourageScene}
+        durationInFrames={Math.round(courageSceneDefaults.durationSeconds * FPS)}
+        fps={FPS}
+        width={W}
+        height={H}
+        defaultProps={courageSceneDefaults}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.max(1, Math.round(props.durationSeconds * FPS)),
+        })}
       />
       <Composition
         id="ReverseFlow"

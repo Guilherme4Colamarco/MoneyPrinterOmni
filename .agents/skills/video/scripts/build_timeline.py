@@ -131,12 +131,23 @@ def _text(project: str, item: dict, size: tuple[int, int], style: dict) -> str:
     longest = max(len(line) for line in item["text"].splitlines())
     # encolhe para caber em 85% da largura (≈ 0,64 do tamanho por caractere em fonte bold)
     font_size = round(min(int(style["size"]) * scale, w * 0.85 / (longest * 0.64)))
-    return arte.drawtext(
+    drawtext = arte.drawtext(
         item["text"], os.path.join(project, "raw", f"_text_{item['n']}.txt"),
         font=style["font"], color=style["color"], size=font_size,
         x="(w-text_w)/2", y=y, box=bool(style.get("box")), box_color=style.get("box_color", "#000000@0.55"),
         border=0 if style.get("box") else round(4 * scale),
     )
+    # Animações podem marcar a deixa e a duração do overlay em props.overlay.
+    # O filtro recebe o tempo local do clipe, então o texto acompanha o timing
+    # mesmo quando o clipe é cortado do vídeo completo.
+    overlay = item.get("props", {}).get("overlay") or {}
+    if overlay:
+        start = max(0.0, float(overlay.get("startOffsetSeconds", 0)))
+        duration = min(float(overlay.get("recommendedDurationSeconds", 4)), max(0.0, float(item["dur"]) - start))
+        if duration > 0:
+            end = start + duration
+            drawtext += f":enable='between(t,{start:.3f},{end:.3f})'"
+    return drawtext
 
 
 def build(project: str, item: dict, size: tuple[int, int], style: dict) -> str:
