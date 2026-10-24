@@ -108,6 +108,8 @@ def test_sdist_and_wheel_allowlists_exclude_private_files():
     assert build["wheel"]["force-include"]["cli.py"] == "app/cli.py"
     for entry in build["sdist"]["include"]:
         assert entry not in ("/config.toml", "/storage", "/AGENTS.md", "/.env")
+        assert "UTM Kabel" not in entry
+    assert not any("UTM Kabel" in key for key in build["wheel"]["force-include"])
     assert "app" in build["wheel"]["packages"]
     assert "webui" in build["wheel"]["packages"]
 
