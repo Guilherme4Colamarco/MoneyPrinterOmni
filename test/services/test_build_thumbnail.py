@@ -341,24 +341,110 @@ def test_thumbnail_special_out_name_stays_out_of_the_filtergraph(tmp_path, monke
     assert "'" not in graph.split("drawtext=", 1)[-1].split(":expansion=", 1)[0]
 
 
-def test_thumbnail_stale_output_does_not_count_as_success(tmp_path, monkeypatch):
-    (tmp_path / "bg.png").write_bytes(b"png")
-    dest = tmp_path / "publicacao" / "thumb-A.png"
-    dest.parent.mkdir(parents=True)
-    dest.write_bytes(b"stale-thumb")
-
-    def fake_run(cmd, check=True, **kwargs):
-        return subprocess.CompletedProcess(cmd, 0, b"", b"")
-
-    monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+def _assert_system_exit(fn, *args, **kwargs):
     try:
-        build_thumbnail.build(str(tmp_path), _args())
+        fn(*args, **kwargs)
     except SystemExit as exc:
         assert exc.code != 0
-        assert "thumb-A.png" in str(exc)
-    else:
-        raise AssertionError("arquivo antigo não pode passar na checagem")
-    assert not dest.exists()
+        return str(exc)
+    raise AssertionError("deveria sair com SystemExit != 0")
+
+
+@pytest.mark.parametrize("name", ["script.py", "notes.txt"])
+def test_thumbnail_rejects_non_image_out_and_leaves_file(tmp_path, monkeypatch, name):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    victim = tmp_path / name
+    original = b"do-not-touch"
+    victim.write_bytes(original)
+    called = []
+
+    def fake_run(*args, **kwargs):
+        called.append(args)
+        return subprocess.CompletedProcess(args[0] if args else [], 0, b"", b"")
+
+    monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+    text = _assert_system_exit(
+        build_thumbnail.build, str(tmp_path), _args(out=name)
+    )
+    assert "--out recusado" in text
+    assert ".png" in text
+    assert victim.read_bytes() == original
+    assert called == []
+
+
+def test_thumbnail_rejects_out_directory_and_leaves_contents(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    dest = tmp_path / "publicacao" / "thumb-A.png"
+    dest.mkdir(parents=True)
+    inside = dest / "keep.txt"
+    inside.write_bytes(b"folder-payload")
+    called = []
+    monkeypatch.setattr(
+        build_thumbnail.subprocess, "run",
+        lambda *a, **k: called.append(a) or subprocess.CompletedProcess(a[0], 0),
+    )
+    text = _assert_system_exit(
+        build_thumbnail.build, str(tmp_path), _args()
+    )
+    assert "--out recusado" in text
+    assert "pasta" in text
+    assert dest.is_dir()
+    assert inside.read_bytes() == b"folder-payload"
+    assert called == []
+
+
+def test_thumbnail_rejects_out_symlink_and_leaves_target(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    target = tmp_path / "real-notes.txt"
+    target.write_bytes(b"symlink-target")
+    dest = tmp_path / "publicacao" / "thumb-A.png"
+    dest.parent.mkdir()
+    dest.symlink_to(target)
+    called = []
+    monkeypatch.setattr(
+        build_thumbnail.subprocess, "run",
+        lambda *a, **k: called.append(a) or subprocess.CompletedProcess(a[0], 0),
+    )
+    text = _assert_system_exit(
+        build_thumbnail.build, str(tmp_path), _args()
+    )
+    assert "--out recusado" in text
+    assert "symlink" in text
+    assert dest.is_symlink()
+    assert dest.readlink() == target
+    assert target.read_bytes() == b"symlink-target"
+    assert called == []
+
+
+@pytest.mark.parametrize("name", ["thumb.jpg", "thumb.jpeg", "thumb.webp"])
+def test_thumbnail_accepts_allowed_image_suffixes(tmp_path, monkeypatch, name):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    seen = _capture_ffmpeg(monkeypatch)
+    out = build_thumbnail.build(str(tmp_path), _args(out=str(Path("publicacao") / name)))
+    assert Path(out).name == name
+    assert Path(out).is_file()
+    assert Path(out).stat().st_size > 0
+    assert seen["cmd"][-1].endswith(Path(name).suffix)
+
+
+def test_thumbnail_failed_render_keeps_existing_good_png(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    dest = tmp_path / "publicacao" / "good.png"
+    dest.parent.mkdir()
+    original = b"GOOD-PNG-BYTES-LEAVE-ME"
+    dest.write_bytes(original)
+
+    def fake_run(cmd, check=True, **kwargs):
+        return subprocess.CompletedProcess(cmd, 1, b"", b"render failed\n")
+
+    monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+    text = _assert_system_exit(
+        build_thumbnail.build, str(tmp_path), _args(out=str(Path("publicacao") / "good.png"))
+    )
+    assert "ffmpeg saiu 1" in text
+    assert dest.read_bytes() == original
+    leftovers = list((tmp_path / "publicacao").glob(".thumb-*"))
+    assert leftovers == []
 
 
 def test_thumbnail_ffmpeg_failure_exits_without_traceback(tmp_path, monkeypatch):
@@ -370,12 +456,41 @@ def test_thumbnail_ffmpeg_failure_exits_without_traceback(tmp_path, monkeypatch)
         )
 
     monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
-    try:
-        build_thumbnail.build(str(tmp_path), _args())
-    except SystemExit as exc:
-        assert exc.code != 0
-        text = str(exc)
-        assert "ffmpeg saiu 234" in text
-        assert "No such filter: boom" in text
-    else:
-        raise AssertionError("ffmpeg != 0 deveria virar SystemExit")
+    text = _assert_system_exit(build_thumbnail.build, str(tmp_path), _args())
+    assert "ffmpeg saiu 234" in text
+    assert "No such filter: boom" in text
+
+
+def test_thumbnail_ffmpeg_error_truncates_long_stderr_lines(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    long_line = "X" * (build_thumbnail._STDERR_LINE_MAX + 80)
+    lines = [f"line{i}" for i in range(20)]
+    lines[-3] = long_line
+    stderr = ("\n".join(lines) + "\n").encode()
+
+    def fake_run(cmd, check=True, **kwargs):
+        return subprocess.CompletedProcess(cmd, 7, b"", stderr)
+
+    monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+    text = _assert_system_exit(build_thumbnail.build, str(tmp_path), _args())
+    assert "ffmpeg saiu 7" in text
+    assert "line11" not in text
+    assert "line12" in text
+    assert "X" * build_thumbnail._STDERR_LINE_MAX in text
+    assert "X" * (build_thumbnail._STDERR_LINE_MAX + 1) not in text
+
+
+def test_preview_ffmpeg_failure_exits_without_traceback(tmp_path, monkeypatch):
+    pub = tmp_path / "publicacao"
+    pub.mkdir()
+    (pub / "thumb-A.png").write_bytes(b"png")
+
+    def fake_run(cmd, check=True, **kwargs):
+        return subprocess.CompletedProcess(
+            cmd, 69, b"", b"Error opening filters\n"
+        )
+
+    monkeypatch.setattr(build_thumbnail.subprocess, "run", fake_run)
+    text = _assert_system_exit(build_thumbnail.preview, str(tmp_path))
+    assert "ffmpeg saiu 69" in text
+    assert "Error opening filters" in text
