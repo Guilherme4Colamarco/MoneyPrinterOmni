@@ -87,3 +87,92 @@ def test_kabel_font_is_gone():
         (Path(__file__).resolve().parents[2] / "animations/public").glob("*Kabel*")
     )
     assert leftovers == []
+
+
+def test_bevietnampro_black_extrabold_and_ofl_ship_with_the_fonts():
+    root = Path(__file__).resolve().parents[2]
+    required = (
+        "BeVietnamPro-Black.ttf",
+        "BeVietnamPro-ExtraBold.ttf",
+        "OFL.txt",
+    )
+    for folder in (root / "resource/fonts", root / "animations/public"):
+        for name in required:
+            path = folder / name
+            assert path.is_file(), path
+            assert path.stat().st_size > 0
+    ofl = (root / "resource/fonts/OFL.txt").read_text(encoding="utf-8")
+    assert "SIL Open Font License, Version 1.1" in ofl
+    assert "Be Vietnam Pro Project Authors" in ofl
+
+
+def test_validate_color_accepts_named_hex_and_alpha():
+    for value in (
+        "black",
+        "White",
+        "black@0.85",
+        "red@0",
+        "blue@1",
+        "green@1.0",
+        "yellow@.5",
+        "#112233",
+        "#ff00ff@0.9",
+        "0xAABBCC",
+        "0x112233@1",
+    ):
+        assert arte.validate_color(value) == value
+
+
+def test_validate_color_rejects_filter_injection_and_invalid_values():
+    for value in (
+        "black@0.85:enable=1",
+        "red:foo",
+        "#FFFFFF@1,drawbox=x=0",
+        "0xFFFFFF:eval",
+        "black@0.85;scale",
+        "black@2",
+        "black@-0.1",
+        "black@1.01",
+        "#FFF",
+        "#GGGGGG",
+        "0x12345",
+        "",
+        "white@1e1",
+        "black@0.85]",
+    ):
+        try:
+            arte.validate_color(value, field="contorno")
+        except ValueError as exc:
+            assert "contorno inválida" in str(exc)
+            assert repr(value) in str(exc)
+        else:
+            raise AssertionError(f"deveria rejeitar {value!r}")
+
+
+def test_drawtext_rejects_injected_outline(tmp_path):
+    textfile = tmp_path / "line.txt"
+    try:
+        arte.drawtext(
+            "OI", str(textfile), font="BeVietnamPro-Bold.ttf", color="#FFFFFF",
+            size=48, x="0", y="0", border=4,
+            border_color="black@0.85:enable=1",
+        )
+    except ValueError as exc:
+        assert "contorno inválida" in str(exc)
+    else:
+        raise AssertionError("drawtext deveria rejeitar injeção no contorno")
+
+
+def test_thumbnail_rejects_injected_outline_from_arte_json(tmp_path, monkeypatch):
+    (tmp_path / "bg.png").write_bytes(b"png")
+    (tmp_path / "arte.json").write_text(
+        '{"thumbnail": {"outline": "black@0.85:enable=1"}}', encoding="utf-8"
+    )
+    monkeypatch.setattr(build_thumbnail.subprocess, "run", lambda *a, **k: None)
+    try:
+        build_thumbnail.build(str(tmp_path), _args())
+    except ValueError as exc:
+        assert "contorno inválida" in str(exc)
+        assert "enable=1" in str(exc)
+    else:
+        raise AssertionError("build deveria rejeitar thumbnail.outline injetado")

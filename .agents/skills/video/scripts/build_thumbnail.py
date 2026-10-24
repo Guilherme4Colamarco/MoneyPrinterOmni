@@ -32,7 +32,10 @@ def build(project: str, args: argparse.Namespace) -> str:
     top = h * (0.92 if w > h else 0.72) - gap * len(lines)
 
     src = args.image or args.source
-    outline = getattr(args, "outline_color", None) or style.get("outline") or arte.DEFAULT_OUTLINE
+    outline = arte.validate_color(
+        getattr(args, "outline_color", None) or style.get("outline") or arte.DEFAULT_OUTLINE,
+        field="contorno",
+    )
 
     def resolve(path: str) -> str:
         return path if os.path.isabs(path) else os.path.join(project, path)
@@ -88,7 +91,11 @@ def main() -> None:
     parser.add_argument(
         "--outline-color",
         default=None,
-        help=f"cor do contorno do texto (padrão: {arte.DEFAULT_OUTLINE} ou thumbnail.outline)",
+        type=lambda value: arte.validate_color(value, field="contorno"),
+        help=(
+            f"cor do contorno (nome, #RRGGBB ou 0xRRGGBB, opcional @alpha 0–1; "
+            f"padrão: {arte.DEFAULT_OUTLINE} ou thumbnail.outline)"
+        ),
     )
     parser.add_argument(
         "--no-vignette",

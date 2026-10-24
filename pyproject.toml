@@ -96,6 +96,9 @@ packages = ["app", "webui"]
 "resource/fonts/MicrosoftYaHeiBold.ttc" = "app/_assets/resource/fonts/MicrosoftYaHeiBold.ttc"
 "resource/fonts/BeVietnamPro-Bold.ttf" = "app/_assets/resource/fonts/BeVietnamPro-Bold.ttf"
 "resource/fonts/BeVietnamPro-Medium.ttf" = "app/_assets/resource/fonts/BeVietnamPro-Medium.ttf"
+"resource/fonts/BeVietnamPro-Black.ttf" = "app/_assets/resource/fonts/BeVietnamPro-Black.ttf"
+"resource/fonts/BeVietnamPro-ExtraBold.ttf" = "app/_assets/resource/fonts/BeVietnamPro-ExtraBold.ttf"
+"resource/fonts/OFL.txt" = "app/_assets/resource/fonts/OFL.txt"
 "resource/fonts/Charm-Bold.ttf" = "app/_assets/resource/fonts/Charm-Bold.ttf"
 "resource/fonts/Charm-Regular.ttf" = "app/_assets/resource/fonts/Charm-Regular.ttf"
 "resource/songs" = "app/_assets/resource/songs"
@@ -112,6 +115,8 @@ include = [
     "/test/services/test_packaging.py", "/resource/songs", "/resource/public",
     "/resource/fonts/STHeitiMedium.ttc", "/resource/fonts/MicrosoftYaHeiBold.ttc",
     "/resource/fonts/BeVietnamPro-Bold.ttf", "/resource/fonts/BeVietnamPro-Medium.ttf",
+    "/resource/fonts/BeVietnamPro-Black.ttf", "/resource/fonts/BeVietnamPro-ExtraBold.ttf",
+    "/resource/fonts/OFL.txt",
     "/resource/fonts/Charm-Bold.ttf", "/resource/fonts/Charm-Regular.ttf",
 ]
 

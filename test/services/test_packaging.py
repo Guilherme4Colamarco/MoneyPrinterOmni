@@ -110,6 +110,14 @@ def test_sdist_and_wheel_allowlists_exclude_private_files():
         assert entry not in ("/config.toml", "/storage", "/AGENTS.md", "/.env")
         assert "UTM Kabel" not in entry
     assert not any("UTM Kabel" in key for key in build["wheel"]["force-include"])
+    for name in (
+        "BeVietnamPro-Black.ttf",
+        "BeVietnamPro-ExtraBold.ttf",
+        "OFL.txt",
+    ):
+        font_key = f"resource/fonts/{name}"
+        assert build["wheel"]["force-include"][font_key] == f"app/_assets/{font_key}"
+        assert f"/resource/fonts/{name}" in build["sdist"]["include"]
     assert "app" in build["wheel"]["packages"]
     assert "webui" in build["wheel"]["packages"]
 
