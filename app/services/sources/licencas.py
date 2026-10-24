@@ -1,16 +1,21 @@
 """Validate a ``licencas.json`` file against :class:`License`.
 
-The helper is network-free and does not change project data files. It
-accepts a list of objects with ``license`` / ``licenca``, a
-``{id: license}`` mapping, or an object with an ``items`` / ``licencas``
-/ ``licenses`` list. Invalid entries report the item index or key and
-the rejected value. The metadata key ``versao`` is skipped.
+The helper is network-free and does not change project data files.
+List sections (``music``, ``images``, ``clips``, ``fonts``, …) are
+checked item by item. Object sections (``voice``, ``render``) are
+checked on their ``license`` / ``licenca`` field. The metadata key
+``versao`` is skipped.
+
+Errors report only the path (``section[index].license``) and the
+license value. Whole sections and ``origin`` are never included.
+Credentials in any URL (``user:pass@``) are masked as ``***@``.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -19,18 +24,27 @@ from typing import Any
 from app.services.sources.base import License
 
 METADATA_KEYS = frozenset({"versao"})
+_CREDENTIALS_IN_URL = re.compile(r"(?<=://)[^/\s:@]+:[^/\s@]+@")
 
 
 @dataclass(frozen=True, slots=True)
 class LicenseIssue:
-    """One invalid license entry (item index or key, plus the bad value)."""
+    """One invalid license: path plus the license value only."""
 
     location: str
     value: Any
     message: str
 
     def __str__(self) -> str:
-        return f"{self.location}: {self.message} (value={self.value!r})"
+        shown = mask_secret_urls(self.value)
+        return f"{self.location}: {self.message} (value={shown!r})"
+
+
+def mask_secret_urls(value: Any) -> Any:
+    """Replace ``user:pass@`` in URLs with ``***@``. Non-strings are unchanged."""
+    if isinstance(value, str):
+        return _CREDENTIALS_IN_URL.sub("***@", value)
+    return value
 
 
 def _allowed_licenses() -> str:
@@ -46,18 +60,19 @@ def _check_license_value(location: str, value: Any) -> list[LicenseIssue]:
             try:
                 License(text)
             except ValueError:
+                shown = mask_secret_urls(value)
                 return [
                     LicenseIssue(
                         location,
-                        value,
-                        f"invalid license {value!r}; expected one of: {_allowed_licenses()}",
+                        shown,
+                        f"invalid license {shown!r}; expected one of: {_allowed_licenses()}",
                     )
                 ]
             return []
     return [
         LicenseIssue(
             location,
-            value,
+            value if not isinstance(value, (dict, list)) else None,
             f"license must be one of: {_allowed_licenses()}",
         )
     ]
@@ -71,33 +86,39 @@ def _license_key(item: dict[str, Any]) -> str | None:
     return None
 
 
+def _object_license_issues(location: str, item: dict[str, Any]) -> list[LicenseIssue]:
+    key = _license_key(item)
+    path = f"{location}.{key}" if key else f"{location}.license"
+    if key is None:
+        return [LicenseIssue(path, None, "missing license or licenca")]
+    return _check_license_value(path, item[key])
+
+
 def _validate_sequence(items: Any, prefix: str) -> list[LicenseIssue]:
     if not isinstance(items, list):
         return [
             LicenseIssue(
                 prefix or "$",
-                items,
-                "licencas.json must be a list of entries or an id-to-license map",
+                None,
+                "section must be a list of entries",
             )
         ]
     issues: list[LicenseIssue] = []
     for index, item in enumerate(items):
         location = f"{prefix}[{index}]" if prefix else f"[{index}]"
         if isinstance(item, (str, License)):
-            issues.extend(_check_license_value(location, item))
+            issues.extend(_check_license_value(f"{location}.license", item))
             continue
         if not isinstance(item, dict):
             issues.append(
-                LicenseIssue(location, item, "entry must be an object or a license string")
+                LicenseIssue(
+                    f"{location}.license",
+                    item if not isinstance(item, (dict, list)) else None,
+                    "entry must be an object or a license string",
+                )
             )
             continue
-        key = _license_key(item)
-        if key is None:
-            issues.append(
-                LicenseIssue(location, item, "missing license or licenca")
-            )
-            continue
-        issues.extend(_check_license_value(f"{location}.{key}", item[key]))
+        issues.extend(_object_license_issues(location, item))
     return issues
 
 
@@ -106,32 +127,32 @@ def validate_licencas(data: Any) -> list[LicenseIssue]:
     if isinstance(data, list):
         return _validate_sequence(data, "")
     if isinstance(data, dict):
-        for key in ("items", "licencas", "licenses"):
-            if key in data:
-                return _validate_sequence(data[key], f"{key}")
         issues: list[LicenseIssue] = []
         for key, value in data.items():
             if key in METADATA_KEYS:
                 continue
-            location = str(key)
-            if isinstance(value, dict):
-                nested = _license_key(value)
-                if nested is None:
-                    issues.append(
-                        LicenseIssue(location, value, "missing license or licenca")
-                    )
-                else:
-                    issues.extend(
-                        _check_license_value(f"{location}.{nested}", value[nested])
-                    )
+            if isinstance(value, list):
+                issues.extend(_validate_sequence(value, str(key)))
                 continue
-            issues.extend(_check_license_value(location, value))
+            if isinstance(value, dict):
+                issues.extend(_object_license_issues(str(key), value))
+                continue
+            if isinstance(value, (str, License)):
+                issues.extend(_check_license_value(str(key), value))
+                continue
+            issues.append(
+                LicenseIssue(
+                    str(key),
+                    None,
+                    "section must be a list of entries or an object with license",
+                )
+            )
         return issues
     return [
         LicenseIssue(
             "$",
-            data,
-            "licencas.json must be a list of entries or an id-to-license map",
+            None,
+            "licencas.json must be a list of entries or a section map",
         )
     ]
 
