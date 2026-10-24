@@ -1,14 +1,17 @@
 import copy
 import json
+import logging
 import runpy
 import sys
+import traceback
 from datetime import datetime, timezone, tzinfo
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
 import pytest
-from pydantic import ValidationError
+from loguru import logger as loguru_logger
+from pydantic import BaseModel, TypeAdapter, ValidationError
 
 from app.services.sources import (
     GENERATOR_SOURCE_NAMES,
@@ -40,7 +43,12 @@ from app.services.sources import (
     validate_licencas_file,
     validate_search_results,
 )
-from app.services.sources.base import parse_optional_text
+from app.services.sources.base import (
+    REJECTED_SENSITIVE_URL,
+    SENSITIVE_URL_MESSAGE,
+    parse_optional_text,
+    url_has_sensitive_material,
+)
 from app.services.sources.licencas import (
     _validate_sequence,
     main as licencas_main,
@@ -246,8 +254,8 @@ def test_source_name_values_are_material_sources_only():
         SourceName.pexels,
         SourceName.pixabay,
         SourceName.coverr,
-        SourceName.local,
     }
+    assert SourceName.local not in SEARCHABLE_SOURCE_NAMES
     assert SourceName.yt_dlp not in SEARCHABLE_SOURCE_NAMES
     assert SEARCHABLE_SOURCE_NAMES.isdisjoint(GENERATOR_SOURCE_NAMES)
 
@@ -285,39 +293,89 @@ def test_url_is_required_http_https_with_host():
         parse_url("/etc/passwd")
     with pytest.raises(ValueError, match="http or https"):
         parse_url("file:///etc/passwd")
-    with pytest.raises(ValueError, match="http or https"):
+    with pytest.raises(ValueError, match=SENSITIVE_URL_MESSAGE):
         parse_url("https://user:pass@example.com/secret")
+    with pytest.raises(ValueError, match=SENSITIVE_URL_MESSAGE):
+        parse_url(REJECTED_SENSITIVE_URL)
     with pytest.raises(ValueError, match="http or https"):
         parse_url("http://[")
+    assert parse_url("https://coverr.co/videos/forest-walk") == (
+        "https://coverr.co/videos/forest-walk"
+    )
+    assert parse_url("https://www.youtube.com/watch?v=dQw4w9wg")
+    assert url_has_sensitive_material(None) is False
+    assert url_has_sensitive_material("") is False
+    assert url_has_sensitive_material("http://[") is False
+    assert url_has_sensitive_material("https://example.com/?token=x") is True
 
 
-def _assert_error_hides_sentinel(error: SourceItemError, sentinel: str) -> None:
-    dumped = error.json()
-    details = error.errors()
-    helper = source_item_error_details(error)
-    for blob in (str(error), repr(error), dumped, json.dumps(details), json.dumps(helper)):
+SENTINEL = "SENTINELA123"
+SENSITIVE_URLS = {
+    "userinfo_only": f"http://{SENTINEL}@example.com/x",
+    "user_password": f"https://user:{SENTINEL}@example.com/x",
+    "token_query": f"https://example.com/clip?token={SENTINEL}",
+    "amz_signature": f"https://example.com/clip.mp4?X-Amz-Signature={SENTINEL}",
+}
+
+
+class _NestedSourceItems(BaseModel):
+    items: list[SourceItem]
+
+
+def _error_surfaces(exc: BaseException) -> list[str]:
+    blobs = [
+        str(exc),
+        repr(exc),
+        "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
+    ]
+    json_fn = getattr(exc, "json", None)
+    if callable(json_fn):
+        blobs.append(json_fn())
+    errors_fn = getattr(exc, "errors", None)
+    if callable(errors_fn):
+        blobs.append(json.dumps(errors_fn(), default=str))
+    return blobs
+
+
+def _assert_error_hides_sentinel(error: BaseException, sentinel: str = SENTINEL) -> None:
+    for blob in _error_surfaces(error):
         assert sentinel not in blob
-    assert all("input" not in item for item in details)
-    assert all("input" not in item for item in helper)
+    if isinstance(error, SourceItemError):
+        assert all("input" not in item for item in error.errors())
+        assert all("input" not in item for item in source_item_error_details(error))
+    elif isinstance(error, ValidationError):
+        stripped = source_item_error_details(error)
+        assert sentinel not in json.dumps(stripped, default=str)
+        assert all("input" not in item for item in stripped)
+        for item in error.errors():
+            assert sentinel not in str(item.get("input"))
 
 
-def test_credential_url_errors_hide_sentinel_secret():
-    sentinel = "SENTINELA123"
-    secret_url = f"https://user:{sentinel}@example.com/x"
-    with pytest.raises(SourceItemError) as excinfo:
-        parse_source_item(_item(url=secret_url))
-    _assert_error_hides_sentinel(excinfo.value, sentinel)
+def _log_caught_exceptions() -> None:
+    logging.exception("source item rejected")
+    loguru_logger.exception("source item rejected")
 
-    with pytest.raises(ValidationError) as raw_info:
-        SourceItem.model_validate(_item(url=secret_url))
-    stripped = source_item_error_details(raw_info.value)
-    assert all("input" not in item for item in stripped)
-    assert sentinel not in json.dumps(stripped)
 
-    with pytest.raises(SourceItemError) as extra_info:
-        parse_source_item(_item(canal_secreto=f"https://user:{sentinel}@evil.example/x"))
-    _assert_error_hides_sentinel(extra_info.value, sentinel)
+def _raise_source_item(caller: str, payload: dict[str, Any]) -> None:
+    if caller == "init":
+        SourceItem(**payload)
+        return
+    if caller == "model_validate":
+        SourceItem.model_validate(payload)
+        return
+    if caller == "model_validate_json":
+        SourceItem.model_validate_json(json.dumps(payload))
+        return
+    if caller == "nested":
+        _NestedSourceItems.model_validate({"items": [payload]})
+        return
+    if caller == "type_adapter":
+        TypeAdapter(list[SourceItem]).validate_python([payload])
+        return
+    raise AssertionError(f"unknown caller {caller}")
 
+
+def test_source_item_error_helpers_omit_input():
     empty = SourceItemError([])
     assert str(empty) == "invalid SourceItem"
     assert empty.errors() == []
@@ -325,6 +383,85 @@ def test_credential_url_errors_hide_sentinel_secret():
     assert source_item_error_details(empty) == []
     with pytest.raises(TypeError, match="SourceItemError or ValidationError"):
         source_item_error_details(ValueError("nope"))
+
+
+@pytest.mark.parametrize(
+    "url_kind",
+    list(SENSITIVE_URLS),
+    ids=list(SENSITIVE_URLS),
+)
+@pytest.mark.parametrize(
+    "caller",
+    ["init", "model_validate", "model_validate_json", "nested", "type_adapter"],
+)
+def test_sensitive_url_rejected_without_leaking_sentinel(url_kind, caller, caplog):
+    payload = _item(url=SENSITIVE_URLS[url_kind])
+    caplog.set_level(logging.ERROR)
+    sink_id = loguru_logger.add(
+        lambda message: logging.getLogger("loguru-forward").error(str(message)),
+        format="{message}",
+        diagnose=False,
+    )
+    try:
+        _raise_source_item(caller, payload)
+    except ValidationError as exc:
+        _assert_error_hides_sentinel(exc)
+        assert SENSITIVE_URL_MESSAGE in str(exc)
+        _log_caught_exceptions()
+    else:
+        raise AssertionError(f"expected ValidationError for {url_kind}/{caller}")
+    finally:
+        loguru_logger.remove(sink_id)
+    assert SENTINEL not in caplog.text
+
+
+@pytest.mark.parametrize("url_kind", list(SENSITIVE_URLS), ids=list(SENSITIVE_URLS))
+def test_sensitive_url_in_extra_field_does_not_leak(url_kind, caplog):
+    payload = _item()
+    payload["canal_secreto"] = SENSITIVE_URLS[url_kind]
+    caplog.set_level(logging.ERROR)
+    try:
+        SourceItem.model_validate(payload)
+    except ValidationError as exc:
+        _assert_error_hides_sentinel(exc)
+        _log_caught_exceptions()
+    else:
+        raise AssertionError(f"expected ValidationError for extra {url_kind}")
+    assert SENTINEL not in caplog.text
+    with pytest.raises(SourceItemError) as wrapped:
+        parse_source_item(_item(url=SENSITIVE_URLS[url_kind]))
+    _assert_error_hides_sentinel(wrapped.value)
+
+
+def test_sensitive_query_keys_are_rejected_case_insensitively():
+    for raw in (
+        f"https://example.com/x?TOKEN={SENTINEL}",
+        f"https://example.com/x?key={SENTINEL}",
+        f"https://example.com/x?sig={SENTINEL}",
+        f"https://example.com/x?signature={SENTINEL}",
+        f"https://example.com/x?auth={SENTINEL}",
+        f"https://example.com/x?access_token={SENTINEL}",
+        f"https://example.com/x#token={SENTINEL}",
+        f"https://example.com/x?x-amz-credential={SENTINEL}",
+    ):
+        with pytest.raises(ValueError, match=SENSITIVE_URL_MESSAGE):
+            parse_url(raw)
+        with pytest.raises(ValidationError):
+            SourceItem.model_validate(_item(url=raw))
+
+
+def test_nested_extra_list_with_sensitive_url_is_scrubbed():
+    payload = _item()
+    payload["notas"] = [f"https://cdn.example.com/a.mp4?token={SENTINEL}"]
+    payload["meta"] = {"page": f"https://cdn.example.com/b.mp4?token={SENTINEL}"}
+    payload["rows"] = [{"href": f"https://cdn.example.com/c.mp4?token={SENTINEL}"}]
+    with pytest.raises(ValidationError) as excinfo:
+        SourceItem.model_validate(payload)
+    _assert_error_hides_sentinel(excinfo.value)
+    item = SourceItem.model_validate(_item())
+    assert SourceItem.model_validate(item).url == item.url
+    with pytest.raises(ValidationError):
+        SourceItem.model_validate("not-a-mapping")
 
 
 def test_published_at_accepts_only_timezone_aware_values():
@@ -576,8 +713,8 @@ def _set_nested(data: dict[str, Any], parts: tuple[Any, ...], value: Any) -> dic
     return clone
 
 
-def test_register_search_env_allowlist_rejects_ytdlp_and_generators():
-    for name in (SourceName.yt_dlp, *GENERATOR_SOURCE_NAMES):
+def test_register_search_env_allowlist_rejects_ytdlp_local_and_generators():
+    for name in (SourceName.yt_dlp, SourceName.local, *GENERATOR_SOURCE_NAMES):
         with pytest.raises(ValueError, match="cannot be registered as a search source"):
             register_search_env(name, SourceEnvSpec(required=("NOPE",)))
         assert name not in SOURCE_ENV_VARS
@@ -586,11 +723,11 @@ def test_register_search_env_allowlist_rejects_ytdlp_and_generators():
     try:
         register_search_env(SourceName.pexels, spec)
         assert SOURCE_ENV_VARS[SourceName.pexels] is spec
-        register_search_env(SourceName.local, SourceEnvSpec())
-        assert SourceName.local in SOURCE_ENV_VARS
+        register_search_env(SourceName.pixabay, SourceEnvSpec())
+        assert SourceName.pixabay in SOURCE_ENV_VARS
     finally:
         SOURCE_ENV_VARS.pop(SourceName.pexels, None)
-        SOURCE_ENV_VARS.pop(SourceName.local, None)
+        SOURCE_ENV_VARS.pop(SourceName.pixabay, None)
     assert set(SOURCE_ENV_VARS) == set(SEARCH_SOURCE_NAMES)
 
 
