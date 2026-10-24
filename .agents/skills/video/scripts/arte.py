@@ -2,10 +2,16 @@
 
 import json
 import os
+import re
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 FONTS = os.path.join(REPO, "resource", "fonts")
 DEFAULT_OUTLINE = "black@0.85"
+# nome, #RRGGBB ou 0xRRGGBB, com @alpha 0–1 opcional — sem ':' nem outros tokens de filtro
+_COLOR_RE = re.compile(
+    r"^(?:[A-Za-z]{1,32}|(?:#|0x)[0-9A-Fa-f]{6})"
+    r"(?:@(?:0(?:\.\d+)?|1(?:\.0+)?|\.\d+))?$"
+)
 
 DEFAULTS = {
     "texto_na_tela": {"font": "BeVietnamPro-Bold.ttf", "color": "#FFFFFF", "size": 96,
@@ -37,6 +43,20 @@ def font_path(name: str) -> str:
     return path
 
 
+def validate_color(value: str, *, field: str = "cor") -> str:
+    """Aceita só nome, #RRGGBB ou 0xRRGGBB, com @alpha 0–1 opcional.
+
+    Rejeita ':' e qualquer outro token que o ffmpeg interpretaria como opção
+    extra no filtergraph (injeção em drawtext=...:bordercolor=...).
+    """
+    if not isinstance(value, str) or not _COLOR_RE.fullmatch(value):
+        raise ValueError(
+            f"{field} inválida: {value!r} "
+            "(use um nome, #RRGGBB ou 0xRRGGBB, opcionalmente @alpha entre 0 e 1)"
+        )
+    return value
+
+
 def _quote(value: str) -> str:
     # valor entre aspas simples dentro de um filtergraph do ffmpeg
     return "'" + value.replace("\\", "\\\\").replace("'", "'\\''") + "'"
@@ -56,5 +76,5 @@ def drawtext(text: str, textfile: str, *, font: str, color: str, size: int, x: s
     if box:
         parts += ["box=1", f"boxcolor={box_color}", f"boxborderw={max(12, size // 4)}"]
     if border:
-        parts += [f"borderw={border}", f"bordercolor={border_color}"]
+        parts += [f"borderw={border}", f"bordercolor={validate_color(border_color, field='contorno')}"]
     return "drawtext=" + ":".join(parts)
