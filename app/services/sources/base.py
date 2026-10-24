@@ -1,26 +1,31 @@
-"""接口：素材来源的公共契约。
+"""Common contract for material sources.
 
-本模块只定义搜索接口和统一的素材条目模型，不接入现有 Pexels / Pixabay /
-Coverr / WaveSpeed 等服务。后续适配器可以各自实现 :class:`Source`，把供应商
-返回值解析成 :class:`SourceItem`。
+This module only defines the search interface and the shared item model.
+Existing Pexels / Pixabay / Coverr / WaveSpeed services are not wired here.
+Adapters can implement :class:`Source` and parse vendor payloads into
+:class:`SourceItem`.
 
-字段约定（与 ``.agents/pipeline.md`` 的 ``sources.json`` 以及
-``app/services`` 里已有的素材来源对齐）：
+Field contract (aligned with ``.agents/pipeline.md`` ``sources.json`` and
+the material providers in ``app/services``):
 
-- ``id`` / ``url``：供应商侧标识和可定位地址（至少二者之一）。
-- ``source``：已在仓库中使用的来源名，外加即将实现的搜索源
-  （:class:`SourceName`）。
-- ``type``：素材种类（:class:`SourceType`）。
-- ``license``：权利分类（:class:`License`），缺省为 ``desconhecida``。
-- ``license_note``：补充说明（例如「trecho curto」、署名要求）。
-- ``covers``：该条目覆盖的脚本块 / 场景说明。
-- ``duration``：时长，单位秒。
-- ``published_at``：时区感知的 ISO 8601 时间；拒绝 naive datetime。
+- ``url``: required original http(s) link. javascript:, ftp:, file paths
+  and other non-http locators are rejected.
+- ``id``: optional vendor-side identifier.
+- ``source``: source name (:class:`SourceName`).
+- ``type``: kind of material (:class:`SourceType`).
+- ``license``: rights class (:class:`License`), default ``desconhecida``.
+- ``license_note``: extra credit text (short-clip note, attribution).
+- ``covers``: script blocks or scenes this item illustrates, as in
+  ``sources.json`` (for example ``["bloco 2: portais entre os jogos"]``).
+  Kept because the director's spec requires it.
+- ``duration``: length in seconds (int/float or None). Strings are rejected.
+- ``published_at``: timezone-aware ISO 8601; naive datetimes are rejected.
 
-X / Reddit / Instagram / YouTube 的 ``search`` 会先检查环境变量（见
-:data:`SOURCE_ENV_VARS`）。缺必需变量时只记录变量**名**并返回 ``[]``，
-不抛异常、不发起网络请求。YouTube 的 ``YOUTUBE_API_KEY`` 是可选的：
-缺失时告警，但仍调用子类（例如回退到 yt-dlp 搜索）。
+``search`` is wrapped so it checks environment variables
+(:data:`SOURCE_ENV_VARS`), validates ``limit``, and checks the returned
+list. Missing required vars log the variable **names** only and return
+``[]`` without raising or making network calls. ``YOUTUBE_API_KEY`` is
+required until Guilherme decides otherwise.
 """
 
 from __future__ import annotations
@@ -33,17 +38,20 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Mapping, TypeVar
+from urllib.parse import urlsplit
 
 from loguru import logger
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+_F = TypeVar("_F", bound=Callable[..., list[Any]])
+_SOURCE_ENV_GUARD_ATTR = "_source_env_guarded"
 
 
 class SourceType(str, Enum):
-    """素材种类。
+    """Kind of material.
 
-    取值与 ``.agents/pipeline.md`` 的 ``sources.json`` 对齐，并补上帖子与
-    文本（X / Reddit / Instagram 等搜索源会用到）。不再包含 ``audio`` /
-    ``music``：配乐不是这类来源的检索结果。
+    Values match ``sources.json`` (video, image, stock, chart, user) plus
+    post and text for X / Reddit / Instagram search results.
     """
 
     video = "video"
@@ -56,13 +64,12 @@ class SourceType(str, Enum):
 
 
 class SourceName(str, Enum):
-    """素材来源名。
+    """Material source names.
 
-    - 视频库存 / 生成：``app/services/task.py`` 的 ``_SUPPORTED_VIDEO_SOURCES``
-      与 ``config.example.toml`` 的 ``video_source``。
-    - 配乐：``_VIDEO_MUSIC_PROVIDERS``（Sonilo、ElevenLabs）。
-    - 代理流水线：``yt-dlp``（``.agents/playbooks/yt-dlp.md``）。
-    - 即将实现的搜索源：``x``、``reddit``、``instagram``、``youtube``。
+    Video/image providers from ``_SUPPORTED_VIDEO_SOURCES`` and
+    ``config.example.toml``, plus ``yt-dlp`` and the four search sources
+    the team will implement (x, reddit, instagram, youtube). Music/TTS
+    providers (Sonilo, ElevenLabs) are not material sources.
     """
 
     pexels = "pexels"
@@ -76,8 +83,6 @@ class SourceName(str, Enum):
     muapi = "muapi"
     loomloom = "loomloom"
     openai_image = "openai_image"
-    sonilo = "sonilo"
-    elevenlabs = "elevenlabs"
     yt_dlp = "yt-dlp"
     x = "x"
     reddit = "reddit"
@@ -86,10 +91,10 @@ class SourceName(str, Enum):
 
 
 class License(str, Enum):
-    """素材权利分类。
+    """Rights class for a material item.
 
-    ``proprio`` 表示频道保留全部权利（all rights reserved）。
-    无法判断时使用默认值 ``desconhecida``。
+    ``proprio`` means all rights reserved to the channel.
+    Use ``desconhecida`` when the license cannot be determined.
     """
 
     cc0 = "cc0"
@@ -104,12 +109,12 @@ class License(str, Enum):
 
 @dataclass(frozen=True, slots=True)
 class SourceEnvSpec:
-    """某个搜索源需要的环境变量。
+    """Environment variables a search source needs.
 
-    ``required``：任一缺失或空白时，``search`` 记录变量名并返回 ``[]``，
-    不调用子类、不发起网络请求。
-    ``optional``：缺失时只告警，仍调用子类。YouTube 的 ``YOUTUBE_API_KEY``
-    属于此类，子类可以回退到 yt-dlp 搜索。
+    ``required``: if any is missing or blank, ``search`` logs the names
+    and returns ``[]`` without calling the subclass.
+    ``optional``: reserved. No current source uses optional vars;
+    ``YOUTUBE_API_KEY`` is required until Guilherme decides otherwise.
     """
 
     required: tuple[str, ...] = ()
@@ -128,29 +133,27 @@ SOURCE_ENV_VARS: dict[SourceName, SourceEnvSpec] = {
     SourceName.instagram: SourceEnvSpec(
         required=("INSTAGRAM_TOKEN", "INSTAGRAM_USER_ID")
     ),
-    SourceName.youtube: SourceEnvSpec(optional=("YOUTUBE_API_KEY",)),
+    SourceName.youtube: SourceEnvSpec(required=("YOUTUBE_API_KEY",)),
 }
 
-_F = TypeVar("_F", bound=Callable[..., list[Any]])
-_SOURCE_ENV_GUARD_ATTR = "_source_env_guarded"
+
+def _enum_values(enum_cls: type[Enum]) -> str:
+    return ", ".join(item.value for item in enum_cls)
 
 
 def _env_present(name: str) -> bool:
-    """判断环境变量是否已设置（非空）。从不返回或记录变量值。"""
+    """Return whether an env var is set and non-blank. Never returns the value."""
     raw = os.environ.get(name)
     return isinstance(raw, str) and bool(raw.strip())
 
 
-def missing_source_env_vars(
-    source: SourceName,
+def missing_env_names(
+    spec: SourceEnvSpec,
     *,
     required: bool = True,
     optional: bool = False,
 ) -> list[str]:
-    """返回该来源中缺失的环境变量名（只返回名字，不读出值）。"""
-    spec = SOURCE_ENV_VARS.get(source)
-    if spec is None:
-        return []
+    """Return missing variable **names** from a spec. Values are never read out."""
     names: list[str] = []
     if required:
         names.extend(spec.required)
@@ -159,46 +162,79 @@ def missing_source_env_vars(
     return [name for name in names if not _env_present(name)]
 
 
-def _warn_missing_env(source: SourceName | None, names: list[str], *, required: bool) -> None:
-    """只记录变量名，绝不写入环境变量的值。"""
+def missing_source_env_vars(
+    source: SourceName,
+    *,
+    required: bool = True,
+    optional: bool = False,
+) -> list[str]:
+    """Return missing env var names for a named source (names only)."""
+    spec = SOURCE_ENV_VARS.get(source)
+    if spec is None:
+        return []
+    return missing_env_names(spec, required=required, optional=optional)
+
+
+def _warn_missing_env(source: SourceName | None, names: list[str]) -> None:
+    """Log missing variable names only — never the values."""
     source_label = source.value if source is not None else "unknown"
-    listed = ", ".join(names)
-    if required:
-        logger.warning(
-            f"skipping {source_label} search: missing required environment "
-            f"variables: {listed}"
-        )
-        return
     logger.warning(
-        f"{source_label} search: missing optional environment variables: "
-        f"{listed}; the source may fall back (YouTube can use yt-dlp search)"
+        f"skipping {source_label} search: missing required environment "
+        f"variables: {', '.join(names)}"
     )
 
 
-def require_source_env(func: _F) -> _F:
-    """装饰 ``search``：缺必需环境变量时告警并返回 ``[]``。
+def parse_search_limit(value: Any) -> int:
+    """Require ``limit`` to be an ``int >= 1``. Booleans are rejected."""
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise ValueError("limit must be an int >= 1")
+    return value
 
-    可选变量（YouTube 的 ``YOUTUBE_API_KEY``）只告警，不拦截。
-    告警只包含变量名，不包含值。:class:`Source` 的子类在定义 ``search``
-    时会自动套上本装饰器。
+
+def validate_search_results(results: Any, limit: int) -> list[SourceItem]:
+    """Require a ``list[SourceItem]`` and truncate it to ``limit``.
+
+    Over-long results are truncated, not rejected, so a subclass that
+    ignores ``limit`` still cannot return more items than the caller asked
+    for.
+    """
+    if not isinstance(results, list):
+        raise TypeError("search must return a list of SourceItem")
+    items: list[SourceItem] = []
+    for item in results:
+        if not isinstance(item, SourceItem):
+            raise TypeError("search must return a list of SourceItem")
+        items.append(item)
+    return items[:limit]
+
+
+def require_source_env(func: _F) -> _F:
+    """Wrap ``search``: env check, ``limit`` validation, result check.
+
+    Missing required env vars: warn with names only and return ``[]``.
+    Invalid ``limit`` or a non-``list[SourceItem]`` result: raise.
+    Results longer than ``limit`` are truncated.
     """
 
     @functools.wraps(func)
-    def wrapper(self: Source, *args: Any, **kwargs: Any) -> list[SourceItem]:
+    def wrapper(
+        self: Source,
+        query: str = "",
+        limit: int = 10,
+        *args: Any,
+        **kwargs: Any,
+    ) -> list[SourceItem]:
+        limit = parse_search_limit(limit)
         if not self.allow_search():
             return []
-        return func(self, *args, **kwargs)
+        return validate_search_results(func(self, query, limit, *args, **kwargs), limit)
 
     setattr(wrapper, _SOURCE_ENV_GUARD_ATTR, True)
     return wrapper  # type: ignore[return-value]
 
 
-def _enum_values(enum_cls: type[Enum]) -> str:
-    return ", ".join(item.value for item in enum_cls)
-
-
 def parse_source_type(value: Any) -> SourceType:
-    """把原始值解析为 :class:`SourceType`。"""
+    """Parse a raw value into :class:`SourceType`."""
     if isinstance(value, SourceType):
         return value
     if isinstance(value, str):
@@ -213,7 +249,7 @@ def parse_source_type(value: Any) -> SourceType:
 
 
 def parse_source_name(value: Any) -> SourceName:
-    """把原始值解析为 :class:`SourceName`。"""
+    """Parse a raw value into :class:`SourceName`."""
     if isinstance(value, SourceName):
         return value
     if isinstance(value, str):
@@ -228,9 +264,9 @@ def parse_source_name(value: Any) -> SourceName:
 
 
 def parse_license(value: Any) -> License:
-    """把原始值解析为 :class:`License`。
+    """Parse a raw value into :class:`License`.
 
-    ``None`` 或空字符串回落到默认值 ``desconhecida``。
+    ``None`` or a blank string fall back to ``desconhecida``.
     """
     if value is None:
         return License.desconhecida
@@ -250,7 +286,7 @@ def parse_license(value: Any) -> License:
 
 
 def parse_covers(value: Any) -> list[str]:
-    """把 ``covers`` 解析为字符串列表。"""
+    """Parse ``covers`` into a list of scene/block labels."""
     if value is None or value == "":
         return []
     if isinstance(value, str):
@@ -266,51 +302,27 @@ def parse_covers(value: Any) -> list[str]:
 
 
 def parse_duration(value: Any) -> float | None:
-    """把时长解析为秒（可空）。
+    """Parse duration as non-negative seconds.
 
-    接受非负有限数字，或 ``MM:SS`` / ``H:MM:SS`` 文本（与 ``sources.json``
-    里出现的写法兼容）。布尔值会被拒绝，避免 ``True`` 被当成 ``1``。
+    Accepts ``int``, ``float`` or ``None`` only. Strings such as
+    ``\"01:30\"`` are rejected. Booleans are rejected so ``True`` is not
+    treated as ``1``.
     """
-    if value is None or value == "":
+    if value is None:
         return None
-    if isinstance(value, bool):
-        raise ValueError("duration must be seconds, not a boolean")
-    if isinstance(value, (int, float)):
-        seconds = float(value)
-    elif isinstance(value, str):
-        text = value.strip()
-        if not text:
-            return None
-        if ":" in text:
-            parts = text.split(":")
-            if len(parts) not in {2, 3}:
-                raise ValueError("duration text must be seconds, MM:SS, or H:MM:SS")
-            try:
-                numbers = [float(part) for part in parts]
-            except ValueError as exc:
-                raise ValueError(
-                    "duration text must be seconds, MM:SS, or H:MM:SS"
-                ) from exc
-            seconds = 0.0
-            for number in numbers:
-                seconds = seconds * 60 + number
-        else:
-            try:
-                seconds = float(text)
-            except ValueError as exc:
-                raise ValueError("duration must be a number of seconds") from exc
-    else:
-        raise ValueError("duration must be a number of seconds")
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError("duration must be a number of seconds or None")
+    seconds = float(value)
     if not math.isfinite(seconds) or seconds < 0:
         raise ValueError("duration must be a non-negative finite number of seconds")
     return seconds
 
 
 def parse_published_at(value: Any) -> datetime | None:
-    """把 ``published_at`` 解析为带时区的 datetime。
+    """Parse ``published_at`` as a timezone-aware datetime.
 
-    接受带 ``tzinfo`` 的 ``datetime``，或带偏移的 ISO 8601 字符串（含 ``Z``）。
-    naive datetime 与不带时区的 ISO 字符串一律拒绝。
+    Accepts an aware ``datetime`` or an ISO 8601 string with an offset
+    (including ``Z``). Naive values are rejected.
     """
     if value is None or value == "":
         return None
@@ -339,7 +351,7 @@ def parse_published_at(value: Any) -> datetime | None:
 
 
 def parse_optional_text(value: Any) -> str | None:
-    """把可空说明字段解析为去空白后的字符串。"""
+    """Parse an optional note into a stripped string."""
     if value is None:
         return None
     if not isinstance(value, str):
@@ -348,17 +360,54 @@ def parse_optional_text(value: Any) -> str | None:
     return text or None
 
 
-class SourceItem(BaseModel):
-    """一次搜索返回的单条素材。
+def parse_item_id(value: Any) -> str | None:
+    """Parse an optional vendor id."""
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise ValueError("id must be a string")
+    text = value.strip()
+    return text or None
 
-    ``id`` 与 ``url`` 至少要提供一个：库存素材通常两者都有；本地文件可以只有
-    路径（``url``）或文件名（``id``）。``license`` 缺省为 ``desconhecida``。
+
+def parse_url(value: Any) -> str:
+    """Require an http(s) URL with a host.
+
+    Rejects ``javascript:``, ``ftp:``, ``file:``, bare paths such as
+    ``/etc/passwd``, and URLs with credentials.
+    """
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("url is required and must be an http or https URL with a host")
+    text = value.strip()
+    try:
+        parsed = urlsplit(text)
+    except ValueError as exc:
+        raise ValueError(
+            "url is required and must be an http or https URL with a host"
+        ) from exc
+    if (
+        parsed.scheme not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        raise ValueError("url is required and must be an http or https URL with a host")
+    return text
+
+
+class SourceItem(BaseModel):
+    """One material item returned by search.
+
+    ``url`` is required and must be the original http(s) link.
+    ``license`` defaults to ``desconhecida``.
+    ``covers`` lists the script blocks or scenes this item illustrates.
+    Unknown fields are rejected.
     """
 
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(extra="forbid")
 
     id: str | None = None
-    url: str | None = None
+    url: str
     source: SourceName
     type: SourceType
     license: License = License.desconhecida
@@ -367,15 +416,15 @@ class SourceItem(BaseModel):
     duration: float | None = None
     published_at: datetime | None = None
 
-    @field_validator("id", "url", mode="before")
+    @field_validator("id", mode="before")
     @classmethod
-    def _parse_identifier(cls, value: Any) -> str | None:
-        if value is None:
-            return None
-        if not isinstance(value, str):
-            raise ValueError("id and url must be strings")
-        text = value.strip()
-        return text or None
+    def _parse_id(cls, value: Any) -> str | None:
+        return parse_item_id(value)
+
+    @field_validator("url", mode="before")
+    @classmethod
+    def _parse_url(cls, value: Any) -> str:
+        return parse_url(value)
 
     @field_validator("source", mode="before")
     @classmethod
@@ -412,18 +461,11 @@ class SourceItem(BaseModel):
     def _parse_published_at(cls, value: Any) -> datetime | None:
         return parse_published_at(value)
 
-    @model_validator(mode="after")
-    def _require_id_or_url(self) -> SourceItem:
-        if not self.id and not self.url:
-            raise ValueError("SourceItem requires at least id or url")
-        return self
-
 
 def parse_source_item(data: SourceItem | Mapping[str, Any]) -> SourceItem:
-    """把映射（或已构造的条目）解析为 :class:`SourceItem`。
+    """Parse a mapping (or an existing item) into :class:`SourceItem`.
 
-    供 ``sources.json``、缓存记录和各来源适配器复用同一套字段解析规则。
-    未知字段会被忽略，以便兼容现有 ``channel`` 等扩展键。
+    Unknown fields raise a validation error.
     """
     if isinstance(data, SourceItem):
         return data
@@ -431,15 +473,16 @@ def parse_source_item(data: SourceItem | Mapping[str, Any]) -> SourceItem:
 
 
 class Source(ABC):
-    """素材来源的抽象基类。
+    """Abstract material source.
 
-    具体实现负责查询外部或本地目录，并把结果收成 :class:`SourceItem`。
-    子类应设置 :attr:`name`。``search`` 会先走 :meth:`allow_search`：
+    Subclasses should set :attr:`name`. ``search`` is wrapped so that:
 
-    - X / Reddit / Instagram：缺任一必需环境变量 → 告警（只写变量名）并
-      返回 ``[]``，不发起网络请求。
-    - YouTube：``YOUTUBE_API_KEY`` 可选。缺失时告警，但仍调用子类，
-      由子类决定是否回退到 yt-dlp 等其它路径。
+    - X / Reddit / Instagram / YouTube: any missing required env var
+      logs the names and returns ``[]`` with no network call.
+    - ``YOUTUBE_API_KEY`` is required until Guilherme decides otherwise.
+    - ``limit`` must be an ``int >= 1``.
+    - the subclass must return a ``list[SourceItem]``, truncated to
+      ``limit``.
     """
 
     name: SourceName | None = None
@@ -452,40 +495,35 @@ class Source(ABC):
         cls.search = require_source_env(search)
 
     def missing_required_env_vars(self) -> list[str]:
-        """该实例 ``name`` 上缺失的必需环境变量名。"""
+        """Missing required env var names for this instance's ``name``."""
         if self.name is None:
             return []
         return missing_source_env_vars(self.name, required=True, optional=False)
 
     def missing_optional_env_vars(self) -> list[str]:
-        """该实例 ``name`` 上缺失的可选环境变量名。"""
+        """Missing optional env var names for this instance's ``name``."""
         if self.name is None:
             return []
         return missing_source_env_vars(self.name, required=False, optional=True)
 
     def allow_search(self) -> bool:
-        """检查环境变量。缺必需变量时告警并返回 ``False``。
+        """Check required env vars. Log names and return False if any are missing.
 
-        可选变量缺失只告警，仍返回 ``True``，让子类自行决定（YouTube
-        可回退到 yt-dlp）。从不记录变量值。
+        Values are never logged.
         """
         missing_required = self.missing_required_env_vars()
         if missing_required:
-            _warn_missing_env(self.name, missing_required, required=True)
+            _warn_missing_env(self.name, missing_required)
             return False
-        missing_optional = self.missing_optional_env_vars()
-        if missing_optional:
-            _warn_missing_env(self.name, missing_optional, required=False)
         return True
 
     @abstractmethod
     def search(self, query: str, limit: int = 10) -> list[SourceItem]:
-        """按查询词搜索素材，最多返回 ``limit`` 条。
+        """Search for material matching ``query``, returning at most ``limit`` items.
 
-        子类实现会被 :func:`require_source_env` 包装：缺必需环境变量时
-        不会进入本方法。
+        The subclass implementation is wrapped by :func:`require_source_env`.
 
-        :param query: 搜索词或关键词。
-        :param limit: 返回条数上限，默认 10。
-        :returns: 解析后的素材条目列表。
+        :param query: search terms.
+        :param limit: maximum items to return; must be an ``int >= 1``.
+        :returns: parsed material items, truncated to ``limit``.
         """

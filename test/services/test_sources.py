@@ -1,3 +1,6 @@
+import json
+import runpy
+import sys
 from datetime import datetime, timezone, tzinfo
 from typing import Any
 from unittest.mock import patch
@@ -9,19 +12,28 @@ from app.services.sources import (
     SOURCE_ENV_VARS,
     License,
     Source,
+    SourceEnvSpec,
     SourceItem,
     SourceName,
     SourceType,
+    missing_env_names,
+    missing_source_env_vars,
     parse_covers,
     parse_duration,
     parse_license,
     parse_published_at,
+    parse_search_limit,
     parse_source_item,
     parse_source_name,
     parse_source_type,
+    parse_url,
     require_source_env,
+    validate_licencas,
+    validate_licencas_file,
+    validate_search_results,
 )
 from app.services.sources.base import parse_optional_text
+from app.services.sources.licencas import main as licencas_main
 
 
 SEARCH_ENV_VARS = (
@@ -107,10 +119,10 @@ class DummySource(Source):
             item
             for item in self.items
             if needle in (item.id or "").lower()
-            or needle in (item.url or "").lower()
+            or needle in item.url.lower()
             or needle in item.source.value
         ]
-        return matched[:limit]
+        return matched
 
 
 class RecordingSource(Source):
@@ -132,7 +144,31 @@ class RecordingSource(Source):
                     type="post",
                 )
             )
-        ][:limit]
+        ]
+
+
+class OverproducingSource(Source):
+    name = SourceName.local
+
+    def search(self, query: str, limit: int = 10) -> list[SourceItem]:
+        return [
+            parse_source_item(_item(id=f"n{index}", url=f"https://example.com/{index}"))
+            for index in range(5)
+        ]
+
+
+class DictResultSource(Source):
+    name = SourceName.local
+
+    def search(self, query: str, limit: int = 10):
+        return {"id": "nope", "url": "https://example.com/nope"}
+
+
+class MixedResultSource(Source):
+    name = SourceName.local
+
+    def search(self, query: str, limit: int = 10):
+        return [{"id": "nope", "url": "https://example.com/nope"}]
 
 
 @pytest.fixture
@@ -162,7 +198,7 @@ def test_source_type_values():
     }
 
 
-def test_source_name_values_match_repo_and_search_sources():
+def test_source_name_values_are_material_sources_only():
     assert {item.value for item in SourceName} == {
         "pexels",
         "pixabay",
@@ -175,16 +211,17 @@ def test_source_name_values_match_repo_and_search_sources():
         "muapi",
         "loomloom",
         "openai_image",
-        "sonilo",
-        "elevenlabs",
         "yt-dlp",
         "x",
         "reddit",
         "instagram",
         "youtube",
     }
+    assert "sonilo" not in {item.value for item in SourceName}
+    assert "elevenlabs" not in {item.value for item in SourceName}
     for name in (SourceName.x, SourceName.reddit, SourceName.instagram, SourceName.youtube):
         assert name in SOURCE_ENV_VARS
+        assert SOURCE_ENV_VARS[name].required
 
 
 def test_license_values_and_default():
@@ -204,13 +241,26 @@ def test_license_values_and_default():
     assert parse_source_item(_item()).license is License.desconhecida
 
 
-def test_source_item_requires_id_or_url():
-    parse_source_item(_item(url=None))
+def test_url_is_required_http_https_with_host():
     parse_source_item(_item(id=None))
-    with pytest.raises(ValidationError, match="at least id or url"):
-        parse_source_item(_item(id=None, url=None))
-    with pytest.raises(ValidationError, match="at least id or url"):
-        parse_source_item(_item(id="  ", url=""))
+    assert parse_url("https://example.com/clip") == "https://example.com/clip"
+    assert parse_url("http://localhost/a").startswith("http://")
+    with pytest.raises(ValidationError, match="http or https"):
+        parse_source_item(_item(url=None))
+    with pytest.raises(ValidationError, match="http or https"):
+        parse_source_item(_item(url=""))
+    with pytest.raises(ValueError, match="http or https"):
+        parse_url("javascript:alert(1)")
+    with pytest.raises(ValueError, match="http or https"):
+        parse_url("ftp://example.com/a")
+    with pytest.raises(ValueError, match="http or https"):
+        parse_url("/etc/passwd")
+    with pytest.raises(ValueError, match="http or https"):
+        parse_url("file:///etc/passwd")
+    with pytest.raises(ValueError, match="http or https"):
+        parse_url("https://user:pass@example.com/secret")
+    with pytest.raises(ValueError, match="http or https"):
+        parse_url("http://[")
 
 
 def test_published_at_accepts_only_timezone_aware_values():
@@ -239,13 +289,20 @@ def test_published_at_accepts_only_timezone_aware_values():
 
 def test_field_parsers_cover_duration_covers_and_enums():
     assert parse_duration(12) == 12.0
-    assert parse_duration("1:40") == 100.0
-    assert parse_duration("1:02:03") == 3723.0
+    assert parse_duration(1.5) == 1.5
     assert parse_duration(None) is None
-    with pytest.raises(ValueError, match="boolean"):
+    with pytest.raises(ValueError, match="number of seconds or None"):
+        parse_duration("01:30")
+    with pytest.raises(ValueError, match="number of seconds or None"):
+        parse_duration("1:40")
+    with pytest.raises(ValueError, match="number of seconds or None"):
         parse_duration(True)
+    with pytest.raises(ValueError, match="number of seconds or None"):
+        parse_duration("  ")
     with pytest.raises(ValueError, match="non-negative"):
         parse_duration(-1)
+    with pytest.raises(ValueError, match="non-negative"):
+        parse_duration(float("inf"))
 
     assert parse_covers("bloco 2") == ["bloco 2"]
     assert parse_covers(["a", "b"]) == ["a", "b"]
@@ -260,7 +317,6 @@ def test_field_parsers_cover_duration_covers_and_enums():
     assert parse_license(License.cc0) is License.cc0
     assert parse_published_at(None) is None
     assert parse_published_at("  ") is None
-    assert parse_duration("  ") is None
     assert parse_optional_text(None) is None
     assert parse_optional_text("  ") is None
     with pytest.raises(ValueError, match="source must be one of"):
@@ -279,34 +335,23 @@ def test_field_parsers_cover_duration_covers_and_enums():
         parse_covers(1)
     with pytest.raises(ValueError, match="covers items"):
         parse_covers(["ok", 2])
-    with pytest.raises(ValueError, match="MM:SS"):
-        parse_duration("1:02:03:04")
-    with pytest.raises(ValueError, match="MM:SS"):
-        parse_duration("1:xx")
-    with pytest.raises(ValueError, match="number of seconds"):
-        parse_duration("abc")
-    with pytest.raises(ValueError, match="number of seconds"):
-        parse_duration(["12"])
-    with pytest.raises(ValueError, match="non-negative"):
-        parse_duration(float("inf"))
     with pytest.raises(ValueError, match="timezone-aware ISO 8601"):
         parse_published_at("not-a-date")
     with pytest.raises(ValueError, match="timezone-aware datetime or ISO 8601"):
         parse_published_at(1717200000)
     with pytest.raises(ValidationError, match="license_note must be a string"):
         parse_source_item(_item(license_note=1))
-    with pytest.raises(ValidationError, match="id and url must be strings"):
+    with pytest.raises(ValidationError, match="id must be a string"):
         parse_source_item(_item(id=12))
 
 
-def test_parse_source_item_is_idempotent_and_ignores_unknown_keys():
+def test_parse_source_item_rejects_unknown_fields():
     item = parse_source_item(
         _item(
             license="cc-by",
             license_note="  crédito obrigatório  ",
             covers=["bloco 1"],
-            duration="0:15",
-            channel="DryxioGTA",
+            duration=15,
         )
     )
     assert item.license is License.cc_by
@@ -314,6 +359,8 @@ def test_parse_source_item_is_idempotent_and_ignores_unknown_keys():
     assert item.covers == ["bloco 1"]
     assert item.duration == 15.0
     assert parse_source_item(item) is item
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        parse_source_item(_item(channel="DryxioGTA"))
 
 
 def test_source_is_abstract_and_dummy_honors_search_contract():
@@ -334,6 +381,28 @@ def test_source_is_abstract_and_dummy_honors_search_contract():
     assert DummySource().search("missing-query") == []
 
 
+def test_search_wrapper_validates_limit_and_results():
+    with pytest.raises(ValueError, match="limit must be an int >= 1"):
+        parse_search_limit(0)
+    with pytest.raises(ValueError, match="limit must be an int >= 1"):
+        parse_search_limit(-1)
+    with pytest.raises(ValueError, match="limit must be an int >= 1"):
+        parse_search_limit(True)
+    with pytest.raises(ValueError, match="limit must be an int >= 1"):
+        DummySource().search("ocean", limit=0)
+
+    truncated = OverproducingSource().search("any", limit=2)
+    assert len(truncated) == 2
+    assert all(isinstance(item, SourceItem) for item in truncated)
+
+    with pytest.raises(TypeError, match="list of SourceItem"):
+        DictResultSource().search("any")
+    with pytest.raises(TypeError, match="list of SourceItem"):
+        MixedResultSource().search("any")
+    with pytest.raises(TypeError, match="list of SourceItem"):
+        validate_search_results({"id": "x"}, limit=1)
+
+
 @pytest.mark.parametrize(
     ("source_name", "required_vars"),
     [
@@ -343,6 +412,7 @@ def test_source_is_abstract_and_dummy_honors_search_contract():
             ("REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET", "REDDIT_USER_AGENT"),
         ),
         (SourceName.instagram, ("INSTAGRAM_TOKEN", "INSTAGRAM_USER_ID")),
+        (SourceName.youtube, ("YOUTUBE_API_KEY",)),
     ],
 )
 def test_required_search_sources_warn_and_return_empty_without_env(
@@ -358,6 +428,7 @@ def test_required_search_sources_warn_and_return_empty_without_env(
     text = _warning_text(warning)
     for name in required_vars:
         assert name in text
+    assert "yt-dlp" not in text
     for secret in ENV_SECRETS.values():
         assert secret not in text
         assert secret not in warning.call_args.args
@@ -378,21 +449,6 @@ def test_instagram_skips_when_either_required_var_is_missing(
     assert ENV_SECRETS["INSTAGRAM_TOKEN"] not in text
 
 
-def test_youtube_warns_but_is_not_blocked_without_optional_key(clear_search_env):
-    source = RecordingSource(SourceName.youtube)
-    with patch("app.services.sources.base.logger.warning") as warning:
-        results = source.search("demo")
-
-    assert source.called is True
-    assert len(results) == 1
-    assert results[0].source is SourceName.youtube
-    warning.assert_called_once()
-    text = _warning_text(warning)
-    assert "YOUTUBE_API_KEY" in text
-    assert "yt-dlp" in text
-    assert ENV_SECRETS["YOUTUBE_API_KEY"] not in text
-
-
 def test_unnamed_and_predecorated_sources_still_run_search(clear_search_env):
     class UnnamedSource(Source):
         def search(self, query: str, limit: int = 10) -> list[SourceItem]:
@@ -408,6 +464,7 @@ def test_unnamed_and_predecorated_sources_still_run_search(clear_search_env):
     unnamed = UnnamedSource()
     assert unnamed.missing_required_env_vars() == []
     assert unnamed.missing_optional_env_vars() == []
+    assert DummySource().missing_optional_env_vars() == []
     assert unnamed.search("q")[0].type is SourceType.user
     assert PredecoratedSource().search("q")[0].type is SourceType.chart
 
@@ -432,3 +489,69 @@ def test_search_runs_when_all_source_env_vars_are_present(
     for call in warning.call_args_list:
         for secret in ENV_SECRETS.values():
             assert secret not in str(call)
+
+
+def test_optional_env_helper_is_reserved_and_does_not_block(monkeypatch):
+    monkeypatch.delenv("OPTIONAL_DEMO", raising=False)
+    spec = SourceEnvSpec(optional=("OPTIONAL_DEMO",))
+    assert missing_env_names(spec, required=True, optional=False) == []
+    assert missing_env_names(spec, required=False, optional=True) == ["OPTIONAL_DEMO"]
+    assert missing_source_env_vars(SourceName.local) == []
+
+
+def test_validate_licencas_json_reports_invalid_entries(tmp_path, capsys):
+    valid = [
+        {"id": "a", "license": "cc-by"},
+        {"id": "b", "licenca": License.terceiro},
+        "cc0",
+    ]
+    assert validate_licencas(valid) == []
+    assert validate_licencas({"items": [{"license": "stock"}]}) == []
+    assert validate_licencas({"clip": "proprio", "other": {"licenca": "cc0"}}) == []
+
+    issues = validate_licencas(
+        [
+            {"id": "bad", "license": "CC BY 4.0"},
+            {"id": "missing"},
+            {"id": "blank", "license": "  "},
+            12,
+        ]
+    )
+    assert [issue.location for issue in issues] == [
+        "[0].license",
+        "[1]",
+        "[2].license",
+        "[3]",
+    ]
+
+    mapped = validate_licencas(
+        {"good": "cc0", "bad": "MIT", "obj": {"title": "x"}, "num": 12}
+    )
+    assert {issue.location for issue in mapped} == {"bad", "obj", "num"}
+    assert validate_licencas("nope")[0].location == "$"
+    assert validate_licencas({"licenses": {"no": "list"}})[0].location == "licenses"
+
+    path = tmp_path / "licencas.json"
+    path.write_text(json.dumps([{"license": "cc-by"}, {"license": "not-a-license"}]), encoding="utf-8")
+    file_issues = validate_licencas_file(path)
+    assert len(file_issues) == 1
+    assert file_issues[0].location == "[1].license"
+
+    assert licencas_main([str(path)]) == 1
+    assert "INVALID" in capsys.readouterr().err
+
+    good = tmp_path / "ok.json"
+    good.write_text(json.dumps([{"license": "cc0"}]), encoding="utf-8")
+    assert licencas_main([str(good)]) == 0
+    assert capsys.readouterr().out.strip() == "OK"
+
+    assert licencas_main([str(tmp_path / "missing.json")]) == 2
+    broken = tmp_path / "broken.json"
+    broken.write_text("{", encoding="utf-8")
+    assert licencas_main([str(broken)]) == 2
+    assert licencas_main([str(tmp_path)]) == 2
+
+    with patch.object(sys, "argv", ["app.services.sources", str(good)]):
+        with pytest.raises(SystemExit) as exited:
+            runpy.run_module("app.services.sources", run_name="__main__")
+    assert exited.value.code == 0

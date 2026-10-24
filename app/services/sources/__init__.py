@@ -1,7 +1,9 @@
-"""素材来源的公共接口。
+"""Public interface for material sources.
 
-具体供应商适配器尚未接入；调用方应依赖 :class:`Source` 与 :class:`SourceItem`。
-搜索源的环境变量见 :data:`SOURCE_ENV_VARS` 与 :func:`require_source_env`。
+Vendor adapters are not wired yet. Callers should depend on :class:`Source`
+and :class:`SourceItem`. Search env vars live in :data:`SOURCE_ENV_VARS`.
+Validate ``licencas.json`` with :func:`validate_licencas_file` or
+``python -m app.services.sources``.
 """
 
 from app.services.sources.base import (
@@ -12,32 +14,48 @@ from app.services.sources.base import (
     SourceItem,
     SourceName,
     SourceType,
+    missing_env_names,
     missing_source_env_vars,
     parse_covers,
     parse_duration,
     parse_license,
     parse_published_at,
+    parse_search_limit,
     parse_source_item,
     parse_source_name,
     parse_source_type,
+    parse_url,
     require_source_env,
+    validate_search_results,
+)
+from app.services.sources.licencas import (
+    LicenseIssue,
+    validate_licencas,
+    validate_licencas_file,
 )
 
 __all__ = [
     "SOURCE_ENV_VARS",
     "License",
+    "LicenseIssue",
     "Source",
     "SourceEnvSpec",
     "SourceItem",
     "SourceName",
     "SourceType",
+    "missing_env_names",
     "missing_source_env_vars",
     "parse_covers",
     "parse_duration",
     "parse_license",
     "parse_published_at",
+    "parse_search_limit",
     "parse_source_item",
     "parse_source_name",
     "parse_source_type",
+    "parse_url",
     "require_source_env",
+    "validate_licencas",
+    "validate_licencas_file",
+    "validate_search_results",
 ]
