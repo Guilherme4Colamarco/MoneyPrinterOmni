@@ -56,20 +56,28 @@ def build(project: str, args: argparse.Namespace) -> str:
     if not getattr(args, "no_vignette", False):
         chain.append("vignette=PI/4.5")
     chain.append(f"drawbox=x=0:y={int(top - gap * 0.4)}:w={w}:h={h}:color={bar}:t=fill")
-    out = resolve(args.out)
-    for i, line in enumerate(lines):
-        chain.append(arte.drawtext(
-            line, os.path.join(project, "raw", f"_thumb_{os.path.basename(out)}_{i}.txt"),
-            font=style["font"], color=style["color"] if i == 0 else style["accent"], size=size,
-            x="(w-text_w)/2", y=str(int(top + gap * i)), border=max(4, size // 14),
-            border_color=outline,
-        ))
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    subprocess.run(
-        ["ffmpeg", "-v", "error", "-y", *seek, "-i", resolve(src), "-frames:v", "1",
-         "-vf", ",".join(chain), out],
-        check=True,
-    )
+    out = os.path.abspath(resolve(args.out))
+    parent = os.path.dirname(out)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    # Fonte e textos entram no filtro só como f0.ttf / tN.txt; o grafo vai num
+    # arquivo (-filter_script:v). Caminhos do --out ou do projeto nunca entram
+    # no filtergraph — ':' ou aspas no nome não viram opção extra.
+    with arte.FilterAssets() as assets:
+        for i, line in enumerate(lines):
+            chain.append(arte.drawtext(
+                line, os.path.join(project, "raw", f"_thumb_{i}.txt"),
+                font=style["font"], color=style["color"] if i == 0 else style["accent"],
+                size=size, x="(w-text_w)/2", y=str(int(top + gap * i)),
+                border=max(4, size // 14), border_color=outline, assets=assets,
+            ))
+        graph = assets.write_graph(",".join(chain))
+        subprocess.run(
+            ["ffmpeg", "-v", "error", "-y", *seek, "-i", os.path.abspath(resolve(src)),
+             "-frames:v", "1", "-filter_script:v", graph, out],
+            cwd=assets.dir,
+            check=True,
+        )
     return out
 
 
