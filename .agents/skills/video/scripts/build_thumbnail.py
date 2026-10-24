@@ -21,6 +21,13 @@ import subprocess
 import arte
 
 
+def _outline_color_arg(value: str) -> str:
+    try:
+        return arte.validate_color(value, field="contorno")
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(str(exc)) from exc
+
+
 def build(project: str, args: argparse.Namespace) -> str:
     w, h = (int(v) for v in args.size.split("x"))
     style = arte.load(project)["thumbnail"]
@@ -91,7 +98,7 @@ def main() -> None:
     parser.add_argument(
         "--outline-color",
         default=None,
-        type=lambda value: arte.validate_color(value, field="contorno"),
+        type=_outline_color_arg,
         help=(
             f"cor do contorno (nome, #RRGGBB ou 0xRRGGBB, opcional @alpha 0–1; "
             f"padrão: {arte.DEFAULT_OUTLINE} ou thumbnail.outline)"
