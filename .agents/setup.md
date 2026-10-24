@@ -60,11 +60,12 @@ Exceções que nada sobrescreve: as "Regras fixas" deste setup e os "Cuidados ob
   plano visual e arte) antes de baixar e editar; aviso quando faltar material para uma cena.
 - **Auditoria:** nada chega ao usuário com auditoria de fatos `CORRIGIR`, e nada é entregue sem
   auditoria de direitos `OK`.
-- **Fechamento com o público:** todo roteiro termina convidando o espectador a **comentar as
-  dúvidas** e perguntando se ele quer um **tutorial** do assunto (adapte as palavras ao tema e ao
-  tom do canal; omita só o tutorial quando não fizer sentido). Vale além da "chamada final" do
-  perfil. Em temas de engenharia reversa, o tutorial prometido cobre código próprio,
-  interoperabilidade e software aberto, nunca contornar proteções.
+- **Pedido de inscrição:** o roteiro inclui **um** pedido para se inscrever no canal, no momento
+  mais inesperado possível — por exemplo no meio de um exemplo ou de uma virada, como piada ou
+  quebra da quarta parede. **Nunca no fim.** O roteirista escolhe o ponto em cada vídeo; o pedido
+  é curto e não interrompe o raciocínio por muito tempo.
+  **Exceção:** em vídeo infantil ou Made for Kids **não entra** pedido de inscrição (política do
+  YouTube; o projeto ia-por-tras-infantil foi aprovado justamente por não ter).
 - **Modelo por papel:** ao delegar cada papel a um subagente, escolha o modelo pela função, não
   um só para todos. Modelo pequeno e barato (ex.: Haiku) para trabalho mecânico: operar o CLI,
   montar thumbnails, escrever a embalagem de publicação. Modelo intermediário (ex.: Sonnet) para o

@@ -36,8 +36,10 @@ Antes de começar, leia `.agents/setup.md`, o perfil do canal (`.agents/perfis/<
    - Escreva no idioma do brief, ≈ 2,5 palavras por segundo de vídeo. Adapte a estrutura ao tom
      (notícia, explicativo, lista, história, tutorial). Feche com contraponto honesto quando houver
      controvérsia e com uma chamada (pergunta para os comentários, próximo passo).
-   - **Fechamento obrigatório** (`.agents/setup.md`, "Fechamento com o público"): convide o
-     espectador a comentar as dúvidas e pergunte se ele quer um tutorial do assunto.
+   - **Pedido de inscrição** (`.agents/setup.md`, "Pedido de inscrição"): um pedido curto para
+     se inscrever no canal, no momento mais inesperado possível (meio de um exemplo ou de uma
+     virada, como piada ou quebra da quarta parede). **Nunca no fim.** Em vídeo infantil ou
+     Made for Kids, não peça inscrição.
    - Quando a fala descrever um processo, esquema ou dado, indique no roteiro/`sources.json`
      (`type: chart`) que a cena pede animação; o cacador-de-clipes a marca com `anim`.
    - Nada no roteiro sem lastro no `research.md`.
