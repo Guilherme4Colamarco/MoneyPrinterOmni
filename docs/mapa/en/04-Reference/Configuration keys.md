@@ -37,7 +37,8 @@ Reference for the sections and keys of `config.example.toml`, what each one cont
 | `[kokoro]` | `:687` | Kokoro voice (your own server) | `api_key` |
 | `[fish_audio]` | `:697` | Fish Audio voice | `api_key` |
 | `[voxcpm]` | `:722` | VoxCPM voice, with cloning from reference audio | `api_key` |
-| `[ui]` | `:736` | WebUI preferences (`hide_log`, `open_task_folder_on_completion`) | no |
+| `[xai]` | `:732` | xAI Grok Voice TTS (`api_key`, `language`) | `api_key` |
+| `[ui]` | `:750` | WebUI preferences (`hide_log`, `open_task_folder_on_completion`) | no |
 
 The example's `[ui]` section has only two keys. The WebUI writes others (voice, subtitles, font and colours) into the real `config.toml`, and the CLI reads the same keys as defaults (see [[CLI flags]]).
 
@@ -117,7 +118,7 @@ Filled in only in the real `config.toml`:
 
 - `[app]`: `api_key` (38), `loomloom_api_token` (59), `pexels_api_keys` (97), `pixabay_api_keys` (100), `coverr_api_keys` (103), `wavespeed_api_keys` (107), `volcengine_seedance_api_key` (125), `ofox_api_key` (142), `muapi_api_key` (177), `metaso_minimax_api_key` (192), `openai_image_api_keys` (208), `twelvelabs_api_keys` (226), `sonilo_api_key` (241), `redis_password` (570), `upload_post_api_key` (584);
 - the `*_api_key` keys of every LLM provider listed above;
-- voice sections: `[azure] speech_key` (640), `[siliconflow] api_key` (645), `[minimax_tts] api_key` (653), `[elevenlabs] api_key` (668), `[chatterbox] api_key` (682), `[kokoro] api_key` (691), `[fish_audio] api_key` (701), `[voxcpm] api_key` (728).
+- voice sections: `[azure] speech_key` (640), `[siliconflow] api_key` (645), `[minimax_tts] api_key` (653), `[elevenlabs] api_key` (668), `[chatterbox] api_key` (682), `[kokoro] api_key` (691), `[fish_audio] api_key` (701), `[voxcpm] api_key` (728), `[xai] api_key` (741).
 
 Kimi login tokens (`kimi_code_access_token`, `kimi_code_refresh_token`) do not appear in the example; the login writes them to `config.toml` (`config.example.toml:475`).
 

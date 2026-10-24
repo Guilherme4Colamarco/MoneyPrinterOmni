@@ -57,7 +57,13 @@ Usuário escolhe `claude_code` com `claude_code_timeout` vazio. O `coerce_claude
 - **Docstring desatualizada.** O cabeçalho de `kimi_code_oauth.py` (linhas 9-12) diz que o programa chama `{api}/usages` e `{api}/messages`. O código só chama chat completions. A descrição está errada.
 
 > [!warning] unstable
-> A seção seguinte é **PLANEJADO**: ainda não existe no código. Busquei `Codex`, `Gemini CLI`, `Grok Build`, `SuperGrok` e `STT`/`TTS` xAI no repositório e não achei implementação. A fonte do plano de fases não foi encontrada no repositório. Estado a confirmar.
+> A seção seguinte mistura o que **já entrou** (TTS da xAI, com chave de API) e o que continua **PLANEJADO**. Busquei `Codex`, `Gemini CLI`, `Grok Build` e `SuperGrok` no repositório e não achei implementação. A fonte do plano de fases não foi encontrada no repositório.
+
+## TTS da xAI (implementado, com chave)
+
+A voz do Grok **não** usa assinatura. É o endpoint oficial `POST https://api.x.ai/v1/tts`, autenticado com Bearer (`XAI_API_KEY`, `[xai].api_key` ou, se os dois estiverem vazios, `grok_api_key`). O prefixo da voz é `xai:`. Veja [[Voz e legenda]].
+
+STT da xAI (`POST /v1/stt`) **não** foi ligado: o TTS já devolve timestamps nativos (`with_timestamps` → `graph_chars` / `graph_times`). Um STT extra retranscreveria o áudio, com custo e risco de divergir do roteiro.
 
 ## Próximas (PLANEJADO)
 
@@ -66,7 +72,6 @@ Usuário escolhe `claude_code` com `claude_code_timeout` vazio. O `coerce_claude
 | Codex CLI (assinatura) | PLANEJADO, não existe |
 | Gemini CLI (assinatura) | PLANEJADO, não existe |
 | Grok Build / SuperGrok | PLANEJADO, não existe |
-| STT e TTS da xAI | PLANEJADO, não existe |
 
 ## Prática
 
