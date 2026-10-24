@@ -23,7 +23,7 @@ import arte
 
 def _outline_color_arg(value: str) -> str:
     try:
-        return arte.validate_color(value, field="contorno")
+        return arte.validate_color(value, field="outline")
     except ValueError as exc:
         raise argparse.ArgumentTypeError(str(exc)) from exc
 
@@ -41,8 +41,9 @@ def build(project: str, args: argparse.Namespace) -> str:
     src = args.image or args.source
     outline = arte.validate_color(
         getattr(args, "outline_color", None) or style.get("outline") or arte.DEFAULT_OUTLINE,
-        field="contorno",
+        field="outline",
     )
+    bar = arte.validate_color("black@0.35", field="drawbox")
 
     def resolve(path: str) -> str:
         return path if os.path.isabs(path) else os.path.join(project, path)
@@ -54,7 +55,7 @@ def build(project: str, args: argparse.Namespace) -> str:
     ]
     if not getattr(args, "no_vignette", False):
         chain.append("vignette=PI/4.5")
-    chain.append(f"drawbox=x=0:y={int(top - gap * 0.4)}:w={w}:h={h}:color=black@0.35:t=fill")
+    chain.append(f"drawbox=x=0:y={int(top - gap * 0.4)}:w={w}:h={h}:color={bar}:t=fill")
     out = resolve(args.out)
     for i, line in enumerate(lines):
         chain.append(arte.drawtext(
@@ -100,8 +101,8 @@ def main() -> None:
         default=None,
         type=_outline_color_arg,
         help=(
-            f"cor do contorno (nome, #RRGGBB ou 0xRRGGBB, opcional @alpha 0–1; "
-            f"padrão: {arte.DEFAULT_OUTLINE} ou thumbnail.outline)"
+            f"cor do contorno (nome do ffmpeg, #RRGGBB[AA] ou 0xRRGGBB[AA], "
+            f"opcional @alpha 0–1; padrão: {arte.DEFAULT_OUTLINE} ou thumbnail.outline)"
         ),
     )
     parser.add_argument(
