@@ -7,6 +7,8 @@ Validate ``licencas.json`` with :func:`validate_licencas_file` or
 """
 
 from app.services.sources.base import (
+    GENERATOR_SOURCE_NAMES,
+    SEARCH_SOURCE_NAMES,
     SOURCE_ENV_VARS,
     License,
     Source,
@@ -16,6 +18,7 @@ from app.services.sources.base import (
     SourceType,
     missing_env_names,
     missing_source_env_vars,
+    register_search_env,
     parse_covers,
     parse_duration,
     parse_license,
@@ -35,6 +38,8 @@ from app.services.sources.licencas import (
 )
 
 __all__ = [
+    "GENERATOR_SOURCE_NAMES",
+    "SEARCH_SOURCE_NAMES",
     "SOURCE_ENV_VARS",
     "License",
     "LicenseIssue",
@@ -54,6 +59,7 @@ __all__ = [
     "parse_source_name",
     "parse_source_type",
     "parse_url",
+    "register_search_env",
     "require_source_env",
     "validate_licencas",
     "validate_licencas_file",
