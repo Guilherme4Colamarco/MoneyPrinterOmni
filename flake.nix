@@ -61,7 +61,7 @@
           python = pkgs.python311;
           runtimeLibs = with pkgs; [ stdenv.cc.cc.lib zlib openssl libffi ffmpeg ];
           launcher = pkgs.writeShellScript "mpt-webui" ''
-            export PATH="${pkgs.lib.makeBinPath [ python pkgs.uv pkgs.ffmpeg pkgs.imagemagick ]}:$PATH"
+            export PATH="${pkgs.lib.makeBinPath [ python pkgs.uv pkgs.ffmpeg pkgs.imagemagick pkgs.nodejs_24 ]}:$PATH"
             export UV_PYTHON="${python}/bin/python"
             export UV_PYTHON_DOWNLOADS=never
             export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath runtimeLibs}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
