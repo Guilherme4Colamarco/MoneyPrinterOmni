@@ -18,6 +18,7 @@ from app.services.sources import (
     parse_source_name,
     parse_source_type,
 )
+from app.services.sources.base import parse_optional_text
 
 
 class _NaiveTZ(tzinfo):
@@ -180,10 +181,50 @@ def test_field_parsers_cover_duration_covers_and_enums():
     assert parse_covers(None) == []
 
     assert parse_source_name("yt-dlp") is SourceName.yt_dlp
+    assert parse_source_name(SourceName.local) is SourceName.local
     assert parse_source_type("music") is SourceType.music
+    assert parse_source_type(SourceType.audio) is SourceType.audio
     assert parse_license("proprio") is License.proprio
+    assert parse_license(License.cc0) is License.cc0
+    assert parse_published_at(None) is None
+    assert parse_published_at("  ") is None
+    assert parse_duration("  ") is None
+    assert parse_optional_text(None) is None
+    assert parse_optional_text("  ") is None
     with pytest.raises(ValueError, match="source must be one of"):
         parse_source_name("unknown-vendor")
+    with pytest.raises(ValueError, match="source must be one of"):
+        parse_source_name(1)
+    with pytest.raises(ValueError, match="type must be one of"):
+        parse_source_type("chart")
+    with pytest.raises(ValueError, match="type must be one of"):
+        parse_source_type(1)
+    with pytest.raises(ValueError, match="license must be one of"):
+        parse_license("CC BY 4.0")
+    with pytest.raises(ValueError, match="license must be one of"):
+        parse_license(1)
+    with pytest.raises(ValueError, match="covers"):
+        parse_covers(1)
+    with pytest.raises(ValueError, match="covers items"):
+        parse_covers(["ok", 2])
+    with pytest.raises(ValueError, match="MM:SS"):
+        parse_duration("1:02:03:04")
+    with pytest.raises(ValueError, match="MM:SS"):
+        parse_duration("1:xx")
+    with pytest.raises(ValueError, match="number of seconds"):
+        parse_duration("abc")
+    with pytest.raises(ValueError, match="number of seconds"):
+        parse_duration(["12"])
+    with pytest.raises(ValueError, match="non-negative"):
+        parse_duration(float("inf"))
+    with pytest.raises(ValueError, match="timezone-aware ISO 8601"):
+        parse_published_at("not-a-date")
+    with pytest.raises(ValueError, match="timezone-aware datetime or ISO 8601"):
+        parse_published_at(1717200000)
+    with pytest.raises(ValidationError, match="license_note must be a string"):
+        parse_source_item(_item(license_note=1))
+    with pytest.raises(ValidationError, match="id and url must be strings"):
+        parse_source_item(_item(id=12))
 
 
 def test_parse_source_item_is_idempotent_and_ignores_unknown_keys():
