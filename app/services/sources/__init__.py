@@ -1,7 +1,8 @@
 """Public interface for material sources.
 
 Vendor adapters are not wired yet. Callers should depend on :class:`Source`
-and :class:`SourceItem`. Search env vars live in :data:`SOURCE_ENV_VARS`.
+and :class:`SourceItem`. Adapters must store the public page URL, never a
+signed file URL. Search env vars live in :data:`SOURCE_ENV_VARS`.
 Validate ``licencas.json`` with :func:`validate_licencas_file` or
 ``python -m app.services.sources``.
 """

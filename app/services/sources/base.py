@@ -8,8 +8,11 @@ Adapters can implement :class:`Source` and parse vendor payloads into
 Field contract (aligned with ``.agents/pipeline.md`` ``sources.json`` and
 the material providers in ``app/services``):
 
-- ``url``: required original http(s) link. javascript:, ftp:, file paths
-  and other non-http locators are rejected.
+- ``url``: required public page of the material (http/https with a host).
+  javascript:, ftp:, file paths and other non-http locators are rejected.
+  Credentials (userinfo) and signed/secret query keys are rejected.
+  Adapters must store the public page URL, never a signed file URL
+  (Coverr ``mp4_download``, CloudFront/S3 ``X-Amz-*``, ``?token=``).
 - ``id``: optional vendor-side identifier.
 - ``source``: source name (:class:`SourceName`).
 - ``type``: kind of material (:class:`SourceType`).
@@ -39,10 +42,17 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Mapping, TypeVar
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlsplit
 
 from loguru import logger
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 _F = TypeVar("_F", bound=Callable[..., list[Any]])
 _SOURCE_ENV_GUARD_ATTR = "_source_env_guarded"
@@ -73,11 +83,13 @@ class SourceName(str, Enum):
     providers (Sonilo, ElevenLabs) are not material sources.
 
     Search registration is allowlisted: the four planned search APIs
-    (x, reddit, instagram, youtube) plus the stock/local providers the
-    app already searches (pexels, pixabay, coverr, local). ``yt-dlp`` is
-    a downloader, not a search API. Generator names (``wavespeed``,
-    ``volcengine_seedance``, ``ofox``, ``metaso_minimax``, ``muapi``,
-    ``loomloom``, ``openai_image``) are provenance labels only.
+    (x, reddit, instagram, youtube) plus the stock providers that already
+    have a remote ``search()`` path (pexels, pixabay, coverr). ``local``
+    is a folder of user files, not a search API — it has no ``search()``
+    and cannot be registered. ``yt-dlp`` is a downloader, not a search
+    API. Generator names (``wavespeed``, ``volcengine_seedance``,
+    ``ofox``, ``metaso_minimax``, ``muapi``, ``loomloom``,
+    ``openai_image``) are provenance labels only.
     """
 
     pexels = "pexels"
@@ -148,15 +160,15 @@ SEARCH_SOURCE_NAMES: frozenset[SourceName] = frozenset(
         SourceName.youtube,
     }
 )
-# Allowlist for register_search_env: social search APIs plus stock/local
-# providers that already have a search() path in material.py. yt-dlp and
-# generators are names, not searchable providers.
+# Allowlist for register_search_env: social search APIs plus the stock
+# providers that already search remotely in material.py (pexels, pixabay,
+# coverr). local is a folder of files, not a searchable provider. yt-dlp
+# and generators are names, not search APIs.
 SEARCHABLE_SOURCE_NAMES: frozenset[SourceName] = SEARCH_SOURCE_NAMES | frozenset(
     {
         SourceName.pexels,
         SourceName.pixabay,
         SourceName.coverr,
-        SourceName.local,
     }
 )
 
@@ -427,12 +439,84 @@ def parse_item_id(value: Any) -> str | None:
     return text or None
 
 
+REJECTED_SENSITIVE_URL = "rejected:sensitive-url"
+SENSITIVE_URL_MESSAGE = "url must not include credentials or signed parameters"
+_SENSITIVE_QUERY_KEYS = frozenset(
+    {
+        "token",
+        "key",
+        "sig",
+        "signature",
+        "auth",
+        "access_token",
+    }
+)
+_AMZ_QUERY_PREFIX = "x-amz-"
+
+
+def _is_sensitive_query_key(name: str) -> bool:
+    lowered = name.lower()
+    return lowered in _SENSITIVE_QUERY_KEYS or lowered.startswith(_AMZ_QUERY_PREFIX)
+
+
+def _parsed_url_is_sensitive(parsed: Any) -> bool:
+    if parsed.username is not None or parsed.password is not None:
+        return True
+    for part in (parsed.query, parsed.fragment):
+        if not part:
+            continue
+        for key, _value in parse_qsl(part, keep_blank_values=True):
+            if _is_sensitive_query_key(key):
+                return True
+    return False
+
+
+def url_has_sensitive_material(value: Any) -> bool:
+    """Return whether ``value`` carries userinfo or a signed/secret query key."""
+    if not isinstance(value, str) or not value.strip():
+        return False
+    try:
+        parsed = urlsplit(value.strip())
+    except ValueError:
+        return False
+    return _parsed_url_is_sensitive(parsed)
+
+
+def _scrub_sensitive_strings_in_place(value: Any) -> None:
+    """Replace sensitive URL strings with :data:`REJECTED_SENSITIVE_URL`.
+
+    Mutates mappings and lists in place so Pydantic never keeps the secret
+    as ``input`` on a later validation error (including nested models and
+    ``TypeAdapter``). Does not raise.
+    """
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if isinstance(item, str) and url_has_sensitive_material(item):
+                value[key] = REJECTED_SENSITIVE_URL
+            else:
+                _scrub_sensitive_strings_in_place(item)
+        return
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            if isinstance(item, str) and url_has_sensitive_material(item):
+                value[index] = REJECTED_SENSITIVE_URL
+            else:
+                _scrub_sensitive_strings_in_place(item)
+
+
 def parse_url(value: Any) -> str:
-    """Require an http(s) URL with a host.
+    """Require a public http(s) page URL with a host.
 
     Rejects ``javascript:``, ``ftp:``, ``file:``, bare paths such as
-    ``/etc/passwd``, and URLs with credentials.
+    ``/etc/passwd``, userinfo (``user:pass@`` or ``user@``), and signed
+    or secret query/fragment keys (``token``, ``key``, ``sig``,
+    ``signature``, ``auth``, ``access_token``, ``X-Amz-*``, case
+    insensitive). The error message is fixed and never repeats the URL.
+
+    Adapters must pass the public page URL, not a signed file URL.
     """
+    if value == REJECTED_SENSITIVE_URL:
+        raise ValueError(SENSITIVE_URL_MESSAGE)
     if not isinstance(value, str) or not value.strip():
         raise ValueError("url is required and must be an http or https URL with a host")
     text = value.strip()
@@ -442,12 +526,9 @@ def parse_url(value: Any) -> str:
         raise ValueError(
             "url is required and must be an http or https URL with a host"
         ) from exc
-    if (
-        parsed.scheme not in {"http", "https"}
-        or not parsed.hostname
-        or parsed.username is not None
-        or parsed.password is not None
-    ):
+    if _parsed_url_is_sensitive(parsed):
+        raise ValueError(SENSITIVE_URL_MESSAGE)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
         raise ValueError("url is required and must be an http or https URL with a host")
     return text
 
@@ -455,10 +536,19 @@ def parse_url(value: Any) -> str:
 class SourceItem(BaseModel):
     """One material item returned by search.
 
-    ``url`` is required and must be the original http(s) link.
+    ``url`` is the public page of the material (the original http(s) link
+    a human can open). Adapters must store that page URL, never a signed
+    file URL — Coverr ``mp4_download`` links and CloudFront/S3 signed
+    query strings must not be written to ``sources.json``.
+
     ``license`` defaults to ``desconhecida``.
     ``covers`` lists the script blocks or scenes this item illustrates.
     Unknown fields are rejected.
+
+    Sensitive URLs are replaced with :data:`REJECTED_SENSITIVE_URL` in a
+    ``before`` model validator *before* any error is raised, so
+    ``ValidationError.json()`` / ``errors()`` (including nested models
+    and ``TypeAdapter``) never keep the secret as ``input``.
     """
 
     model_config = ConfigDict(extra="forbid", hide_input_in_errors=True)
@@ -472,6 +562,13 @@ class SourceItem(BaseModel):
     covers: list[str] = Field(default_factory=list)
     duration: float | None = None
     published_at: datetime | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _scrub_sensitive_urls(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            _scrub_sensitive_strings_in_place(data)
+        return data
 
     @field_validator("id", mode="before")
     @classmethod
