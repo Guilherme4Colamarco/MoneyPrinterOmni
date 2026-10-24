@@ -22,7 +22,9 @@ Verifique:
 - O roteiro respeita o perfil do canal (tom, temas fora, palavras a evitar, estrutura, chamada)?
   Está à altura das referências de estilo, sem copiar frases delas?
 - Respeita os cuidados obrigatórios do perfil?
-- O fechamento convida a comentar dúvidas e pergunta se o público quer um tutorial (`.agents/setup.md`)?
+- Há **um** pedido de inscrição no momento mais inesperado (meio de um exemplo ou virada),
+  curto, e **nunca no fim** (`.agents/setup.md`)? Em vídeo infantil ou Made for Kids, confirma
+  que **não** há pedido de inscrição?
 - O gancho prende nos primeiros 3 s? O fechamento entrega uma conclusão e não só uma pergunta?
 - Há saltos entre blocos sem transição? Exagero ou clickbait que o conteúdo não sustenta?
 - A duração bate com o alvo do brief (≈ 2,5 palavras por segundo)?

@@ -63,8 +63,9 @@ tom, visual); o restante veio do nicho. Campo vazio = vale o padrão de `.agents
 
 ## Cuidados obrigatórios
 
-- Ao publicar, marcar como "conteúdo para crianças" (YouTube "Made for Kids"); nada de pedir
-  inscrição com pressão, link externo ou comentário com dado pessoal.
+- Ao publicar, marcar como "conteúdo para crianças" (YouTube "Made for Kids"); **nada de pedido
+  de inscrição** — política do YouTube, e o projeto ia-por-tras-infantil foi aprovado justamente
+  por não ter. Também nada de link externo ou comentário com dado pessoal.
 - Nada de medo, culpa ou ameaça como motivação ("se não fizer X, vai acontecer Y ruim");
   motive pelo benefício e pela curiosidade.
 - Vocabulário simples, frases curtas, uma ideia por frase; explique toda palavra difícil.
