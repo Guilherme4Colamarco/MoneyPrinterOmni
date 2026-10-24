@@ -31,6 +31,7 @@ required until Guilherme decides otherwise.
 from __future__ import annotations
 
 import functools
+import json
 import math
 import os
 from abc import ABC, abstractmethod
@@ -41,7 +42,7 @@ from typing import Any, Callable, Mapping, TypeVar
 from urllib.parse import urlsplit
 
 from loguru import logger
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 _F = TypeVar("_F", bound=Callable[..., list[Any]])
 _SOURCE_ENV_GUARD_ATTR = "_source_env_guarded"
@@ -71,10 +72,12 @@ class SourceName(str, Enum):
     the team will implement (x, reddit, instagram, youtube). Music/TTS
     providers (Sonilo, ElevenLabs) are not material sources.
 
-    Generator names (``wavespeed``, ``volcengine_seedance``, ``ofox``,
-    ``metaso_minimax``, ``muapi``, ``loomloom``, ``openai_image``) are
-    provenance labels only. They record where a clip was produced and
-    must never be registered as a search source.
+    Search registration is allowlisted: the four planned search APIs
+    (x, reddit, instagram, youtube) plus the stock/local providers the
+    app already searches (pexels, pixabay, coverr, local). ``yt-dlp`` is
+    a downloader, not a search API. Generator names (``wavespeed``,
+    ``volcengine_seedance``, ``ofox``, ``metaso_minimax``, ``muapi``,
+    ``loomloom``, ``openai_image``) are provenance labels only.
     """
 
     pexels = "pexels"
@@ -145,6 +148,17 @@ SEARCH_SOURCE_NAMES: frozenset[SourceName] = frozenset(
         SourceName.youtube,
     }
 )
+# Allowlist for register_search_env: social search APIs plus stock/local
+# providers that already have a search() path in material.py. yt-dlp and
+# generators are names, not searchable providers.
+SEARCHABLE_SOURCE_NAMES: frozenset[SourceName] = SEARCH_SOURCE_NAMES | frozenset(
+    {
+        SourceName.pexels,
+        SourceName.pixabay,
+        SourceName.coverr,
+        SourceName.local,
+    }
+)
 
 SOURCE_ENV_VARS: dict[SourceName, SourceEnvSpec] = {}
 
@@ -152,12 +166,12 @@ SOURCE_ENV_VARS: dict[SourceName, SourceEnvSpec] = {}
 def register_search_env(name: SourceName, spec: SourceEnvSpec) -> None:
     """Register env vars for a search source.
 
-    Generator provenance labels cannot be registered as search sources.
+    Only :data:`SEARCHABLE_SOURCE_NAMES` may be registered. ``yt-dlp``
+    (downloader) and generator provenance labels are rejected.
     """
-    if name in GENERATOR_SOURCE_NAMES:
+    if name not in SEARCHABLE_SOURCE_NAMES:
         raise ValueError(
-            f"{name.value} is a provenance label for a generator and "
-            "cannot be a search source"
+            f"{name.value} cannot be registered as a search source"
         )
     SOURCE_ENV_VARS[name] = spec
 
@@ -505,14 +519,49 @@ class SourceItem(BaseModel):
         return parse_published_at(value)
 
 
+class SourceItemError(ValueError):
+    """Validation error that never exposes the rejected input.
+
+    ``str``, ``repr``, :meth:`json` and :meth:`errors` omit the ``input``
+    field so secrets in a URL or extra field cannot leak.
+    """
+
+    def __init__(self, details: list[dict[str, Any]]):
+        self._details = details
+        message = "; ".join(
+            str(item.get("msg", "")) for item in details if item.get("msg")
+        )
+        super().__init__(message or "invalid SourceItem")
+
+    def errors(self) -> list[dict[str, Any]]:
+        return [dict(item) for item in self._details]
+
+    def json(self, **_kwargs: Any) -> str:
+        return json.dumps(self._details)
+
+
+def source_item_error_details(exc: BaseException) -> list[dict[str, Any]]:
+    """Public helper: error details without the rejected input."""
+    if isinstance(exc, SourceItemError):
+        return exc.errors()
+    if isinstance(exc, ValidationError):
+        return exc.errors(include_input=False, include_url=False)
+    raise TypeError("expected a SourceItemError or ValidationError")
+
+
 def parse_source_item(data: SourceItem | Mapping[str, Any]) -> SourceItem:
     """Parse a mapping (or an existing item) into :class:`SourceItem`.
 
-    Unknown fields raise a validation error.
+    Unknown fields raise :class:`SourceItemError` without the input.
     """
     if isinstance(data, SourceItem):
         return data
-    return SourceItem.model_validate(data)
+    try:
+        return SourceItem.model_validate(data)
+    except ValidationError as exc:
+        raise SourceItemError(
+            exc.errors(include_input=False, include_url=False)
+        ) from None
 
 
 class Source(ABC):

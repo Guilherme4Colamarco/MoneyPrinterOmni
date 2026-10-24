@@ -1,7 +1,9 @@
+import copy
 import json
 import runpy
 import sys
 from datetime import datetime, timezone, tzinfo
+from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
@@ -10,12 +12,14 @@ from pydantic import ValidationError
 
 from app.services.sources import (
     GENERATOR_SOURCE_NAMES,
+    SEARCHABLE_SOURCE_NAMES,
     SEARCH_SOURCE_NAMES,
     SOURCE_ENV_VARS,
     License,
     Source,
     SourceEnvSpec,
     SourceItem,
+    SourceItemError,
     SourceName,
     SourceType,
     missing_env_names,
@@ -31,12 +35,19 @@ from app.services.sources import (
     parse_url,
     register_search_env,
     require_source_env,
+    source_item_error_details,
     validate_licencas,
     validate_licencas_file,
     validate_search_results,
 )
 from app.services.sources.base import parse_optional_text
-from app.services.sources.licencas import main as licencas_main
+from app.services.sources.licencas import _validate_sequence, main as licencas_main
+
+LICENCAS_FIXTURE = (
+    Path(__file__).resolve().parents[1]
+    / "fixtures"
+    / "licencas_ia_por_tras_infantil.json"
+)
 
 
 SEARCH_ENV_VARS = (
@@ -227,11 +238,14 @@ def test_source_name_values_are_material_sources_only():
         assert SOURCE_ENV_VARS[name].required
     assert set(SOURCE_ENV_VARS) == set(SEARCH_SOURCE_NAMES)
     assert set(SOURCE_ENV_VARS).isdisjoint(GENERATOR_SOURCE_NAMES)
-    for name in (SourceName.muapi, SourceName.loomloom, SourceName.wavespeed):
-        with pytest.raises(ValueError, match="provenance label"):
-            register_search_env(name, SourceEnvSpec(required=("NOPE",)))
-    assert SourceName.muapi not in SOURCE_ENV_VARS
-    assert SourceName.loomloom not in SOURCE_ENV_VARS
+    assert SEARCHABLE_SOURCE_NAMES == SEARCH_SOURCE_NAMES | {
+        SourceName.pexels,
+        SourceName.pixabay,
+        SourceName.coverr,
+        SourceName.local,
+    }
+    assert SourceName.yt_dlp not in SEARCHABLE_SOURCE_NAMES
+    assert SEARCHABLE_SOURCE_NAMES.isdisjoint(GENERATOR_SOURCE_NAMES)
 
 
 def test_license_values_and_default():
@@ -255,9 +269,9 @@ def test_url_is_required_http_https_with_host():
     parse_source_item(_item(id=None))
     assert parse_url("https://example.com/clip") == "https://example.com/clip"
     assert parse_url("http://localhost/a").startswith("http://")
-    with pytest.raises(ValidationError, match="http or https"):
+    with pytest.raises(SourceItemError, match="http or https"):
         parse_source_item(_item(url=None))
-    with pytest.raises(ValidationError, match="http or https"):
+    with pytest.raises(SourceItemError, match="http or https"):
         parse_source_item(_item(url=""))
     with pytest.raises(ValueError, match="http or https"):
         parse_url("javascript:alert(1)")
@@ -273,14 +287,40 @@ def test_url_is_required_http_https_with_host():
         parse_url("http://[")
 
 
+def _assert_error_hides_sentinel(error: SourceItemError, sentinel: str) -> None:
+    dumped = error.json()
+    details = error.errors()
+    helper = source_item_error_details(error)
+    for blob in (str(error), repr(error), dumped, json.dumps(details), json.dumps(helper)):
+        assert sentinel not in blob
+    assert all("input" not in item for item in details)
+    assert all("input" not in item for item in helper)
+
+
 def test_credential_url_errors_hide_sentinel_secret():
     sentinel = "SENTINELA123"
     secret_url = f"https://user:{sentinel}@example.com/x"
-    with pytest.raises(ValidationError) as excinfo:
+    with pytest.raises(SourceItemError) as excinfo:
         parse_source_item(_item(url=secret_url))
-    error = excinfo.value
-    assert sentinel not in str(error)
-    assert sentinel not in repr(error)
+    _assert_error_hides_sentinel(excinfo.value, sentinel)
+
+    with pytest.raises(ValidationError) as raw_info:
+        SourceItem.model_validate(_item(url=secret_url))
+    stripped = source_item_error_details(raw_info.value)
+    assert all("input" not in item for item in stripped)
+    assert sentinel not in json.dumps(stripped)
+
+    with pytest.raises(SourceItemError) as extra_info:
+        parse_source_item(_item(canal_secreto=f"https://user:{sentinel}@evil.example/x"))
+    _assert_error_hides_sentinel(extra_info.value, sentinel)
+
+    empty = SourceItemError([])
+    assert str(empty) == "invalid SourceItem"
+    assert empty.errors() == []
+    assert empty.json() == "[]"
+    assert source_item_error_details(empty) == []
+    with pytest.raises(TypeError, match="SourceItemError or ValidationError"):
+        source_item_error_details(ValueError("nope"))
 
 
 def test_published_at_accepts_only_timezone_aware_values():
@@ -301,9 +341,9 @@ def test_published_at_accepts_only_timezone_aware_values():
         parse_published_at("2024-06-01T12:00:00")
     with pytest.raises(ValueError, match="timezone-aware"):
         parse_published_at(datetime(2024, 6, 1, 12, 0, tzinfo=_NaiveTZ()))
-    with pytest.raises(ValidationError, match="timezone-aware"):
+    with pytest.raises(SourceItemError, match="timezone-aware"):
         parse_source_item(_item(published_at=datetime(2024, 6, 1, 12, 0)))
-    with pytest.raises(ValidationError, match="timezone-aware"):
+    with pytest.raises(SourceItemError, match="timezone-aware"):
         parse_source_item(_item(published_at="2024-06-01T12:00:00"))
 
 
@@ -359,9 +399,9 @@ def test_field_parsers_cover_duration_covers_and_enums():
         parse_published_at("not-a-date")
     with pytest.raises(ValueError, match="timezone-aware datetime or ISO 8601"):
         parse_published_at(1717200000)
-    with pytest.raises(ValidationError, match="license_note must be a string"):
+    with pytest.raises(SourceItemError, match="license_note must be a string"):
         parse_source_item(_item(license_note=1))
-    with pytest.raises(ValidationError, match="id must be a string"):
+    with pytest.raises(SourceItemError, match="id must be a string"):
         parse_source_item(_item(id=12))
 
 
@@ -379,7 +419,7 @@ def test_parse_source_item_rejects_unknown_fields():
     assert item.covers == ["bloco 1"]
     assert item.duration == 15.0
     assert parse_source_item(item) is item
-    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+    with pytest.raises(SourceItemError, match="Extra inputs are not permitted"):
         parse_source_item(_item(channel="DryxioGTA"))
 
 
@@ -519,15 +559,49 @@ def test_optional_env_helper_is_reserved_and_does_not_block(monkeypatch):
     assert missing_source_env_vars(SourceName.local) == []
 
 
+def _load_licencas_fixture() -> dict[str, Any]:
+    return json.loads(LICENCAS_FIXTURE.read_text(encoding="utf-8"))
+
+
+def _set_nested(data: dict[str, Any], parts: tuple[Any, ...], value: Any) -> dict[str, Any]:
+    clone = copy.deepcopy(data)
+    target: Any = clone
+    for part in parts[:-1]:
+        target = target[part]
+    target[parts[-1]] = value
+    return clone
+
+
+def test_register_search_env_allowlist_rejects_ytdlp_and_generators():
+    for name in (SourceName.yt_dlp, *GENERATOR_SOURCE_NAMES):
+        with pytest.raises(ValueError, match="cannot be registered as a search source"):
+            register_search_env(name, SourceEnvSpec(required=("NOPE",)))
+        assert name not in SOURCE_ENV_VARS
+
+    spec = SourceEnvSpec(required=("PEXELS_API_KEY",))
+    try:
+        register_search_env(SourceName.pexels, spec)
+        assert SOURCE_ENV_VARS[SourceName.pexels] is spec
+        register_search_env(SourceName.local, SourceEnvSpec())
+        assert SourceName.local in SOURCE_ENV_VARS
+    finally:
+        SOURCE_ENV_VARS.pop(SourceName.pexels, None)
+        SOURCE_ENV_VARS.pop(SourceName.local, None)
+    assert set(SOURCE_ENV_VARS) == set(SEARCH_SOURCE_NAMES)
+
+
 def test_validate_licencas_json_reports_invalid_entries(tmp_path, capsys):
     valid = [
         {"id": "a", "license": "cc-by"},
         {"id": "b", "licenca": License.terceiro},
         "cc0",
+        License.cc0,
     ]
     assert validate_licencas(valid) == []
     assert validate_licencas({"items": [{"license": "stock"}]}) == []
     assert validate_licencas({"clip": "proprio", "other": {"licenca": "cc0"}}) == []
+    assert validate_licencas({"owned": License.proprio}) == []
+    assert validate_licencas([{"license": License.cc_by}]) == []
 
     issues = validate_licencas(
         [
@@ -535,21 +609,30 @@ def test_validate_licencas_json_reports_invalid_entries(tmp_path, capsys):
             {"id": "missing"},
             {"id": "blank", "license": "  "},
             12,
+            ["nested"],
+            {"license": {"nested": True}},
         ]
     )
     assert [issue.location for issue in issues] == [
         "[0].license",
-        "[1]",
+        "[1].license",
         "[2].license",
-        "[3]",
+        "[3].license",
+        "[4].license",
+        "[5].license",
     ]
+    assert issues[1].value is None
+    assert issues[4].value is None
+    assert issues[5].value is None
 
     mapped = validate_licencas(
         {"good": "cc0", "bad": "MIT", "obj": {"title": "x"}, "num": 12}
     )
-    assert {issue.location for issue in mapped} == {"bad", "obj", "num"}
+    assert {issue.location for issue in mapped} == {"bad", "obj.license", "num"}
     assert validate_licencas("nope")[0].location == "$"
-    assert validate_licencas({"licenses": {"no": "list"}})[0].location == "licenses"
+    assert validate_licencas({"licenses": {"no": "list"}})[0].location == "licenses.license"
+    assert _validate_sequence({"no": "list"}, "music")[0].location == "music"
+    assert _validate_sequence("nope", "")[0].location == "$"
 
     path = tmp_path / "licencas.json"
     path.write_text(json.dumps([{"license": "cc-by"}, {"license": "not-a-license"}]), encoding="utf-8")
@@ -591,3 +674,71 @@ def test_validate_licencas_skips_versao_metadata():
     issues = validate_licencas({"versao": "9", "bad": "MIT"})
     assert [issue.location for issue in issues] == ["bad"]
     assert all(issue.location != "versao" for issue in issues)
+
+
+def test_fixture_licencas_ia_por_tras_infantil_has_zero_errors():
+    data = _load_licencas_fixture()
+    assert data["versao"] == "1"
+    assert len(data["music"]) == 3
+    assert len(data["images"]) == 1
+    assert len(data["clips"]) == 2
+    assert data["clips"][0]["n"] == "01"
+    assert data["clips"][0]["file"] == "timeline/01.mp4"
+    assert data["clips"][0]["source_render"] == "raw/anim3_01.mp4"
+    assert isinstance(data["voice"], dict)
+    assert isinstance(data["render"], dict)
+    assert len(data["fonts"]) == 1
+    assert validate_licencas(data) == []
+    assert validate_licencas_file(LICENCAS_FIXTURE) == []
+
+
+@pytest.mark.parametrize(
+    ("parts", "expected_path"),
+    [
+        (("music", 0, "license"), "music[0].license"),
+        (("images", 0, "license"), "images[0].license"),
+        (("clips", 1, "license"), "clips[1].license"),
+        (("fonts", 0, "license"), "fonts[0].license"),
+        (("voice", "license"), "voice.license"),
+        (("render", "license"), "render.license"),
+    ],
+)
+def test_invalid_license_reports_exact_section_path(parts, expected_path):
+    variant = _set_nested(_load_licencas_fixture(), parts, "licenca-invalida")
+    issues = validate_licencas(variant)
+    assert len(issues) == 1
+    assert issues[0].location == expected_path
+    assert issues[0].value == "licenca-invalida"
+    text = str(issues[0])
+    assert expected_path in text
+    assert "licenca-invalida" in text
+    assert "incompetech" not in text
+    assert "timeline/" not in text
+    assert "Remotion" not in text
+    assert "origin" not in text
+
+
+def test_licencas_error_hides_origin_and_masks_credentials():
+    sentinel = "SENTINELA123"
+    data = _load_licencas_fixture()
+    data["clips"][0]["origin"] = f"https://user:{sentinel}@example.com/clip"
+    data["clips"][0]["license"] = "MIT"
+    issues = validate_licencas(data)
+    assert [issue.location for issue in issues] == ["clips[0].license"]
+    text = str(issues[0])
+    assert sentinel not in text
+    assert "origin" not in text
+    assert "user:" not in text
+
+    leaked = _set_nested(
+        _load_licencas_fixture(),
+        ("music", 1, "license"),
+        f"https://user:{sentinel}@incompetech.com/secret",
+    )
+    leaked_issues = validate_licencas(leaked)
+    assert leaked_issues[0].location == "music[1].license"
+    shown = str(leaked_issues[0])
+    assert sentinel not in shown
+    assert "user:pass@" not in shown
+    assert "user:" not in shown
+    assert "***@" in shown
