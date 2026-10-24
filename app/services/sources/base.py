@@ -70,6 +70,11 @@ class SourceName(str, Enum):
     ``config.example.toml``, plus ``yt-dlp`` and the four search sources
     the team will implement (x, reddit, instagram, youtube). Music/TTS
     providers (Sonilo, ElevenLabs) are not material sources.
+
+    Generator names (``wavespeed``, ``volcengine_seedance``, ``ofox``,
+    ``metaso_minimax``, ``muapi``, ``loomloom``, ``openai_image``) are
+    provenance labels only. They record where a clip was produced and
+    must never be registered as a search source.
     """
 
     pexels = "pexels"
@@ -121,20 +126,58 @@ class SourceEnvSpec:
     optional: tuple[str, ...] = ()
 
 
-SOURCE_ENV_VARS: dict[SourceName, SourceEnvSpec] = {
-    SourceName.x: SourceEnvSpec(required=("X_BEARER_TOKEN",)),
-    SourceName.reddit: SourceEnvSpec(
+GENERATOR_SOURCE_NAMES: frozenset[SourceName] = frozenset(
+    {
+        SourceName.wavespeed,
+        SourceName.volcengine_seedance,
+        SourceName.ofox,
+        SourceName.metaso_minimax,
+        SourceName.muapi,
+        SourceName.loomloom,
+        SourceName.openai_image,
+    }
+)
+SEARCH_SOURCE_NAMES: frozenset[SourceName] = frozenset(
+    {
+        SourceName.x,
+        SourceName.reddit,
+        SourceName.instagram,
+        SourceName.youtube,
+    }
+)
+
+SOURCE_ENV_VARS: dict[SourceName, SourceEnvSpec] = {}
+
+
+def register_search_env(name: SourceName, spec: SourceEnvSpec) -> None:
+    """Register env vars for a search source.
+
+    Generator provenance labels cannot be registered as search sources.
+    """
+    if name in GENERATOR_SOURCE_NAMES:
+        raise ValueError(
+            f"{name.value} is a provenance label for a generator and "
+            "cannot be a search source"
+        )
+    SOURCE_ENV_VARS[name] = spec
+
+
+register_search_env(SourceName.x, SourceEnvSpec(required=("X_BEARER_TOKEN",)))
+register_search_env(
+    SourceName.reddit,
+    SourceEnvSpec(
         required=(
             "REDDIT_CLIENT_ID",
             "REDDIT_CLIENT_SECRET",
             "REDDIT_USER_AGENT",
         )
     ),
-    SourceName.instagram: SourceEnvSpec(
-        required=("INSTAGRAM_TOKEN", "INSTAGRAM_USER_ID")
-    ),
-    SourceName.youtube: SourceEnvSpec(required=("YOUTUBE_API_KEY",)),
-}
+)
+register_search_env(
+    SourceName.instagram,
+    SourceEnvSpec(required=("INSTAGRAM_TOKEN", "INSTAGRAM_USER_ID")),
+)
+register_search_env(SourceName.youtube, SourceEnvSpec(required=("YOUTUBE_API_KEY",)))
 
 
 def _enum_values(enum_cls: type[Enum]) -> str:
@@ -404,7 +447,7 @@ class SourceItem(BaseModel):
     Unknown fields are rejected.
     """
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", hide_input_in_errors=True)
 
     id: str | None = None
     url: str

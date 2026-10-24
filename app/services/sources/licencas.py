@@ -3,7 +3,8 @@
 The helper is network-free and does not change project data files. It
 accepts a list of objects with ``license`` / ``licenca``, a
 ``{id: license}`` mapping, or an object with an ``items`` / ``licencas``
-/ ``licenses`` list. Invalid entries are reported with a location path.
+/ ``licenses`` list. Invalid entries report the item index or key and
+the rejected value. The metadata key ``versao`` is skipped.
 """
 
 from __future__ import annotations
@@ -17,17 +18,19 @@ from typing import Any
 
 from app.services.sources.base import License
 
+METADATA_KEYS = frozenset({"versao"})
+
 
 @dataclass(frozen=True, slots=True)
 class LicenseIssue:
-    """One invalid license entry."""
+    """One invalid license entry (item index or key, plus the bad value)."""
 
     location: str
     value: Any
     message: str
 
     def __str__(self) -> str:
-        return f"{self.location}: {self.message}"
+        return f"{self.location}: {self.message} (value={self.value!r})"
 
 
 def _allowed_licenses() -> str:
@@ -108,6 +111,8 @@ def validate_licencas(data: Any) -> list[LicenseIssue]:
                 return _validate_sequence(data[key], f"{key}")
         issues: list[LicenseIssue] = []
         for key, value in data.items():
+            if key in METADATA_KEYS:
+                continue
             location = str(key)
             if isinstance(value, dict):
                 nested = _license_key(value)

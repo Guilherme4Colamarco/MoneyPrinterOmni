@@ -9,6 +9,8 @@ import pytest
 from pydantic import ValidationError
 
 from app.services.sources import (
+    GENERATOR_SOURCE_NAMES,
+    SEARCH_SOURCE_NAMES,
     SOURCE_ENV_VARS,
     License,
     Source,
@@ -27,6 +29,7 @@ from app.services.sources import (
     parse_source_name,
     parse_source_type,
     parse_url,
+    register_search_env,
     require_source_env,
     validate_licencas,
     validate_licencas_file,
@@ -219,9 +222,16 @@ def test_source_name_values_are_material_sources_only():
     }
     assert "sonilo" not in {item.value for item in SourceName}
     assert "elevenlabs" not in {item.value for item in SourceName}
-    for name in (SourceName.x, SourceName.reddit, SourceName.instagram, SourceName.youtube):
+    for name in SEARCH_SOURCE_NAMES:
         assert name in SOURCE_ENV_VARS
         assert SOURCE_ENV_VARS[name].required
+    assert set(SOURCE_ENV_VARS) == set(SEARCH_SOURCE_NAMES)
+    assert set(SOURCE_ENV_VARS).isdisjoint(GENERATOR_SOURCE_NAMES)
+    for name in (SourceName.muapi, SourceName.loomloom, SourceName.wavespeed):
+        with pytest.raises(ValueError, match="provenance label"):
+            register_search_env(name, SourceEnvSpec(required=("NOPE",)))
+    assert SourceName.muapi not in SOURCE_ENV_VARS
+    assert SourceName.loomloom not in SOURCE_ENV_VARS
 
 
 def test_license_values_and_default():
@@ -261,6 +271,16 @@ def test_url_is_required_http_https_with_host():
         parse_url("https://user:pass@example.com/secret")
     with pytest.raises(ValueError, match="http or https"):
         parse_url("http://[")
+
+
+def test_credential_url_errors_hide_sentinel_secret():
+    sentinel = "SENTINELA123"
+    secret_url = f"https://user:{sentinel}@example.com/x"
+    with pytest.raises(ValidationError) as excinfo:
+        parse_source_item(_item(url=secret_url))
+    error = excinfo.value
+    assert sentinel not in str(error)
+    assert sentinel not in repr(error)
 
 
 def test_published_at_accepts_only_timezone_aware_values():
@@ -536,6 +556,12 @@ def test_validate_licencas_json_reports_invalid_entries(tmp_path, capsys):
     file_issues = validate_licencas_file(path)
     assert len(file_issues) == 1
     assert file_issues[0].location == "[1].license"
+    listed = str(file_issues[0])
+    assert "[1].license" in listed
+    assert "not-a-license" in listed
+    mapped_text = str(next(issue for issue in mapped if issue.location == "bad"))
+    assert "bad" in mapped_text
+    assert "MIT" in mapped_text
 
     assert licencas_main([str(path)]) == 1
     assert "INVALID" in capsys.readouterr().err
@@ -555,3 +581,13 @@ def test_validate_licencas_json_reports_invalid_entries(tmp_path, capsys):
         with pytest.raises(SystemExit) as exited:
             runpy.run_module("app.services.sources", run_name="__main__")
     assert exited.value.code == 0
+
+
+def test_validate_licencas_skips_versao_metadata():
+    assert validate_licencas({"versao": "2", "clip": "cc-by"}) == []
+    assert validate_licencas(
+        {"versao": "1.0", "items": [{"license": "stock"}]}
+    ) == []
+    issues = validate_licencas({"versao": "9", "bad": "MIT"})
+    assert [issue.location for issue in issues] == ["bad"]
+    assert all(issue.location != "versao" for issue in issues)
