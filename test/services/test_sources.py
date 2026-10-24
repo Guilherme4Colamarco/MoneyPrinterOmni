@@ -315,6 +315,19 @@ SENSITIVE_URLS = {
     "user_password": f"https://user:{SENTINEL}@example.com/x",
     "token_query": f"https://example.com/clip?token={SENTINEL}",
     "amz_signature": f"https://example.com/clip.mp4?X-Amz-Signature={SENTINEL}",
+    "semicolon_query": f"https://example.com/clip?foo=1;token={SENTINEL}",
+    "semicolon_path": f"https://example.com/clip;token={SENTINEL}",
+    "percent_host": f"https://example%2e{SENTINEL}.invalid/clip",
+}
+EXTRA_SENSITIVE_URLS = {
+    "apikey": f"https://example.com/x?apikey={SENTINEL}",
+    "api_key": f"https://example.com/x?API_KEY={SENTINEL}",
+    "password": f"https://example.com/x?password={SENTINEL}",
+    "passwd": f"https://example.com/x?passwd={SENTINEL}",
+    "client_secret": f"https://example.com/x?client_secret={SENTINEL}",
+    "secret": f"https://example.com/x?secret={SENTINEL}",
+    "session": f"https://example.com/x?session={SENTINEL}",
+    "signed": f"https://example.com/x?signed={SENTINEL}",
 }
 
 
@@ -443,11 +456,41 @@ def test_sensitive_query_keys_are_rejected_case_insensitively():
         f"https://example.com/x?access_token={SENTINEL}",
         f"https://example.com/x#token={SENTINEL}",
         f"https://example.com/x?x-amz-credential={SENTINEL}",
+        f"https://example.com/x?APIKEY={SENTINEL}",
+        f"https://example.com/x?Password={SENTINEL}",
+        f"https://example.com/x?SESSION={SENTINEL}",
+        "https://user@ex%61mple.com/x",
     ):
         with pytest.raises(ValueError, match=SENSITIVE_URL_MESSAGE):
             parse_url(raw)
         with pytest.raises(ValidationError):
             SourceItem.model_validate(_item(url=raw))
+    assert parse_url("https://example.com/clip;foo=bar") == (
+        "https://example.com/clip;foo=bar"
+    )
+    assert parse_url("https://example.com/clip?foo=1;bar=2") == (
+        "https://example.com/clip?foo=1;bar=2"
+    )
+
+
+@pytest.mark.parametrize(
+    "url_kind",
+    list(EXTRA_SENSITIVE_URLS),
+    ids=list(EXTRA_SENSITIVE_URLS),
+)
+def test_extra_sensitive_keys_hide_sentinel(url_kind):
+    raw = EXTRA_SENSITIVE_URLS[url_kind]
+    with pytest.raises(ValueError, match=SENSITIVE_URL_MESSAGE) as parse_info:
+        parse_url(raw)
+    assert SENTINEL not in str(parse_info.value)
+    assert SENTINEL not in repr(parse_info.value)
+    try:
+        SourceItem.model_validate(_item(url=raw))
+    except ValidationError as exc:
+        _assert_error_hides_sentinel(exc)
+        assert SENSITIVE_URL_MESSAGE in str(exc)
+    else:
+        raise AssertionError(f"expected ValidationError for {url_kind}")
 
 
 def test_nested_extra_list_with_sensitive_url_is_scrubbed():
