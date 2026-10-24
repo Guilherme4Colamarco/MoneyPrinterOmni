@@ -261,6 +261,7 @@
     "No voices available for the selected TTS server. Please select another server.": "Aucune voix disponible pour le serveur TTS sélectionné. Veuillez choisir un autre serveur.",
     "SiliconFlow API Key": "Clé API SiliconFlow ([Obtenir la clé API](https://cloud.siliconflow.cn/account/ak))",
     "Gemini API Key": "Clé API Google Gemini ([Obtenir la clé API](https://aistudio.google.com/app/apikey))",
+    "xAI API Key": "Clé API xAI ([Obtenir la clé API](https://console.x.ai/))",
     "MiMo API Key": "Clé API Xiaomi MiMo ([Obtenir la clé API](https://mimo.mi.com/docs/quick-start/first-api-call))",
     "MiniMax TTS API Key": "Clé API MiniMax TTS ([Chine](https://platform.minimaxi.com/user-center/basic-information/interface-key) / [International](https://platform.minimax.io/user-center/basic-information/interface-key))",
     "MiniMax TTS Endpoint": "Point de terminaison MiniMax TTS",

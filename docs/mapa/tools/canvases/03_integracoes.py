@@ -25,12 +25,12 @@ def build(lang: str) -> Canvas:
     # Integrações externas (ciano) acima e abaixo
     c.text("llm", c.t("## LLM\n37 provedores (`LLM_PROVIDER_REGISTRY`)", "## LLM\n37 providers (`LLM_PROVIDER_REGISTRY`)"), 1, 1, CYAN)
     c.text("assinatura", c.t("## Assinaturas (sem chave)\nClaude Code (CLI), Kimi Code (OAuth)", "## Subscriptions (no key)\nClaude Code (CLI), Kimi Code (OAuth)"), 0, 1, GREEN)
-    c.text("tts", c.t("## TTS\nEdge, Azure, Gemini, ElevenLabs e outros", "## TTS\nEdge, Azure, Gemini, ElevenLabs and others"), 2, 1, CYAN)
+    c.text("tts", c.t("## TTS\nEdge, Azure, Gemini, xAI, ElevenLabs e outros", "## TTS\nEdge, Azure, Gemini, xAI, ElevenLabs and others"), 2, 1, CYAN)
     c.text("upload", c.t("## upload-post\nTikTok, Instagram, YouTube", "## upload-post\nTikTok, Instagram, YouTube"), 6, 1, CYAN)
     c.text("material_ext", c.t("## Stock e IA\nPexels, Pixabay, Coverr; WaveSpeed, Seedance, OFox, MuAPI, Metaso, OpenAI image", "## Stock and AI\nPexels, Pixabay, Coverr; WaveSpeed, Seedance, OFox, MuAPI, Metaso, OpenAI image"), 4, 5, CYAN)
     c.text("musica", c.t("## Música por IA\nSonilo, ElevenLabs Music", "## AI music\nSonilo, ElevenLabs Music"), 5, 5, CYAN)
     c.text("sdxl", c.t("## SDXL local\n`docs/local-image-server` (instável)", "## Local SDXL\n`docs/local-image-server` (unstable)"), 3, 5, ORANGE)
-    c.text("planejado", c.t("## PLANEJADO\nCodex CLI, Gemini CLI, Grok Build, STT/TTS xAI", "## PLANNED\nCodex CLI, Gemini CLI, Grok Build, xAI STT/TTS"), 0, 5, ORANGE)
+    c.text("planejado", c.t("## PLANEJADO\nCodex CLI, Gemini CLI, Grok Build", "## PLANNED\nCodex CLI, Gemini CLI, Grok Build"), 0, 5, ORANGE)
 
     c.edge("assinatura", "llm", c.t("login", "login"), CYAN)
     c.edge("llm", "roteiro", c.t("roteiro", "script"), CYAN)

@@ -57,7 +57,13 @@ A user picks `claude_code` with `claude_code_timeout` empty. `coerce_claude_code
 - **Stale docstring.** The header of `kimi_code_oauth.py` (lines 9-12) says the program calls `{api}/usages` and `{api}/messages`. The code only calls chat completions. The description is wrong.
 
 > [!warning] unstable
-> The section below is **PLANNED**: it does not exist in the code yet. I searched the repository for `Codex`, `Gemini CLI`, `Grok Build`, `SuperGrok` and xAI `STT`/`TTS` and found no implementation. The project phase plan was not found in the repository. State to be confirmed.
+> The section below mixes what **already landed** (xAI TTS, API key) and what is still **PLANNED**. I searched the repository for `Codex`, `Gemini CLI`, `Grok Build` and `SuperGrok` and found no implementation. The project phase plan was not found in the repository.
+
+## xAI TTS (implemented, API key)
+
+Grok Voice is **not** a subscription adapter. It calls the official `POST https://api.x.ai/v1/tts` endpoint with a Bearer token (`XAI_API_KEY`, `[xai].api_key`, or, if both are empty, `grok_api_key`). The voice prefix is `xai:`. See [[Voice and subtitles]].
+
+xAI STT (`POST /v1/stt`) is **not** wired: TTS already returns native timestamps (`with_timestamps` → `graph_chars` / `graph_times`). An extra STT pass would re-transcribe the audio, adding cost and the risk of drifting from the script.
 
 ## Next (PLANNED)
 
@@ -66,7 +72,6 @@ A user picks `claude_code` with `claude_code_timeout` empty. `coerce_claude_code
 | Codex CLI (subscription) | PLANNED, does not exist |
 | Gemini CLI (subscription) | PLANNED, does not exist |
 | Grok Build / SuperGrok | PLANNED, does not exist |
-| xAI STT and TTS | PLANNED, does not exist |
 
 ## Practice
 

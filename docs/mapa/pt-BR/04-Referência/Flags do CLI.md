@@ -68,7 +68,7 @@ Combinação recusada: `--video-source local` com `--stop-at terms` sai com 2 (`
 
 | Flag | Padrão | Observação |
 |---|---|---|
-| `--voice-name` | `[ui].voice_name`, senão `zh-CN-XiaoxiaoNeural-Female` | `no-voice` para áudio silencioso; prefixos `gemini:`, `mimo:`, `elevenlabs:`, `chatterbox:`, `kokoro:`, `voxcpm:` |
+| `--voice-name` | `[ui].voice_name`, senão `zh-CN-XiaoxiaoNeural-Female` | `no-voice` para áudio silencioso; prefixos `gemini:`, `xai:`, `mimo:`, `elevenlabs:`, `chatterbox:`, `kokoro:`, `voxcpm:` |
 | `--voice-volume V` | `[ui].voice_volume`, senão `1.0` | número ≥ 0 |
 | `--voice-rate V` | `[ui].voice_rate`, senão `1.0` | número > 0 |
 | `--custom-audio-file CAMINHO` | nenhum | MP3, WAV, M4A, AAC, FLAC ou OGG. Pula o TTS. Caminho relativo vale a partir do diretório atual |
