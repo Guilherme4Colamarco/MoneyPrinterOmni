@@ -740,8 +740,13 @@ voice_id = "default"
 # Leave empty here; put the real key only in config.toml or the environment.
 api_key = ""
 # Required BCP-47 language for synthesis (en, pt-BR, zh, auto, ...).
-# Official default when unset is auto (language detection).
-language = "auto"
+# Recommended: pt-BR for Portuguese narration. When unset, the code falls
+# back to auto (language detection).
+language = "pt-BR"
+# Read timeout in seconds for POST /v1/tts. Connect timeout is always 10s.
+# Default 600. Long scripts can exceed a short read timeout; treat timeout
+# as retryable.
+timeout = 600
 
 # =============================================================================
 # WebUI Preferences / WebUI 偏好

@@ -37,7 +37,7 @@ O `config.toml` é cópia do exemplo, criada na primeira execução. Cada seçã
 | `[kokoro]` | `:687` | voz Kokoro (servidor próprio) | `api_key` |
 | `[fish_audio]` | `:697` | voz Fish Audio | `api_key` |
 | `[voxcpm]` | `:722` | voz VoxCPM, com clonagem por áudio de referência | `api_key` |
-| `[xai]` | `:732` | voz xAI Grok Voice TTS (`api_key`, `language`) | `api_key` |
+| `[xai]` | `:732` | voz xAI Grok Voice TTS (`api_key`, `language`, `timeout`) | `api_key` |
 | `[ui]` | `:750` | preferências da WebUI (`hide_log`, `open_task_folder_on_completion`) | não |
 
 A seção `[ui]` do exemplo tem só duas chaves. A WebUI grava outras (voz, legenda, fonte e cores) no `config.toml` real, e o CLI lê as mesmas chaves como padrão (veja [[Flags do CLI]]).

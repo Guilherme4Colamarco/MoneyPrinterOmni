@@ -313,6 +313,7 @@ NON_LLM_COMPANION_KEYS = {
 CREDENTIAL_WIDGET_STATE_ALIASES = {
     ("app", "gemini_api_key"): ("gemini_tts_api_key_input",),
     ("app", "mimo_api_key"): ("mimo_tts_api_key_input",),
+    ("xai", "api_key"): ("xai_api_key_input",),
 }
 # ui 分区只保存界面偏好，不含任何凭据，备份时整体跳过。
 KEY_BACKUP_EXCLUDED_SECTIONS = frozenset({"ui"})
@@ -6083,6 +6084,11 @@ def _get_voice_preview_provider_signature(tts_server: str) -> dict:
     if tts_server == "gemini-tts":
         return {
             "credential": _credential_signature(config.app.get("gemini_api_key", ""))
+        }
+    if tts_server == "xai-tts":
+        return {
+            "language": voice.get_xai_tts_language(),
+            "credential": _credential_signature(voice.get_xai_api_key()),
         }
     if tts_server == "mimo-tts":
         return {"credential": _credential_signature(config.app.get("mimo_api_key", ""))}

@@ -37,7 +37,7 @@ Reference for the sections and keys of `config.example.toml`, what each one cont
 | `[kokoro]` | `:687` | Kokoro voice (your own server) | `api_key` |
 | `[fish_audio]` | `:697` | Fish Audio voice | `api_key` |
 | `[voxcpm]` | `:722` | VoxCPM voice, with cloning from reference audio | `api_key` |
-| `[xai]` | `:732` | xAI Grok Voice TTS (`api_key`, `language`) | `api_key` |
+| `[xai]` | `:732` | xAI Grok Voice TTS (`api_key`, `language`, `timeout`) | `api_key` |
 | `[ui]` | `:750` | WebUI preferences (`hide_log`, `open_task_folder_on_completion`) | no |
 
 The example's `[ui]` section has only two keys. The WebUI writes others (voice, subtitles, font and colours) into the real `config.toml`, and the CLI reads the same keys as defaults (see [[CLI flags]]).

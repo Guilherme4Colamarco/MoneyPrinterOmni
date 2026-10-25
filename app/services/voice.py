@@ -57,38 +57,16 @@ XAI_TTS_MIN_SPEED = 0.7
 XAI_TTS_MAX_SPEED = 1.5
 XAI_TTS_MAX_TEXT_CHARS = 60_000
 XAI_TTS_MAX_AUDIO_BYTES = 50 * 1024 * 1024
-XAI_TTS_TIMEOUT_SECONDS = 60
-# Official built-in voices and their documented tone labels. Voice IDs are
+XAI_TTS_CONNECT_TIMEOUT_SECONDS = 10
+XAI_TTS_DEFAULT_TIMEOUT_SECONDS = 600
+# Official documented voices and their tone labels. Voice IDs are
 # case-insensitive. Custom console voice IDs can still be passed as xai:<id>.
 XAI_TTS_VOICES = (
-    ("carina", "Soft"),
-    ("zagan", "Dramatic"),
-    ("helix", "Bold"),
-    ("orion", "Cinematic"),
-    ("luna", "Gentle"),
-    ("iris", "Friendly"),
-    ("altair", "Elegant"),
-    ("zenith", "Sharp"),
-    ("perseus", "Confident"),
-    ("helios", "Upbeat"),
-    ("lux", "Calm"),
-    ("kepler", "Inventive"),
-    ("rigel", "Precise"),
-    ("cosmo", "Curious"),
-    ("celeste", "Compassionate"),
-    ("ursa", "Warm"),
-    ("sirius", "Playful"),
-    ("lumen", "Articulate"),
-    ("castor", "Easygoing"),
-    ("naksh", "Thoughtful"),
-    ("atlas", "Commanding"),
-    ("aurora", "Serene"),
-    ("liora", "Grounded"),
-    ("ara", "Friendly"),
     ("eve", "Energetic"),
-    ("leo", "Authoritative"),
+    ("ara", "Friendly"),
     ("rex", "Clear"),
     ("sal", "Smooth"),
+    ("leo", "Authoritative"),
 )
 _XAI_TTS_VOICE_IDS = {voice_id.lower() for voice_id, _style in XAI_TTS_VOICES}
 
@@ -550,6 +528,38 @@ def get_xai_tts_language() -> str:
     section = config.xai if hasattr(config, "xai") and isinstance(config.xai, dict) else {}
     configured = str(section.get("language", "") or "").strip()
     return configured or XAI_TTS_DEFAULT_LANGUAGE
+
+
+def get_xai_tts_timeout() -> float:
+    """读取 ``[xai].timeout`` 作为读超时秒数；默认 600。"""
+    section = config.xai if hasattr(config, "xai") and isinstance(config.xai, dict) else {}
+    raw_timeout = section.get("timeout", XAI_TTS_DEFAULT_TIMEOUT_SECONDS)
+    try:
+        timeout = float(raw_timeout)
+    except (TypeError, ValueError):
+        timeout = XAI_TTS_DEFAULT_TIMEOUT_SECONDS
+    if not math.isfinite(timeout) or timeout <= 0:
+        timeout = XAI_TTS_DEFAULT_TIMEOUT_SECONDS
+    return timeout
+
+
+def _xai_retry_delay_seconds(attempt: int, headers) -> float:
+    """指数退避 ``2**attempt``；有合法 ``Retry-After`` 时改用该值。"""
+    delay = float(2 ** attempt)
+    raw = ""
+    if headers:
+        raw = str(
+            headers.get("Retry-After") or headers.get("retry-after") or ""
+        ).strip()
+    if not raw:
+        return delay
+    try:
+        parsed = float(raw)
+    except (TypeError, ValueError):
+        return delay
+    if math.isfinite(parsed) and parsed >= 0:
+        return parsed
+    return delay
 
 
 def is_gemini_voice(voice_name: str):
@@ -2379,7 +2389,10 @@ def xai_tts(
                 XAI_TTS_URL,
                 json=payload,
                 headers=headers,
-                timeout=XAI_TTS_TIMEOUT_SECONDS,
+                timeout=(
+                    XAI_TTS_CONNECT_TIMEOUT_SECONDS,
+                    get_xai_tts_timeout(),
+                ),
                 allow_redirects=False,
             )
             if 300 <= response.status_code < 400:
@@ -2396,6 +2409,7 @@ def xai_tts(
                 logger.error(
                     f"xAI tts failed with status {response.status_code}: {error_text}"
                 )
+                time.sleep(_xai_retry_delay_seconds(i, response.headers))
                 continue
 
             audio_bytes, timestamps, payload_duration = _decode_xai_tts_response(
@@ -2435,8 +2449,8 @@ def xai_tts(
                 audio_timestamps=timestamps,
                 audio_duration_seconds=audio_duration,
             )
-        except requests.exceptions.ConnectTimeout as e:
-            logger.warning(f"xAI tts could not connect, retrying: {e}")
+        except requests.exceptions.Timeout as e:
+            logger.warning(f"xAI tts timed out, retrying: {e}")
         except requests.exceptions.RequestException as e:
             logger.error(
                 "xAI tts result is unconfirmed after a transport error; "

@@ -52,16 +52,21 @@ def _raw_response(audio=b"fake-xai-mp3", status=200):
 class TestXaiVoiceCatalog(unittest.TestCase):
     def test_get_xai_voices_matches_documented_catalog(self):
         voices = vs.get_xai_voices()
-        self.assertEqual(len(voices), 28)
-        self.assertEqual(voices[0], "xai:carina-Soft")
-        self.assertIn("xai:eve-Energetic", voices)
-        self.assertIn("xai:orion-Cinematic", voices)
-        self.assertIn("xai:sal-Smooth", voices)
+        self.assertEqual(
+            voices,
+            [
+                "xai:eve-Energetic",
+                "xai:ara-Friendly",
+                "xai:rex-Clear",
+                "xai:sal-Smooth",
+                "xai:leo-Authoritative",
+            ],
+        )
         self.assertTrue(all(name.startswith("xai:") for name in voices))
 
     def test_parse_xai_voice_name_strips_style_and_keeps_custom_ids(self):
         self.assertEqual(vs.parse_xai_voice_name("xai:eve-Energetic"), "eve")
-        self.assertEqual(vs.parse_xai_voice_name("xai:Orion-Cinematic"), "orion")
+        self.assertEqual(vs.parse_xai_voice_name("xai:Ara-Friendly"), "ara")
         self.assertEqual(vs.parse_xai_voice_name("xai:eve"), "eve")
         self.assertEqual(
             vs.parse_xai_voice_name("xai:custom-voice-uuid-123"),
@@ -107,6 +112,24 @@ class TestXaiApiKey(unittest.TestCase):
             patch.dict(os.environ, {}, clear=True),
         ):
             self.assertEqual(vs.get_xai_api_key(), "")
+
+
+class TestXaiTimeout(unittest.TestCase):
+    def test_default_timeout_is_600(self):
+        with patch.object(vs.config, "xai", {}):
+            self.assertEqual(vs.get_xai_tts_timeout(), 600)
+
+    def test_reads_xai_timeout_from_config(self):
+        with patch.object(vs.config, "xai", {"timeout": 120}):
+            self.assertEqual(vs.get_xai_tts_timeout(), 120)
+
+    def test_invalid_timeout_falls_back_to_default(self):
+        with patch.object(vs.config, "xai", {"timeout": "fast"}):
+            self.assertEqual(vs.get_xai_tts_timeout(), 600)
+        with patch.object(vs.config, "xai", {"timeout": 0}):
+            self.assertEqual(vs.get_xai_tts_timeout(), 600)
+        with patch.object(vs.config, "xai", {"timeout": -5}):
+            self.assertEqual(vs.get_xai_tts_timeout(), 600)
 
 
 class TestXaiTimestamps(unittest.TestCase):
@@ -235,6 +258,10 @@ class TestXaiTtsHttp(unittest.TestCase):
             self.assertEqual(sent["speed"], 1.2)
             self.assertTrue(sent["with_timestamps"])
             self.assertEqual(sent["text"], "Hello world.")
+            self.assertEqual(
+                post.call_args.kwargs["timeout"],
+                (vs.XAI_TTS_CONNECT_TIMEOUT_SECONDS, 600),
+            )
 
     @patch.object(vs, "_validate_remote_tts_audio", new=lambda _path: None)
     def test_xai_tts_raw_audio_uses_legacy_fallback(self):
@@ -343,6 +370,88 @@ class TestXaiTtsHttp(unittest.TestCase):
             self.assertIsNone(result)
             self.assertEqual(output.read_bytes(), b"previous-valid-audio")
             self.assertEqual(post.call_count, 1)
+
+    def test_xai_tts_passes_configured_connect_and_read_timeout(self):
+        response = SimpleNamespace(
+            status_code=401,
+            content=b"unauthorized",
+            text="unauthorized",
+            headers={},
+            close=lambda: None,
+        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            out_path = str(Path(tmp_dir) / "voice.mp3")
+            with (
+                patch.object(vs, "get_xai_api_key", return_value="test-key"),
+                patch.object(vs, "get_xai_tts_timeout", return_value=120),
+                patch.object(vs.requests, "post", return_value=response) as post,
+            ):
+                self.assertIsNone(vs.xai_tts("Hello", "eve", 1.0, out_path))
+
+            self.assertEqual(
+                post.call_args.kwargs["timeout"],
+                (vs.XAI_TTS_CONNECT_TIMEOUT_SECONDS, 120),
+            )
+
+    def test_xai_tts_retries_on_read_timeout(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            out_path = str(Path(tmp_dir) / "voice.mp3")
+            with (
+                patch.object(vs, "get_xai_api_key", return_value="test-key"),
+                patch.object(
+                    vs.requests,
+                    "post",
+                    side_effect=vs.requests.exceptions.ReadTimeout("read timed out"),
+                ) as post,
+            ):
+                self.assertIsNone(vs.xai_tts("Hello", "eve", 1.0, out_path))
+            self.assertEqual(post.call_count, 3)
+
+    def test_xai_tts_retries_429_with_exponential_backoff(self):
+        response = SimpleNamespace(
+            status_code=429,
+            content=b"rate limited",
+            text="rate limited",
+            headers={},
+            close=lambda: None,
+        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            out_path = str(Path(tmp_dir) / "voice.mp3")
+            with (
+                patch.object(vs, "get_xai_api_key", return_value="test-key"),
+                patch.object(vs.requests, "post", return_value=response) as post,
+                patch.object(vs.time, "sleep") as sleep,
+            ):
+                self.assertIsNone(vs.xai_tts("Hello", "eve", 1.0, out_path))
+
+            self.assertEqual(post.call_count, 3)
+            self.assertEqual(
+                [call.args[0] for call in sleep.call_args_list],
+                [1, 2, 4],
+            )
+
+    def test_xai_tts_429_honors_retry_after(self):
+        response = SimpleNamespace(
+            status_code=429,
+            content=b"rate limited",
+            text="rate limited",
+            headers={"Retry-After": "3"},
+            close=lambda: None,
+        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            out_path = str(Path(tmp_dir) / "voice.mp3")
+            with (
+                patch.object(vs, "get_xai_api_key", return_value="test-key"),
+                patch.object(vs.requests, "post", return_value=response) as post,
+                patch.object(vs.time, "sleep") as sleep,
+            ):
+                self.assertIsNone(vs.xai_tts("Hello", "eve", 1.0, out_path))
+
+            self.assertEqual(post.call_count, 3)
+            self.assertEqual(
+                [call.args[0] for call in sleep.call_args_list],
+                [3.0, 3.0, 3.0],
+            )
 
 
 if __name__ == "__main__":
