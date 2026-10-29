@@ -1,0 +1,35 @@
+{
+  "profile": "infortux",
+  "palette": {
+    "bg_top": "#A81922",
+    "bg_mid": "#400356",
+    "bg_bottom": "#2B0B4C",
+    "accent_primary": "#F9BD3C",
+    "accent_secondary": "#F35A20",
+    "text_primary": "#FFFFFF",
+    "stroke": "#1D0A30"
+  },
+  "texto_na_tela": {
+    "font": "BeVietnamPro-Bold.ttf",
+    "color": "#F9BD3C",
+    "size": 88,
+    "box": true,
+    "box_color": "#1D0A30@0.72"
+  },
+  "thumbnail": {
+    "font": "BeVietnamPro-Bold.ttf",
+    "color": "#FFFFFF",
+    "accent": "#F9BD3C"
+  },
+  "subtitles": {
+    "font_name": "BeVietnamPro-Bold.ttf",
+    "font_size": 62,
+    "text_fore_color": "#FFFFFF",
+    "highlight_color": "#F9BD3C",
+    "stroke_color": "#1D0A30",
+    "stroke_width": 4,
+    "position": "custom",
+    "custom_position": 80.0,
+    "max_lines": 2
+  }
+}

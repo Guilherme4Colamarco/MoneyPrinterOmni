@@ -1,0 +1,47 @@
+[
+  {
+    "id": "src_pinguim_3d",
+    "type": "blender_3d",
+    "title": "Mascote Pinguim Infortux 3D Low Poly (Blender 5.2)",
+    "local_path": "resource/assets_3d/infortux/demos/infortux_pinguim_idle.mp4",
+    "preview_png": "resource/assets_3d/infortux/renders/infortux_pinguim_shorts.png",
+    "license": "CC0 / Autoral Infortux (gerado proceduralmente no Blender)",
+    "scenes": [1, 11, 12]
+  },
+  {
+    "id": "src_cloud_server_3d",
+    "type": "blender_3d",
+    "title": "Nuvem e Rack de Servidores Linux 3D Low Poly (Blender 5.2)",
+    "local_path": "resource/assets_3d/infortux/demos/infortux_cloud_server_demo.mp4",
+    "preview_png": "resource/assets_3d/infortux/renders/infortux_cloud_server_preview.png",
+    "license": "CC0 / Autoral Infortux (gerado proceduralmente no Blender)",
+    "scenes": [2, 5, 6, 8, 10]
+  },
+  {
+    "id": "src_cpu_chip_3d",
+    "type": "blender_3d",
+    "title": "Chip de Memória / Processador 3D Low Poly (Blender 5.2)",
+    "local_path": "resource/assets_3d/infortux/demos/infortux_cpu_chip_demo.mp4",
+    "preview_png": "resource/assets_3d/infortux/renders/infortux_cpu_chip_preview.png",
+    "license": "CC0 / Autoral Infortux (gerado proceduralmente no Blender)",
+    "scenes": [3]
+  },
+  {
+    "id": "src_data_packet_3d",
+    "type": "blender_3d",
+    "title": "Pacote de Dados de Rede 3D Low Poly (Blender 5.2)",
+    "local_path": "resource/assets_3d/infortux/demos/infortux_data_packet_demo.mp4",
+    "preview_png": "resource/assets_3d/infortux/renders/infortux_data_packet_preview.png",
+    "license": "CC0 / Autoral Infortux (gerado proceduralmente no Blender)",
+    "scenes": [4, 7, 13]
+  },
+  {
+    "id": "src_terminal_3d",
+    "type": "blender_3d",
+    "title": "Terminal Linux >_ 3D Low Poly (Blender 5.2)",
+    "local_path": "resource/assets_3d/infortux/demos/infortux_terminal_demo.mp4",
+    "preview_png": "resource/assets_3d/infortux/renders/infortux_terminal_preview.png",
+    "license": "CC0 / Autoral Infortux (gerado proceduralmente no Blender)",
+    "scenes": [9]
+  }
+]

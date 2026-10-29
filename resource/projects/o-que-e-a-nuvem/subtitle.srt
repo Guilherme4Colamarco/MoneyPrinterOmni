@@ -1,0 +1,52 @@
+1
+00:00:00,000 --> 00:00:03,038
+Quando você salva uma foto na nuvem, ela sobe para o céu?
+
+2
+00:00:03,038 --> 00:00:06,391
+Não mesmo! Na tecnologia, a nuvem fica bem firme aqui no chão.
+
+3
+00:00:06,391 --> 00:00:09,423
+Pense na memória do celular como a sua mochila da escola.
+
+4
+00:00:09,423 --> 00:00:12,971
+Se colocar cadernos demais, a mochila fica cheia e bem pesada.
+
+5
+00:00:12,971 --> 00:00:16,712
+A nuvem funciona como um armário gigante guardado em outro prédio.
+
+6
+00:00:16,712 --> 00:00:21,324
+Esses prédios são os data centers, cheios de computadores chamados servidores.
+
+7
+00:00:21,324 --> 00:00:24,611
+Eles enviam dados pelo mundo usando cabos de luz sob o mar!
+
+8
+00:00:24,611 --> 00:00:28,246
+Quando você assiste a um vídeo, o servidor manda cada pedacinho.
+
+9
+00:00:28,246 --> 00:00:31,980
+E sabe quem comanda quase todos esses servidores da nuvem? O Linux!
+
+10
+00:00:31,980 --> 00:00:35,261
+Mas atenção: a nuvem é apenas o computador de outra empresa.
+
+11
+00:00:35,261 --> 00:00:38,815
+Por isso, sempre peça ajuda a um adulto antes de salvar arquivos.
+
+12
+00:00:38,815 --> 00:00:41,820
+Hora do desafio desplugado com um adulto aí na sua casa!
+
+13
+00:00:41,820 --> 00:00:45,803
+Escolham três fotos especiais para guardar fora da internet, num pendrive.
+

@@ -1,0 +1,106 @@
+[
+  {
+    "n": 1,
+    "start": 0.0,
+    "end": 3.038,
+    "dur": 3.038,
+    "text": "Quando você salva uma foto na nuvem, ela sobe para o céu?",
+    "file": "raw/voice_01.wav"
+  },
+  {
+    "n": 2,
+    "start": 3.038,
+    "end": 6.391,
+    "dur": 3.354,
+    "text": "Não mesmo! Na tecnologia, a nuvem fica bem firme aqui no chão.",
+    "file": "raw/voice_02.wav"
+  },
+  {
+    "n": 3,
+    "start": 6.391,
+    "end": 9.423,
+    "dur": 3.032,
+    "text": "Pense na memória do celular como a sua mochila da escola.",
+    "file": "raw/voice_03.wav"
+  },
+  {
+    "n": 4,
+    "start": 9.423,
+    "end": 12.971,
+    "dur": 3.548,
+    "text": "Se colocar cadernos demais, a mochila fica cheia e bem pesada.",
+    "file": "raw/voice_04.wav"
+  },
+  {
+    "n": 5,
+    "start": 12.971,
+    "end": 16.712,
+    "dur": 3.741,
+    "text": "A nuvem funciona como um armário gigante guardado em outro prédio.",
+    "file": "raw/voice_05.wav"
+  },
+  {
+    "n": 6,
+    "start": 16.712,
+    "end": 21.324,
+    "dur": 4.612,
+    "text": "Esses prédios são os data centers, cheios de computadores chamados servidores.",
+    "file": "raw/voice_06.wav"
+  },
+  {
+    "n": 7,
+    "start": 21.324,
+    "end": 24.611,
+    "dur": 3.288,
+    "text": "Eles enviam dados pelo mundo usando cabos de luz sob o mar!",
+    "file": "raw/voice_07.wav"
+  },
+  {
+    "n": 8,
+    "start": 24.611,
+    "end": 28.246,
+    "dur": 3.635,
+    "text": "Quando você assiste a um vídeo, o servidor manda cada pedacinho.",
+    "file": "raw/voice_08.wav"
+  },
+  {
+    "n": 9,
+    "start": 28.246,
+    "end": 31.98,
+    "dur": 3.733,
+    "text": "E sabe quem comanda quase todos esses servidores da nuvem? O Linux!",
+    "file": "raw/voice_09.wav"
+  },
+  {
+    "n": 10,
+    "start": 31.98,
+    "end": 35.261,
+    "dur": 3.281,
+    "text": "Mas atenção: a nuvem é apenas o computador de outra empresa.",
+    "file": "raw/voice_10.wav"
+  },
+  {
+    "n": 11,
+    "start": 35.261,
+    "end": 38.815,
+    "dur": 3.554,
+    "text": "Por isso, sempre peça ajuda a um adulto antes de salvar arquivos.",
+    "file": "raw/voice_11.wav"
+  },
+  {
+    "n": 12,
+    "start": 38.815,
+    "end": 41.82,
+    "dur": 3.005,
+    "text": "Hora do desafio desplugado com um adulto aí na sua casa!",
+    "file": "raw/voice_12.wav"
+  },
+  {
+    "n": 13,
+    "start": 41.82,
+    "end": 45.803,
+    "dur": 3.983,
+    "text": "Escolham três fotos especiais para guardar fora da internet, num pendrive.",
+    "file": "raw/voice_13.wav"
+  }
+]

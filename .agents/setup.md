@@ -56,7 +56,8 @@ Exceções que nada sobrescreve: as "Regras fixas" deste setup e os "Cuidados ob
   Nada de música comercial ou trilha de jogo/filme.
 - **Créditos:** `credits.md` lista cada trecho de vídeo e cada música (título, autor, licença, link),
   pronto para colar na descrição.
-- **Paradas obrigatórias:** o `diretor` leva ao usuário o pacote de aprovação (roteiro, trilha,
+- **Roteiro com SFX, Música, Legendas e Efeitos Especiais:** além do `script.txt` limpo (usado pelo TTS), todo projeto deve trazer um **Roteiro Técnico Audiovisual** (`roteiro-tecnico.md` e incluído no pacote de aprovação) mapeando frase a frase: (1) **Legenda** (com a palavra-chave destacada) e **Texto na Tela**, (2) **Efeitos Sonoros (SFX)** cravados nas palavras/ações, (3) **Música (BGM)** (clima, viradas, pausas dramáticas/*drops*), e (4) **Efeitos Especiais / VFX** (animação 3D/2D, zoom, pop de facetas, brilho, transição).
+- **Paradas obrigatórias:** o `diretor` leva ao usuário o pacote de aprovação (roteiro com SFX/música/VFX, trilha,
   plano visual e arte) antes de baixar e editar; aviso quando faltar material para uma cena.
 - **Auditoria:** nada chega ao usuário com auditoria de fatos `CORRIGIR`, e nada é entregue sem
   auditoria de direitos `OK`.

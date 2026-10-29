@@ -34,12 +34,15 @@
               pkgs.nodejs_24 # animations/ (Remotion); versão em animations/.nvmrc
               pkgs.chromium # render do Remotion sem baixar browser em runtime
               pkgs.yt-dlp # MCP `yt-dlp` (.mcp.json) e .agents/playbooks/yt-dlp.md
+              # pkgs.blender # instalado no sistema (/usr/bin/blender); descomente se quiser o do Nix
             ];
 
             env = {
               UV_PYTHON = "${python}/bin/python";
               UV_PYTHON_DOWNLOADS = "never";
               PUPPETEER_EXECUTABLE_PATH = "${pkgs.chromium}/bin/chromium";
+            } // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+              LOCALE_ARCHIVE = "${pkgs.glibcLocales}/lib/locale/locale-archive";
             };
 
             shellHook = ''
@@ -51,6 +54,9 @@
               # Desligue com MPT_NO_UPDATE_CHECK=1.
               [ -z "''${MPT_NO_UPDATE_CHECK:-}" ] && [ -x ./update.sh ] && ./update.sh --check --quiet || true
               echo "run: uv sync --frozen && ./webui.sh   (add --extra twelvelabs if needed)"
+              if [[ $- == *i* ]] && [ -z "''${BASH_EXECUTION_STRING:-}" ] && [[ "''${SHELL:-}" == */fish ]] && command -v fish >/dev/null 2>&1; then
+                exec fish
+              fi
             '';
           };
         });

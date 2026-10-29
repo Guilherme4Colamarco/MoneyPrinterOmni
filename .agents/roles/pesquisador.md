@@ -41,6 +41,11 @@ Antes de começar, leia `.agents/setup.md`, o perfil do canal (`.agents/perfis/<
    - Quando a fala descrever um processo, esquema ou dado, indique no roteiro/`sources.json`
      (`type: chart`) que a cena pede animação; o cacador-de-clipes a marca com `anim`.
    - Nada no roteiro sem lastro no `research.md`.
+4b. Escreva também `roteiro-tecnico.md` (o roteiro audiovisual completo cena a cena): para cada frase do `script.txt`, detalhe:
+   - **Legenda & Texto na Tela**: qual palavra-chave recebe destaque de cor e qual texto curto entra no topo;
+   - **Efeitos Sonoros (SFX)**: quais efeitos sonoros pontuam a frase (`whoosh`, `pop`, `ding`, `beep`, `buzz`, etc.) e em qual palavra/instante entram;
+   - **Música (BGM)**: qual clima está tocando, onde há *drop* (parada dramática) ou virada de energia;
+   - **Efeitos Especiais (VFX / Motion)**: movimento de câmera 3D, pulso de luz/LED, pop de facetas, zoom ou transição.
 5. Planeje a trilha junto com o roteiro e grave `music-plan.md`: divida o roteiro em blocos
    pela emoção de cada um e dê um clima de música a cada bloco. A música acompanha a virada da
    história (o clima vem do roteiro; gênero, timbre e energia vêm de `.agents/gostos.md`):
