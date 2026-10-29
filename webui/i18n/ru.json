@@ -257,6 +257,7 @@
     "No voices available for the selected TTS server. Please select another server.": "В выбранном сервисе озвучки нет доступных голосов. Выберите другой сервис.",
     "SiliconFlow API Key": "API-ключ SiliconFlow ([получить ключ](https://cloud.siliconflow.cn/account/ak))",
     "Gemini API Key": "API-ключ Google Gemini ([получить ключ](https://aistudio.google.com/app/apikey))",
+    "xAI API Key": "API-ключ xAI ([получить ключ](https://console.x.ai/))",
     "MiMo API Key": "API-ключ Xiaomi MiMo ([получить ключ](https://mimo.mi.com/docs/quick-start/first-api-call))",
     "MiniMax TTS API Key": "MiniMax TTS API Key ([China](https://platform.minimaxi.com/user-center/basic-information/interface-key) / [Global](https://platform.minimax.io/user-center/basic-information/interface-key))",
     "MiniMax TTS Endpoint": "MiniMax TTS Endpoint",

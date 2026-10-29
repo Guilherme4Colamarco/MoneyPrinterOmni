@@ -57,6 +57,7 @@ def _load_provider_signature(test_config, session_state=None):
     namespace = {
         "hashlib": hashlib,
         "config": test_config,
+        "voice": voice,
         "st": SimpleNamespace(
             session_state={} if session_state is None else session_state
         ),
@@ -196,6 +197,37 @@ def test_provider_signature_changes_when_api_key_changes():
     assert old_signature != new_signature
     assert "old-elevenlabs" not in str(old_signature)
     assert "new-elevenlabs" not in str(new_signature)
+
+
+def test_xai_tts_preview_signature_tracks_language_and_credentials():
+    """Língua e chave da xAI devem invalidar o cache de prévia."""
+    test_config = SimpleNamespace(xai={"api_key": "old-key", "language": "auto"})
+    provider_signature = _load_provider_signature(test_config)
+
+    with (
+        patch.object(voice, "get_xai_api_key", return_value="old-key"),
+        patch.object(voice, "get_xai_tts_language", return_value="auto"),
+    ):
+        original = provider_signature("xai-tts")
+
+    with (
+        patch.object(voice, "get_xai_api_key", return_value="old-key"),
+        patch.object(voice, "get_xai_tts_language", return_value="pt-BR"),
+    ):
+        changed_language = provider_signature("xai-tts")
+
+    with (
+        patch.object(voice, "get_xai_api_key", return_value="new-key"),
+        patch.object(voice, "get_xai_tts_language", return_value="pt-BR"),
+    ):
+        changed_key = provider_signature("xai-tts")
+
+    assert original != changed_language
+    assert changed_language != changed_key
+    assert original["language"] == "auto"
+    assert changed_language["language"] == "pt-BR"
+    assert "old-key" not in str(original)
+    assert "new-key" not in str(changed_key)
 
 
 def test_voxcpm_preview_signature_tracks_endpoint_model_and_credentials():

@@ -68,7 +68,7 @@ Refused combination: `--video-source local` with `--stop-at terms` exits with 2 
 
 | Flag | Default | Note |
 |---|---|---|
-| `--voice-name` | `[ui].voice_name`, else `zh-CN-XiaoxiaoNeural-Female` | `no-voice` for silent audio; prefixes `gemini:`, `mimo:`, `elevenlabs:`, `chatterbox:`, `kokoro:`, `voxcpm:` |
+| `--voice-name` | `[ui].voice_name`, else `zh-CN-XiaoxiaoNeural-Female` | `no-voice` for silent audio; prefixes `gemini:`, `xai:`, `mimo:`, `elevenlabs:`, `chatterbox:`, `kokoro:`, `voxcpm:` |
 | `--voice-volume V` | `[ui].voice_volume`, else `1.0` | number ≥ 0 |
 | `--voice-rate V` | `[ui].voice_rate`, else `1.0` | number > 0 |
 | `--custom-audio-file PATH` | none | MP3, WAV, M4A, AAC, FLAC or OGG. Skips TTS. A relative path is resolved from the current directory |

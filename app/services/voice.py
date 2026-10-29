@@ -47,6 +47,29 @@ MINIMAX_TTS_MODELS = (
     "speech-2.8-hd", "speech-2.8-turbo", "speech-2.6-hd", "speech-2.6-turbo",
     "speech-02-hd", "speech-02-turbo", "speech-01-hd", "speech-01-turbo",
 )
+# xAI Grok Voice TTS. Official unary REST endpoint and built-in voice catalog:
+# https://docs.x.ai/developers/model-capabilities/audio/text-to-speech
+# REST reference: https://docs.x.ai/developers/rest-api-reference/inference/voice
+XAI_TTS_URL = "https://api.x.ai/v1/tts"
+XAI_TTS_DEFAULT_VOICE = "eve"
+XAI_TTS_DEFAULT_LANGUAGE = "auto"
+XAI_TTS_MIN_SPEED = 0.7
+XAI_TTS_MAX_SPEED = 1.5
+XAI_TTS_MAX_TEXT_CHARS = 60_000
+XAI_TTS_MAX_AUDIO_BYTES = 50 * 1024 * 1024
+XAI_TTS_CONNECT_TIMEOUT_SECONDS = 10
+XAI_TTS_DEFAULT_TIMEOUT_SECONDS = 600
+# Official documented voices and their tone labels. Voice IDs are
+# case-insensitive. Custom console voice IDs can still be passed as xai:<id>.
+XAI_TTS_VOICES = (
+    ("eve", "Energetic"),
+    ("ara", "Friendly"),
+    ("rex", "Clear"),
+    ("sal", "Smooth"),
+    ("leo", "Authoritative"),
+)
+_XAI_TTS_VOICE_IDS = {voice_id.lower() for voice_id, _style in XAI_TTS_VOICES}
+
 GEMINI_TTS_VOICES = (
     ("Zephyr", "Bright"),
     ("Puck", "Upbeat"),
@@ -150,6 +173,17 @@ def get_siliconflow_voices() -> list[str]:
         f"siliconflow:{model}:{voice}-{gender}"
         for model, voice, gender in voices_with_gender
     ]
+
+
+def get_xai_voices() -> list[str]:
+    """
+    获取 xAI Grok Voice TTS 官方预置音色列表。
+
+    音色与风格标签来自官方文档，不请求网络，也不依赖 API Key。
+    下拉框格式与 Gemini 相同：``xai:<voice_id>-<Style>``。
+    来源：https://docs.x.ai/developers/model-capabilities/audio/text-to-speech
+    """
+    return [f"xai:{voice_id}-{style}" for voice_id, style in XAI_TTS_VOICES]
 
 
 def get_gemini_voices() -> list[str]:
@@ -449,6 +483,85 @@ def is_siliconflow_voice(voice_name: str):
     return voice_name.startswith("siliconflow:")
 
 
+def is_xai_voice(voice_name: str | None) -> bool:
+    """检查是否是 xAI Grok Voice TTS 的声音"""
+    return (voice_name or "").startswith("xai:")
+
+
+def parse_xai_voice_name(voice_name: str | None) -> str:
+    """
+    从 WebUI 下拉框值中提取 xAI ``voice_id``。
+
+    预置音色形如 ``xai:eve-Energetic``，只取官方 voice_id。
+    控制台自定义音色可能带连字符，因此未知 ID 保留冒号后的完整后缀。
+    """
+    if not is_xai_voice(voice_name or ""):
+        return ""
+    rest = (voice_name or "").split(":", 1)[1].strip()
+    if not rest:
+        return ""
+    head = rest.split("-", 1)[0].strip()
+    if head.lower() in _XAI_TTS_VOICE_IDS:
+        return head.lower()
+    return rest
+
+
+def get_xai_api_key() -> str:
+    """
+    读取 xAI Voice TTS 使用的 API Key。
+
+    顺序：``[xai].api_key`` → 环境变量 ``XAI_API_KEY`` → ``[app].grok_api_key``。
+    后一项复用已配置的 Grok LLM 密钥（同一 xAI Console）。从不硬编码密钥。
+    """
+    section = config.xai if hasattr(config, "xai") and isinstance(config.xai, dict) else {}
+    configured_key = str(section.get("api_key", "") or "").strip()
+    if configured_key:
+        return configured_key
+    env_key = os.getenv("XAI_API_KEY", "").strip()
+    if env_key:
+        return env_key
+    return str(config.app.get("grok_api_key", "") or "").strip()
+
+
+def get_xai_tts_language() -> str:
+    """xAI TTS 的 ``language`` 为必填；默认官方支持的 ``auto``。"""
+    section = config.xai if hasattr(config, "xai") and isinstance(config.xai, dict) else {}
+    configured = str(section.get("language", "") or "").strip()
+    return configured or XAI_TTS_DEFAULT_LANGUAGE
+
+
+def get_xai_tts_timeout() -> float:
+    """读取 ``[xai].timeout`` 作为读超时秒数；默认 600。"""
+    section = config.xai if hasattr(config, "xai") and isinstance(config.xai, dict) else {}
+    raw_timeout = section.get("timeout", XAI_TTS_DEFAULT_TIMEOUT_SECONDS)
+    try:
+        timeout = float(raw_timeout)
+    except (TypeError, ValueError):
+        timeout = XAI_TTS_DEFAULT_TIMEOUT_SECONDS
+    if not math.isfinite(timeout) or timeout <= 0:
+        timeout = XAI_TTS_DEFAULT_TIMEOUT_SECONDS
+    return timeout
+
+
+def _xai_retry_delay_seconds(attempt: int, headers) -> float:
+    """指数退避 ``2**attempt``；有合法 ``Retry-After`` 时改用该值。"""
+    delay = float(2 ** attempt)
+    raw = ""
+    if headers:
+        raw = str(
+            headers.get("Retry-After") or headers.get("retry-after") or ""
+        ).strip()
+    if not raw:
+        return delay
+    try:
+        parsed = float(raw)
+    except (TypeError, ValueError):
+        return delay
+    if math.isfinite(parsed) and parsed >= 0:
+        return parsed
+    return delay
+
+
 def is_gemini_voice(voice_name: str):
     """检查是否是Gemini TTS的声音"""
     return voice_name.startswith("gemini:")
@@ -535,6 +648,8 @@ def is_azure_v1_voice(voice_name: str | None) -> bool:
     if is_siliconflow_voice(name):
         return False
     if is_gemini_voice(name):
+        return False
+    if is_xai_voice(name):
         return False
     if is_mimo_voice(name):
         return False
@@ -692,6 +807,13 @@ def _single_tts(
         else:
             logger.error(f"Invalid gemini voice name format: {voice_name}")
             return None
+    elif is_xai_voice(voice_name):
+        # 格式: xai:voice-Style；自定义音色为 xai:<voice_id>
+        voice = parse_xai_voice_name(voice_name)
+        if voice:
+            return xai_tts(text, voice, voice_rate, voice_file, voice_volume)
+        logger.error(f"Invalid xAI voice name format: {voice_name}")
+        return None
     elif is_mimo_voice(voice_name):
         # 从voice_name中提取声音名称
         # 格式: mimo:voice-Gender；如果调用方已执行 parse_voice_name，
@@ -2050,6 +2172,305 @@ def gemini_tts(
                 os.unlink(temporary_audio)
             except OSError as cleanup_error:
                 logger.warning(f"could not remove Gemini staging audio: {cleanup_error}")
+
+
+def _xai_character_timestamps_to_words(audio_timestamps) -> list[tuple[str, float, float]]:
+    """
+    把 xAI TTS 的逐字时间戳聚合成词级 ``(text, start, end)``。
+
+    官方 ``with_timestamps=true`` 返回 ``audio_timestamps.graph_chars`` 与
+    对齐的 ``graph_times``（秒，``[start, end]``）：
+    https://docs.x.ai/developers/model-capabilities/audio/text-to-speech
+    字幕链路使用词/句边界，因此按空白切词；``[pause]`` 这类 speech tag
+    不进入字幕文本。
+    """
+    if not isinstance(audio_timestamps, dict):
+        return []
+    chars = audio_timestamps.get("graph_chars") or []
+    times = audio_timestamps.get("graph_times") or []
+    if not chars or not times or len(chars) != len(times):
+        return []
+
+    words: list[tuple[str, float, float]] = []
+    current_chars: list[str] = []
+    current_start: float | None = None
+    current_end: float | None = None
+
+    def _flush() -> None:
+        nonlocal current_chars, current_start, current_end
+        if not current_chars or current_start is None or current_end is None:
+            current_chars = []
+            current_start = None
+            current_end = None
+            return
+        token = "".join(current_chars).strip()
+        current_chars = []
+        start, end = current_start, current_end
+        current_start = None
+        current_end = None
+        if not token:
+            return
+        if token.startswith("[") and token.endswith("]") and len(token) > 2:
+            return
+        words.append((token, start, end))
+
+    for char, span in zip(chars, times):
+        if not isinstance(span, (list, tuple)) or len(span) < 2:
+            continue
+        try:
+            char_start = float(span[0])
+            char_end = float(span[1])
+        except (TypeError, ValueError, OverflowError):
+            continue
+        if not math.isfinite(char_start) or not math.isfinite(char_end):
+            continue
+        text = char if isinstance(char, str) else str(char)
+        if text.isspace() or text == "":
+            _flush()
+            continue
+        if current_start is None:
+            current_start = char_start
+        current_chars.append(text)
+        current_end = char_end
+    _flush()
+    return words
+
+
+def _populate_submaker_from_xai_timestamps(
+    text: str,
+    audio_timestamps,
+    audio_duration_seconds: float,
+) -> SubMaker:
+    """
+    用 xAI 原生逐字时间戳填充词级 ``subs/offset``。
+
+    ``create_subtitle()`` 随后会按脚本断句聚合成句级 SRT。时间戳缺失或
+    无法解析时，退回项目已有的按字符比例分配方案，而不是再调 xAI STT：
+    TTS 已经对齐原文，STT 会重新转写，既贵又可能偏离脚本。
+    """
+    words = _xai_character_timestamps_to_words(audio_timestamps)
+    if not words:
+        sub_maker = ensure_legacy_submaker_fields(SubMaker())
+        return populate_legacy_submaker_with_full_text(
+            sub_maker=sub_maker,
+            text=text,
+            audio_duration_seconds=audio_duration_seconds,
+        )
+
+    sub_maker = ensure_legacy_submaker_fields(SubMaker())
+    for word, start, end in words:
+        start_100ns = max(int(round(start * 10_000_000)), 0)
+        end_100ns = max(int(round(end * 10_000_000)), start_100ns + 1)
+        sub_maker.subs.append(word)
+        sub_maker.offset.append((start_100ns, end_100ns))
+    return sub_maker
+
+
+def _decode_xai_tts_response(response) -> tuple[bytes, dict | None, float | None]:
+    """
+    解析 xAI TTS 响应。
+
+    ``with_timestamps=false`` 时正文是原始音频字节；为 ``true`` 时变成 JSON
+    信封：``audio``（base64）、``duration``、``audio_timestamps``。
+    """
+    raw = response.content or b""
+    content_type = (
+        (getattr(response, "headers", {}) or {}).get("Content-Type") or ""
+    ).split(";", 1)[0].strip().lower()
+    looks_json = content_type == "application/json" or (
+        raw.lstrip()[:1] in {b"{", b"["}
+    )
+    if not looks_json:
+        return raw, None, None
+
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError, TypeError) as exc:
+        raise ValueError("xAI TTS returned invalid JSON timestamp envelope") from exc
+    if not isinstance(payload, dict):
+        raise ValueError("xAI TTS JSON envelope must be an object")
+    audio_b64 = payload.get("audio")
+    if not audio_b64:
+        raise ValueError("xAI TTS JSON envelope is missing audio")
+    try:
+        audio_bytes = base64.b64decode(audio_b64, validate=False)
+    except (ValueError, TypeError) as exc:
+        raise ValueError("xAI TTS audio is not valid base64") from exc
+    duration = payload.get("duration")
+    try:
+        duration_seconds = float(duration) if duration is not None else None
+    except (TypeError, ValueError, OverflowError):
+        duration_seconds = None
+    if duration_seconds is not None and (
+        not math.isfinite(duration_seconds) or duration_seconds <= 0
+    ):
+        duration_seconds = None
+    timestamps = payload.get("audio_timestamps")
+    if not isinstance(timestamps, dict):
+        timestamps = None
+    return audio_bytes, timestamps, duration_seconds
+
+
+def xai_tts(
+    text: str,
+    voice_id: str,
+    voice_rate: float,
+    voice_file: str,
+    voice_volume: float = 1.0,
+) -> Union[SubMaker, None]:
+    """
+    使用 xAI Grok Voice TTS 生成语音。
+
+    官方 unary 接口：``POST https://api.x.ai/v1/tts``，Bearer ``XAI_API_KEY``。
+    请求 ``with_timestamps=true`` 以拿到逐字时间轴，再聚合成词/句字幕。
+    文档：https://docs.x.ai/developers/model-capabilities/audio/text-to-speech
+    """
+    del voice_volume  # 音量在最终混音阶段应用，xAI TTS 没有对应字段。
+    text = (text or "").strip()
+    if not text:
+        logger.error("xAI TTS text is empty")
+        return None
+    if len(text) > XAI_TTS_MAX_TEXT_CHARS:
+        logger.error(
+            f"xAI TTS text exceeds the {XAI_TTS_MAX_TEXT_CHARS} character limit"
+        )
+        return None
+
+    api_key = get_xai_api_key()
+    if not api_key:
+        logger.error("xAI API key is not set")
+        return None
+
+    voice_id = (voice_id or "").strip() or XAI_TTS_DEFAULT_VOICE
+    language = get_xai_tts_language()
+    try:
+        speed = float(voice_rate) if voice_rate is not None else 1.0
+    except (TypeError, ValueError, OverflowError):
+        logger.error("xAI TTS speech speed must be a finite number")
+        return None
+    if not math.isfinite(speed):
+        logger.error("xAI TTS speech speed must be a finite number")
+        return None
+    if speed < XAI_TTS_MIN_SPEED or speed > XAI_TTS_MAX_SPEED:
+        clamped = max(XAI_TTS_MIN_SPEED, min(XAI_TTS_MAX_SPEED, speed))
+        logger.warning(
+            f"xAI TTS speed {speed} is outside {XAI_TTS_MIN_SPEED}-{XAI_TTS_MAX_SPEED}; "
+            f"clamping to {clamped}"
+        )
+        speed = clamped
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "text": text,
+        "voice_id": voice_id,
+        "language": language,
+        "speed": speed,
+        "with_timestamps": True,
+        "output_format": {
+            "codec": "mp3",
+            "sample_rate": 24000,
+            "bit_rate": 128000,
+        },
+    }
+    _NON_RETRYABLE_CODES = {400, 401, 403, 404, 422}
+
+    for i in range(3):
+        response = None
+        temp_path = None
+        try:
+            logger.info(f"start xAI tts, voice_id: {voice_id}, try: {i + 1}")
+            ensure_file_path_exists(voice_file)
+            response = trace_http_call(
+                "POST",
+                requests.post,
+                XAI_TTS_URL,
+                json=payload,
+                headers=headers,
+                timeout=(
+                    XAI_TTS_CONNECT_TIMEOUT_SECONDS,
+                    get_xai_tts_timeout(),
+                ),
+                allow_redirects=False,
+            )
+            if 300 <= response.status_code < 400:
+                logger.error("xAI TTS returned a redirect; stop paid retries")
+                return None
+            if response.status_code != 200:
+                error_text = (response.text or "")[:200]
+                if response.status_code in _NON_RETRYABLE_CODES:
+                    logger.error(
+                        f"xAI TTS failed (non-retryable) — voice_id: {voice_id}, "
+                        f"status: {response.status_code}, error: {error_text}"
+                    )
+                    return None
+                logger.error(
+                    f"xAI tts failed with status {response.status_code}: {error_text}"
+                )
+                time.sleep(_xai_retry_delay_seconds(i, response.headers))
+                continue
+
+            audio_bytes, timestamps, payload_duration = _decode_xai_tts_response(
+                response
+            )
+            if not audio_bytes:
+                logger.error("xAI TTS returned no audio data")
+                return None
+            if len(audio_bytes) > XAI_TTS_MAX_AUDIO_BYTES:
+                logger.error("xAI TTS audio exceeds the 50 MB limit")
+                return None
+
+            descriptor, temp_path = tempfile.mkstemp(
+                prefix=".xai-tts-",
+                suffix=os.path.splitext(voice_file)[1] or ".mp3",
+                dir=os.path.dirname(os.path.abspath(voice_file)),
+            )
+            with os.fdopen(descriptor, "wb") as output:
+                output.write(audio_bytes)
+
+            _validate_remote_tts_audio(temp_path)
+            audio_clip = AudioFileClip(temp_path)
+            try:
+                file_duration = float(audio_clip.duration)
+            finally:
+                audio_clip.close()
+            if not math.isfinite(file_duration) or file_duration <= 0:
+                logger.error("xAI TTS returned audio with invalid duration")
+                return None
+            audio_duration = payload_duration or file_duration
+
+            os.replace(temp_path, voice_file)
+            temp_path = None
+            logger.success(f"xAI tts succeeded: {voice_file}")
+            return _populate_submaker_from_xai_timestamps(
+                text=text,
+                audio_timestamps=timestamps,
+                audio_duration_seconds=audio_duration,
+            )
+        except requests.exceptions.Timeout as e:
+            logger.warning(f"xAI tts timed out, retrying: {e}")
+        except requests.exceptions.RequestException as e:
+            logger.error(
+                "xAI tts result is unconfirmed after a transport error; "
+                f"stop paid retries: {type(e).__name__}"
+            )
+            return None
+        except Exception as e:
+            logger.error(f"xAI tts failed: {str(e)}")
+            if response is not None and getattr(response, "status_code", None) == 200:
+                return None
+        finally:
+            if temp_path is not None:
+                try:
+                    os.remove(temp_path)
+                except OSError as exc:
+                    logger.warning(f"failed to remove xAI TTS temp file: {exc}")
+            if response is not None:
+                response.close()
+
+    return None
 
 
 def mimo_tts(
